@@ -12,6 +12,7 @@
   "dependencies": {
     "alea": "^1.0.1",
     "d3-contour": "^4.0.2",
+    "d3-delaunay": "^6.0.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "simplex-noise": "^4.0.3",
@@ -21,6 +22,7 @@
     "@eslint/js": "^9.39.1",
     "@tailwindcss/vite": "^4.1.18",
     "@types/d3-contour": "^3.0.6",
+    "@types/d3-delaunay": "^6.0.4",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

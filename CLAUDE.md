@@ -14,6 +14,7 @@ The design draws from Endfield's packaging, merchandise, and in-game UI (referen
 - **Topographic contour lines** -- Simplex-noise heightmaps produce organic contour lines in mono, elevation-gradient, or fade color modes. Contour line color is independently configurable from the accent color. An optional glow effect (via Canvas `shadowBlur`) can be layered on top of any color mode, controlled by an intensity slider.
 - **Mixed-language text** -- Japanese labels (e.g. "暴雨予警", "地形調査", "探査レベル") and English labels ("TERRAIN SURVEY", "VALLEY PASS", "MOUNTAIN CONTOUR") are scattered as annotations. CJK text uses Noto Sans JP / system CJK fonts; technical readouts use a clean sans-serif.
 - **Industrial marks** -- CMYK registration dots, hazard stripes, yellow accent bars with chevron arrows stamped "ARKNIGHTS: ENDFIELD", diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched), corner brackets, center crosshairs, and edge midpoint ticks.
+- **Territory zones** -- Irregular angular polygons generated via Voronoi tessellation (d3-delaunay), filled with diagonal crosshatch lines. Seed points are biased toward heightmap peaks/valleys so zone boundaries semi-align with contour features. Zones are merged using contour-threshold-aligned elevation bands with gradient-aware constraints, then isolated so no two zones share edges.
 - **HUD overlays** -- Grid lines, scan lines, reticle targets, data panels (with translucent background) with coordinates/elevation/frequency readouts, and corner metadata blocks.
 
 ### The Endfield Font
@@ -35,7 +36,7 @@ The app is a single full-viewport layout with two regions:
 3. **Theme** -- Light/dark toggle and accent color picker (8 preset swatches + custom color input).
 4. **Terrain Parameters** -- Seed text input plus sliders for noise scale, octaves, persistence, and contour levels.
 5. **Contour Style** -- Tri-state selector for contour color mode (mono, elevation, fade), contour line color picker (8 swatches + custom), and glow intensity slider.
-6. **Layers** -- Ten independent toggles controlling which overlay layers are drawn (grid, annotations, Japanese text, frames, accents, scan lines, data panel, reticles, corner data, hero text).
+6. **Layers** -- Eleven independent toggles controlling which overlay layers are drawn (grid, annotations, Japanese text, frames, accents, scan lines, data panel, reticles, corner data, zones, hero text).
 7. **Action Buttons** -- Randomize (re-rolls all parameters, colors, toggles, and contour mode), Export PNG, Copy Link.
 
 ### Preset System
@@ -68,6 +69,7 @@ Presets do NOT override resolution or seed, so users can apply a style then fine
 - **State**: Zustand v5 (flat store, no middleware)
 - **Noise**: simplex-noise v4 (`createNoise2D`), alea v1 (seeded PRNG)
 - **Contours**: d3-contour v4 (marching squares)
+- **Zones**: d3-delaunay v6 (Voronoi tessellation)
 - **Rendering**: Canvas 2D API (no WebGL)
 - **Lint**: ESLint 9, typescript-eslint
 
@@ -92,6 +94,7 @@ src/
       cornerData.ts    # Environmental readouts, coordinates, classification stamp
       frames.ts        # Border rectangle, corner brackets, center crosshair, edge ticks
       dataPanel.ts     # Structured data panel (bottom-right) with translucent background
+      zones.ts         # Territory zone polygons with crosshatch fill (Voronoi + heightmap)
       accents.ts       # Yellow bars with chevrons, hazard stripes, CMYK dots, hatching patches, scattered crosshairs, diamond markers
   hooks/
     useWallpaperConfig.ts   # Zustand store + defaults + resolution presets
@@ -138,13 +141,14 @@ src/
 | 2 | **grid** | `grid.ts` | `showGrid` | Major (1/8 width) and minor (1/32 width) grid lines with alphanumeric coordinate labels at intersections |
 | 3 | **scanLines** | `scanLines.ts` | `showScanLines` | 3-6 faint horizontal + 2-4 vertical lines at random positions, plus one dashed accent line |
 | 4 | **contourLines** | `contourLines.ts` | always | Draws all contour paths scaled from grid-space to canvas-space. Every 5th contour is an "index" contour (thicker). Color varies by `contourColorMode`. Optional glow via `contourGlow` intensity (Canvas `shadowBlur` in accent color) |
-| 5 | **heroText** | `heroText.ts` | `showHeroText` | A single large word rendered as a very faint watermark (6% opacity) with shadow echo and accent underline. Uses the Endfield font |
-| 6 | **annotations** | `annotations.ts` | `showAnnotations` | 10-16 scattered text labels chosen from EN, JP (if CJK enabled), and data-format pools. Zone-based placement across a 4x3 grid prevents clustering |
-| 7 | **reticles** | `reticles.ts` | `showReticles` | 2-4 tactical targeting symbols (circle, diamond, or square variant) biased toward canvas corners |
-| 8 | **cornerData** | `cornerData.ts` | `showCornerData` | Top-left: environmental readouts. Top-right: lat/lon coordinates + grid reference. Bottom-left: classification ID stamp |
-| 9 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
-| 10 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: translucent background, accent-colored header bar, 5-7 key/value rows, optional CJK footer |
-| 11 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with chevron arrows and label text, hazard stripe patch, CMYK registration dots, diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched) |
+| 5 | **zones** | `zones.ts` | `showZones` | 3-5 irregular angular territory polygons with diagonal crosshatch fill and border strokes. Generated via Voronoi tessellation with terrain-biased seed points, contour-aligned banding, and gradient-aware merging. Zones are isolated (no shared edges). 1-2 zones highlighted with accent border, each labeled from `EN_LABELS` |
+| 6 | **heroText** | `heroText.ts` | `showHeroText` | A single large word rendered as a very faint watermark (6% opacity) with shadow echo and accent underline. Uses the Endfield font |
+| 7 | **annotations** | `annotations.ts` | `showAnnotations` | 10-16 scattered text labels chosen from EN, JP (if CJK enabled), and data-format pools. Zone-based placement across a 4x3 grid prevents clustering |
+| 8 | **reticles** | `reticles.ts` | `showReticles` | 2-4 tactical targeting symbols (circle, diamond, or square variant) biased toward canvas corners |
+| 9 | **cornerData** | `cornerData.ts` | `showCornerData` | Top-left: environmental readouts. Top-right: lat/lon coordinates + grid reference. Bottom-left: classification ID stamp |
+| 10 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
+| 11 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: translucent background, accent-colored header bar, 5-7 key/value rows, optional CJK footer |
+| 12 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with chevron arrows and label text, hazard stripe patch, CMYK registration dots, diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched) |
 
 ## Contour Color Modes
 

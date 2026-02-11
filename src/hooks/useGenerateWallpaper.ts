@@ -30,6 +30,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
     showDataPanel,
     showReticles,
     showCornerData,
+    showZones,
     showHeroText,
   } = useWallpaperConfig();
 
@@ -67,6 +68,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
         showDataPanel,
         showReticles,
         showCornerData,
+        showZones,
         showHeroText,
       };
 
@@ -119,6 +121,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
     showDataPanel,
     showReticles,
     showCornerData,
+    showZones,
     showHeroText,
   ]);
 

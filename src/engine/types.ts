@@ -35,6 +35,7 @@ export interface WallpaperConfig {
   showDataPanel: boolean;
   showReticles: boolean;
   showCornerData: boolean;
+  showZones: boolean;
   showHeroText: boolean;
 }
 

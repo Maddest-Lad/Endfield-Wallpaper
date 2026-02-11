@@ -16,6 +16,7 @@ import { drawCornerData } from './layers/cornerData';
 import { drawHeroText } from './layers/heroText';
 import { drawDataPanel } from './layers/dataPanel';
 import { drawAccents } from './layers/accents';
+import { drawZones } from './layers/zones';
 
 const GRID_SIZE = 250;
 
@@ -85,6 +86,10 @@ export async function renderWallpaper(
   }
 
   drawContourLines(rc);
+
+  if (config.showZones) {
+    drawZones(rc);
+  }
 
   if (config.showHeroText) {
     drawHeroText(rc);

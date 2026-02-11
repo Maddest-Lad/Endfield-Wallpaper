@@ -12,6 +12,7 @@ export function TextToggles() {
     showDataPanel,
     showReticles,
     showCornerData,
+    showZones,
     showHeroText,
     setConfig,
   } = useWallpaperConfig();
@@ -27,6 +28,7 @@ export function TextToggles() {
       <Toggle label="Data Panel" checked={showDataPanel} onChange={(v) => setConfig({ showDataPanel: v })} />
       <Toggle label="Reticles" checked={showReticles} onChange={(v) => setConfig({ showReticles: v })} />
       <Toggle label="Corner Data" checked={showCornerData} onChange={(v) => setConfig({ showCornerData: v })} />
+      <Toggle label="Zones" checked={showZones} onChange={(v) => setConfig({ showZones: v })} />
       <Toggle label="Hero Text" checked={showHeroText} onChange={(v) => setConfig({ showHeroText: v })} />
     </div>
   );

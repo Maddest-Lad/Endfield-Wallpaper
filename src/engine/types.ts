@@ -1,6 +1,6 @@
 export type ThemeMode = 'light' | 'dark';
 
-export type ResolutionPreset = '1080p' | '1440p' | '4k' | 'ultrawide' | 'discord' | 'twitter' | 'linkedin' | 'youtube' | 'facebook' | 'device' | 'custom';
+export type ResolutionPreset = '1080p' | '1440p' | '4k' | 'ultrawide' | 'discord' | 'twitter' | 'linkedin' | 'youtube' | 'facebook' | 'twitch' | 'device' | 'custom';
 
 export type ContourColorMode = 'mono' | 'elevation' | 'fade';
 

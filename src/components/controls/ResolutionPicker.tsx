@@ -7,6 +7,7 @@ const devW = Math.round(screen.width * dpr);
 const devH = Math.round(screen.height * dpr);
 
 const presetOptions = [
+  { value: 'device', label: `${devW} x ${devH} — YOUR DEVICE` },
   { value: '1080p', label: '1920 x 1080 — FHD' },
   { value: '1440p', label: '2560 x 1440 — QHD' },
   { value: '4k', label: '3840 x 2160 — 4K' },
@@ -16,7 +17,7 @@ const presetOptions = [
   { value: 'linkedin', label: '1584 x 396 — LINKEDIN' },
   { value: 'youtube', label: '2560 x 1440 — YOUTUBE' },
   { value: 'facebook', label: '1640 x 624 — FACEBOOK' },
-  { value: 'device', label: `${devW} x ${devH} — YOUR DEVICE` },
+  { value: 'twitch', label: '1200 x 480 — TWITCH' },
   { value: 'custom', label: 'CUSTOM' },
 ];
 

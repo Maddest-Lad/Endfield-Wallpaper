@@ -21,6 +21,7 @@ const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: numb
   linkedin: { width: 1584, height: 396 },
   youtube: { width: 2560, height: 1440 },
   facebook: { width: 1640, height: 624 },
+  twitch: { width: 1200, height: 480 },
   device: null,
   custom: null,
 };

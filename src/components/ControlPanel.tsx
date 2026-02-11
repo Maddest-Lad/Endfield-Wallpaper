@@ -26,19 +26,32 @@ function Divider() {
   );
 }
 
-export function ControlPanel() {
+function PanelContent({ onClose }: { onClose?: () => void }) {
   const randomize = useWallpaperConfig((s) => s.randomize);
 
   return (
-    <aside className="w-72 border-l border-ef-border bg-white flex flex-col h-full font-sans">
-      {/* Header — dark background matching data panel header style */}
-      <div className="bg-ef-dark px-4 py-3">
-        <h1 className="font-endfield text-base uppercase tracking-[0.25em] text-ef-light">
-          ENDFIELD
-        </h1>
-        <p className="text-[9px] text-ef-light/50 uppercase tracking-[0.2em] mt-0.5">
-          Terrain Generator // v1.0
-        </p>
+    <>
+      {/* Header */}
+      <div className="bg-ef-dark px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 className="font-endfield text-base uppercase tracking-[0.25em] text-ef-light">
+            ENDFIELD
+          </h1>
+          <p className="text-[9px] text-ef-light/50 uppercase tracking-[0.2em] mt-0.5">
+            Terrain Generator // v1.0
+          </p>
+        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden w-8 h-8 flex items-center justify-center text-ef-light/60 hover:text-ef-light transition-colors cursor-pointer"
+            aria-label="Close panel"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 3l10 10M13 3L3 13" />
+            </svg>
+          </button>
+        )}
       </div>
       <div className="h-1 bg-ef-yellow" />
 
@@ -79,7 +92,7 @@ export function ControlPanel() {
         </div>
       </div>
 
-      {/* Footer — dark to match header */}
+      {/* Footer */}
       <div className="bg-ef-dark px-4 py-2 space-y-1.5">
         <p className="text-[7px] text-ef-light/25 text-center leading-relaxed">
           Unofficial fan project derived from Arknights: Endfield.
@@ -99,6 +112,37 @@ export function ControlPanel() {
           (CC BY-NC 4.0)
         </p>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function ControlPanel({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
+  return (
+    <>
+      {/* Desktop: static sidebar */}
+      <aside className="hidden md:flex w-72 border-l border-ef-border bg-white flex-col h-full font-sans">
+        <PanelContent />
+      </aside>
+
+      {/* Mobile: slide-out drawer */}
+      <div className="md:hidden">
+        {/* Backdrop */}
+        {isOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-30"
+            onClick={onClose}
+          />
+        )}
+
+        {/* Drawer */}
+        <aside
+          className={`fixed top-0 right-0 h-full w-72 bg-white flex flex-col font-sans z-40 transition-transform duration-300 ease-in-out ${
+            isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <PanelContent onClose={onClose} />
+        </aside>
+      </div>
+    </>
   );
 }

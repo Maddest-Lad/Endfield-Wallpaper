@@ -23,7 +23,7 @@ export function WallpaperCanvas() {
   const rendering = useGenerateWallpaper(canvasRef, containerSize);
 
   return (
-    <div ref={containerRef} className="relative flex-1 flex items-center justify-center p-6 overflow-hidden">
+    <div ref={containerRef} className="relative flex-1 flex items-center justify-center p-2 md:p-6 overflow-hidden">
       <canvas
         ref={canvasRef}
         className="shadow-[0_4px_24px_rgba(0,0,0,0.25)]"

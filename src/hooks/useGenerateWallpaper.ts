@@ -86,27 +86,14 @@ export function useGenerateWallpaper(
         showHeroText,
       };
 
-      // Fit the wallpaper aspect ratio into the available container space.
-      // The container already accounts for padding via its content rect.
+      // Preview fills the container, decoupled from export aspect ratio.
+      // Export still renders at the exact configured resolution.
       const dpr = window.devicePixelRatio || 1;
-      const aspect = width / height;
-      let cssW: number, cssH: number;
-
-      if (containerSize.w / containerSize.h > aspect) {
-        // Container is wider than wallpaper — height-constrained
-        cssH = Math.floor(containerSize.h);
-        cssW = Math.floor(cssH * aspect);
-      } else {
-        // Container is taller than wallpaper — width-constrained
-        cssW = Math.floor(containerSize.w);
-        cssH = Math.floor(cssW / aspect);
-      }
-
-      // Never render larger than the actual wallpaper resolution
-      if (cssW > width || cssH > height) {
-        cssW = width;
-        cssH = height;
-      }
+      const MAX_PREVIEW = 1200;
+      const longest = Math.max(containerSize.w, containerSize.h);
+      const scale = longest > MAX_PREVIEW ? MAX_PREVIEW / longest : 1;
+      const cssW = Math.floor(containerSize.w * scale);
+      const cssH = Math.floor(containerSize.h * scale);
 
       const previewConfig: WallpaperConfig = {
         ...config,

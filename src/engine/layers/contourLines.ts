@@ -6,10 +6,16 @@ export function drawContourLines(rc: RenderContext): void {
   const scaleX = width / gridWidth;
   const scaleY = height / gridHeight;
   const mode = config.contourColorMode;
+  const glow = config.contourGlow ?? 0;
   const total = contourData.length;
 
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
+
+  // Apply glow as a layer on top of any color mode
+  if (glow > 0) {
+    ctx.shadowColor = palette.accent;
+  }
 
   for (let i = 0; i < total; i++) {
     const contour = contourData[i];
@@ -24,8 +30,6 @@ export function drawContourLines(rc: RenderContext): void {
     } else if (mode === 'fade') {
       ctx.strokeStyle = isIndex ? palette.contourIndex : palette.contourLine;
       ctx.lineWidth = isIndex ? 1.4 : 0.6;
-      // Fade: higher elevation contours (center/dense regions) are more opaque
-      // Lower contours fade out
       ctx.globalAlpha = 0.15 + 0.85 * t;
     } else {
       // mono (default)
@@ -34,10 +38,17 @@ export function drawContourLines(rc: RenderContext): void {
       ctx.globalAlpha = 1;
     }
 
+    // Glow: shadowBlur scales with intensity, index contours glow stronger
+    if (glow > 0) {
+      ctx.shadowBlur = glow * (isIndex ? 12 : 6);
+    }
+
     drawContourPath(ctx, contour, scaleX, scaleY);
   }
 
   ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
 }
 
 function lerpColor(a: string, b: string, t: number): string {

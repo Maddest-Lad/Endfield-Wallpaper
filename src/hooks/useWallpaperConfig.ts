@@ -26,6 +26,8 @@ const DEFAULTS: WallpaperConfig = {
   lacunarity: 2.0,
   contourLevels: 20,
   contourColorMode: 'mono',
+  contourGlow: 0,
+  contourColor: '#888888',
   showGrid: true,
   showAnnotations: true,
   showCjkText: true,

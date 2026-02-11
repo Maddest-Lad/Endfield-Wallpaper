@@ -19,6 +19,8 @@ function buildConfig(store: ReturnType<typeof useWallpaperConfig>): WallpaperCon
     lacunarity: store.lacunarity,
     contourLevels: store.contourLevels,
     contourColorMode: store.contourColorMode,
+    contourGlow: store.contourGlow,
+    contourColor: store.contourColor,
     showGrid: store.showGrid,
     showAnnotations: store.showAnnotations,
     showCjkText: store.showCjkText,

@@ -30,6 +30,7 @@ function buildConfig(store: ReturnType<typeof useWallpaperConfig>): WallpaperCon
     showDataPanel: store.showDataPanel,
     showReticles: store.showReticles,
     showCornerData: store.showCornerData,
+    showZones: store.showZones,
     showHeroText: store.showHeroText,
   };
 }

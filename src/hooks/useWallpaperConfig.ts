@@ -44,6 +44,7 @@ const DEFAULTS: WallpaperConfig = {
   showDataPanel: true,
   showReticles: true,
   showCornerData: true,
+  showZones: true,
   showHeroText: false,
 };
 
@@ -98,6 +99,7 @@ export const useWallpaperConfig = create<WallpaperStore>((set) => ({
         showDataPanel: Math.random() > 0.4,
         showReticles: Math.random() > 0.4,
         showCornerData: Math.random() > 0.4,
+        showZones: Math.random() > 0.4,
         showHeroText: Math.random() > 0.7,
       };
     }),

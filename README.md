@@ -2,6 +2,9 @@
 
 A browser-based wallpaper and map generator inspired by the visual style of Arknights: Endfield. It creates topographic terrain maps layered with industrial HUD graphics, mixed Japanese and English labels, and print-style markings.
 
+![Example Generation](example.png)
+
+
 ## Features
 
 - Procedural terrain using simplex noise with multiple color and glow options

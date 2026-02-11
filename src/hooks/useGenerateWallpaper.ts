@@ -35,6 +35,10 @@ export function useGenerateWallpaper(
     showCornerData,
     showZones,
     showHeroText,
+    logoVariant,
+    logoScale,
+    logoOpacity,
+    logoColor,
   } = useWallpaperConfig();
 
   const [rendering, setRendering] = useState(false);
@@ -84,6 +88,10 @@ export function useGenerateWallpaper(
         showCornerData,
         showZones,
         showHeroText,
+        logoVariant,
+        logoScale,
+        logoOpacity,
+        logoColor,
       };
 
       // Preview shows exactly what the export will produce, scaled to fit
@@ -161,6 +169,10 @@ export function useGenerateWallpaper(
     showCornerData,
     showZones,
     showHeroText,
+    logoVariant,
+    logoScale,
+    logoOpacity,
+    logoColor,
   ]);
 
   // Always point to the latest doRender so the dirty-flag retry

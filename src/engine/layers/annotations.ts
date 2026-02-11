@@ -1,7 +1,9 @@
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
 import { randomInRange, randomInt, shuffle } from '../../utils/random';
-import { JP_LABELS, EN_LABELS, DATA_LABELS } from '../../data/textContent';
+import { JP_LABELS, EN_LABELS, DATA_LABELS, ENDFIELD_LABELS } from '../../data/textContent';
+
+type FontStyle = 'standard' | 'endfield' | 'cjk';
 
 interface Annotation {
   text: string;
@@ -10,6 +12,7 @@ interface Annotation {
   size: number;
   opacity: number;
   bracketed: boolean;
+  fontStyle: FontStyle;
 }
 
 export function drawAnnotations(rc: RenderContext): void {
@@ -18,7 +21,7 @@ export function drawAnnotations(rc: RenderContext): void {
   const annotations = generateAnnotationLayout(rc);
 
   for (const ann of annotations) {
-    ctx.font = fontForText(ann.text, ann.size);
+    ctx.font = fontForText(ann.text, ann.size, false, ann.fontStyle === 'cjk' ? 'auto' : ann.fontStyle);
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
 
@@ -46,15 +49,22 @@ export function drawAnnotations(rc: RenderContext): void {
   ctx.globalAlpha = 1;
 }
 
+interface TaggedLabel {
+  text: string;
+  fontStyle: FontStyle;
+}
+
 function generateAnnotationLayout(rc: RenderContext): Annotation[] {
-  const { width, height, rng, config } = rc;
+  const { width, height, rng } = rc;
   const annotations: Annotation[] = [];
 
-  // Build pool based on toggles
-  let pool: string[] = [...EN_LABELS, ...DATA_LABELS];
-  if (config.showCjkText) {
-    pool = [...pool, ...JP_LABELS];
-  }
+  // Build tagged pool — always include all three text styles
+  const pool: TaggedLabel[] = [
+    ...EN_LABELS.map((t) => ({ text: t, fontStyle: 'standard' as const })),
+    ...DATA_LABELS.map((t) => ({ text: t, fontStyle: 'standard' as const })),
+    ...ENDFIELD_LABELS.map((t) => ({ text: t, fontStyle: 'endfield' as const })),
+    ...JP_LABELS.map((t) => ({ text: t, fontStyle: 'cjk' as const })),
+  ];
 
   const shuffled = shuffle(rng, pool);
   const count = randomInt(rng, 10, 16);
@@ -78,12 +88,13 @@ function generateAnnotationLayout(rc: RenderContext): Annotation[] {
     const bracketed = rng() > 0.65;
 
     annotations.push({
-      text: shuffled[i],
+      text: shuffled[i].text,
       x,
       y,
       size,
       opacity,
       bracketed,
+      fontStyle: shuffled[i].fontStyle,
     });
   }
 

@@ -86,16 +86,28 @@ export function useGenerateWallpaper(
         showHeroText,
       };
 
-      // Preview fills the container, decoupled from export aspect ratio.
-      // Export still renders at the exact configured resolution.
+      // Preview shows exactly what the export will produce, scaled to fit
+      // the container while preserving the configured aspect ratio.
       const dpr = window.devicePixelRatio || 1;
+      const aspect = width / height;
+      let cssW: number, cssH: number;
 
-      // Render at a capped resolution for performance, but CSS-fill the container.
+      if (containerSize.w / containerSize.h > aspect) {
+        // Container is wider than config — height-constrained
+        cssH = Math.floor(containerSize.h);
+        cssW = Math.floor(cssH * aspect);
+      } else {
+        // Container is taller than config — width-constrained
+        cssW = Math.floor(containerSize.w);
+        cssH = Math.floor(cssW / aspect);
+      }
+
+      // Cap render resolution for performance (preview only)
       const MAX_PREVIEW = 1200;
-      const longest = Math.max(containerSize.w, containerSize.h);
+      const longest = Math.max(cssW, cssH);
       const renderScale = longest > MAX_PREVIEW ? MAX_PREVIEW / longest : 1;
-      const renderW = Math.floor(containerSize.w * renderScale);
-      const renderH = Math.floor(containerSize.h * renderScale);
+      const renderW = Math.floor(cssW * renderScale);
+      const renderH = Math.floor(cssH * renderScale);
 
       const previewConfig: WallpaperConfig = {
         ...config,
@@ -105,9 +117,9 @@ export function useGenerateWallpaper(
 
       await renderWallpaper(canvas, previewConfig, dpr);
 
-      // CSS fills the container; slight upscale on large displays is fine for a preview
-      canvas.style.width = `${Math.floor(containerSize.w)}px`;
-      canvas.style.height = `${Math.floor(containerSize.h)}px`;
+      // CSS size matches the fitted dimensions — no stretching
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
 
       // Silently update URL hash for permalink sharing
       updateUrlHash(config);

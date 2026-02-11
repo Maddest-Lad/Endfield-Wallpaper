@@ -31,7 +31,7 @@ The app is a responsive single-viewport layout that adapts to screen size using 
 
 **Mobile / tablet (< 1024px):** The canvas takes the full viewport. The control panel is hidden behind a **slide-out drawer** triggered by a floating yellow hamburger button (fixed, bottom-right, `z-20`). The drawer slides in from the right as a fixed overlay (`z-40`) with a semi-transparent backdrop (`z-30`). Close via the X button in the drawer header or by tapping the backdrop. Implemented in `ControlPanel.tsx` which renders both wrappers (desktop `hidden lg:flex` and mobile `lg:hidden`) around a shared `PanelContent` inner component.
 
-**Canvas preview** -- The preview is **decoupled from the export resolution**. It fills its container regardless of the configured output dimensions (no aspect-ratio letterboxing). On large screens the render resolution is capped at 1200px on the longest axis for performance, with CSS sizing stretching to fill the container. Exports always render at the exact configured resolution via a separate canvas in `export.ts`. The canvas re-renders whenever config changes.
+**Canvas preview** -- The preview renders the **same content as the export**, preserving the configured aspect ratio and fitting it into the container (letterboxed if necessary). The render resolution is capped at 1200px on the longest axis for performance; CSS sizing matches the fitted dimensions so nothing is stretched. Exports render at the exact configured resolution via a separate canvas in `export.ts`. The canvas re-renders whenever config changes.
 
 **Control panel** -- A scrollable panel organized into labeled sections:
 
@@ -194,7 +194,7 @@ Zustand flat store in `src/hooks/useWallpaperConfig.ts`. The store type is `Wall
 
 The canvas buffer is scaled by `devicePixelRatio` for sharp rendering on HiDPI displays. All layer code draws in logical pixel coordinates -- the transform handles physical pixel mapping.
 
-**Preview:** `useGenerateWallpaper` fills the container regardless of the configured export resolution (the preview aspect ratio is decoupled from the export aspect ratio). The render resolution is capped at **1200px** on the longest axis for performance -- the canvas CSS size is set to the full container dimensions, so on large displays the preview is slightly upscaled. This is purely a preview optimization; exports are unaffected.
+**Preview:** `useGenerateWallpaper` fits the configured aspect ratio into the container (letterboxed when the container doesn't match). The render resolution is capped at **1200px** on the longest axis for performance; CSS sizing matches the fitted dimensions exactly so there's no stretching. The preview shows the same content as the export, just scaled down.
 
 **Export:** `exportWallpaper()` renders at full target resolution with `dpr=1` (no extra scaling), producing a pixel-exact PNG at the configured dimensions.
 

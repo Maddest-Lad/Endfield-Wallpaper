@@ -11,6 +11,11 @@ const presetOptions = [
   { value: '1440p', label: '2560 x 1440 — QHD' },
   { value: '4k', label: '3840 x 2160 — 4K' },
   { value: 'ultrawide', label: '3440 x 1440 — ULTRAWIDE' },
+  { value: 'discord', label: '960 x 540 — DISCORD' },
+  { value: 'twitter', label: '1500 x 500 — TWITTER / X' },
+  { value: 'linkedin', label: '1584 x 396 — LINKEDIN' },
+  { value: 'youtube', label: '2560 x 1440 — YOUTUBE' },
+  { value: 'facebook', label: '1640 x 624 — FACEBOOK' },
   { value: 'device', label: `${devW} x ${devH} — YOUR DEVICE` },
   { value: 'custom', label: 'CUSTOM' },
 ];

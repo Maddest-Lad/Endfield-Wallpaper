@@ -7,9 +7,12 @@ export interface Preset {
 
 export const PRESETS: Preset[] = [
   {
+    // Matches floor_plating.jpeg / store.jpeg — the core Endfield industrial look.
+    // Dark background, yellow accents, grey mono contours, all overlays enabled
+    // for maximum technical density: zones, crosshairs, hatching, data panels.
     name: 'Field Report',
     config: {
-      theme: 'light',
+      theme: 'dark',
       accentColor: '#FFE600',
       noiseScale: 0.006,
       octaves: 4,
@@ -33,6 +36,9 @@ export const PRESETS: Preset[] = [
     },
   },
   {
+    // Dense dramatic terrain. Grey-to-yellow elevation gradient with subtle glow.
+    // Grid and scan lines removed to let the contour density breathe.
+    // Hero text + annotations + zones provide context without overwhelming.
     name: 'Storm Warning',
     config: {
       theme: 'dark',
@@ -43,22 +49,25 @@ export const PRESETS: Preset[] = [
       lacunarity: 2.1,
       contourLevels: 28,
       contourColorMode: 'elevation',
-      contourGlow: 0,
+      contourGlow: 0.3,
       contourColor: '#888888',
-      showGrid: true,
+      showGrid: false,
       showAnnotations: true,
       showCjkText: true,
       showFrames: true,
       showAccents: true,
-      showScanLines: true,
+      showScanLines: false,
       showDataPanel: true,
-      showReticles: true,
+      showReticles: false,
       showCornerData: true,
       showZones: true,
       showHeroText: true,
     },
   },
   {
+    // Matches umbrella/packing tape/folder merchandise — the clean print aesthetic.
+    // Light background, grey accent, fading contours, minimal overlays.
+    // The only light preset; represents the clean topographic print style.
     name: 'Minimal Survey',
     config: {
       theme: 'light',
@@ -85,6 +94,9 @@ export const PRESETS: Preset[] = [
     },
   },
   {
+    // Military redacted look with red accents on dark. Red-tinted contour lines
+    // with subtle glow for an alert/warning feel. Annotations, CJK text, scan lines,
+    // and hero text enabled for a restricted-access document aesthetic.
     name: 'Classified',
     config: {
       theme: 'dark',
@@ -95,25 +107,28 @@ export const PRESETS: Preset[] = [
       lacunarity: 2.0,
       contourLevels: 18,
       contourColorMode: 'mono',
-      contourGlow: 0,
-      contourColor: '#888888',
+      contourGlow: 0.2,
+      contourColor: '#FF4444',
       showGrid: false,
-      showAnnotations: false,
+      showAnnotations: true,
       showCjkText: true,
       showFrames: true,
       showAccents: true,
-      showScanLines: false,
+      showScanLines: true,
       showDataPanel: true,
-      showReticles: false,
+      showReticles: true,
       showCornerData: true,
       showZones: true,
       showHeroText: true,
     },
   },
   {
+    // Matches full_map.jpeg — world map overview with dense territory zones
+    // and elevation-colored contours. Accents and grid removed to keep focus
+    // on the terrain data and zone boundaries rather than yellow UI chrome.
     name: 'Deep Terrain',
     config: {
-      theme: 'light',
+      theme: 'dark',
       accentColor: '#FFE600',
       noiseScale: 0.004,
       octaves: 5,
@@ -123,13 +138,13 @@ export const PRESETS: Preset[] = [
       contourColorMode: 'elevation',
       contourGlow: 0,
       contourColor: '#888888',
-      showGrid: true,
+      showGrid: false,
       showAnnotations: true,
       showCjkText: true,
       showFrames: true,
-      showAccents: true,
+      showAccents: false,
       showScanLines: false,
-      showDataPanel: false,
+      showDataPanel: true,
       showReticles: false,
       showCornerData: true,
       showZones: true,
@@ -137,6 +152,9 @@ export const PRESETS: Preset[] = [
     },
   },
   {
+    // Matches full_map_b.jpeg — sparse eerie scan with cyan accent.
+    // Fade contours with cyan tint for degraded-signal feel. Scan lines
+    // and reticles for tactical HUD, zones for territory awareness.
     name: 'Signal Lost',
     config: {
       theme: 'dark',
@@ -147,8 +165,8 @@ export const PRESETS: Preset[] = [
       lacunarity: 1.8,
       contourLevels: 16,
       contourColorMode: 'fade',
-      contourGlow: 0,
-      contourColor: '#888888',
+      contourGlow: 0.15,
+      contourColor: '#00AEEF',
       showGrid: false,
       showAnnotations: false,
       showCjkText: false,
@@ -158,11 +176,14 @@ export const PRESETS: Preset[] = [
       showDataPanel: false,
       showReticles: true,
       showCornerData: false,
-      showZones: false,
+      showZones: true,
       showHeroText: false,
     },
   },
   {
+    // Matches holographic_topography.jpeg — the most striking reference.
+    // Intensely glowing amber contour lines on dark, full glow effect,
+    // elevation coloring for depth. Minimal overlays let the contours dominate.
     name: 'Holographic',
     config: {
       theme: 'dark',
@@ -182,7 +203,7 @@ export const PRESETS: Preset[] = [
       showAccents: true,
       showScanLines: false,
       showDataPanel: false,
-      showReticles: true,
+      showReticles: false,
       showCornerData: false,
       showZones: true,
       showHeroText: false,

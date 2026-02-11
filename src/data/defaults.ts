@@ -5,7 +5,7 @@ export const DEFAULTS: WallpaperConfig = {
   width: 1920,
   height: 1080,
   preset: '1080p',
-  theme: 'light',
+  theme: 'dark',
   accentColor: '#FFE600',
   seed: randomSeed(),
   noiseScale: 0.006,

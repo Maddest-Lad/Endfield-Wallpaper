@@ -45,13 +45,13 @@ Seven curated presets, each a complete config snapshot:
 
 | Preset | Theme | Accent | Character |
 |---|---|---|---|
-| Field Report | Light | Yellow | Default survey look, all overlays on, no hero text |
-| Storm Warning | Dark | Yellow | Dense contours (28 levels, 6 octaves), elevation coloring, hero text |
-| Minimal Survey | Light | Grey | Stripped-down: no annotations, no CJK, no accents, fade contours |
-| Classified | Dark | Red | Selective overlays, hero text, mono contours |
-| Deep Terrain | Light | Yellow | High-detail (30 levels, 5 octaves), elevation coloring |
-| Signal Lost | Dark | Cyan | Low-detail, minimal overlays, reticles + scan lines only |
-| Holographic | Dark | Amber | Elevation contours with full glow, amber line color, minimal overlays |
+| Field Report | Dark | Yellow | Core industrial look (floor_plating/store), all overlays on, grey mono contours |
+| Storm Warning | Dark | Yellow | Dense contours (28 levels, 6 octaves), elevation coloring with glow, hero text |
+| Minimal Survey | Light | Grey | Clean print aesthetic, stripped-down: no annotations, no CJK, fade contours |
+| Classified | Dark | Red | Military redacted look, red-tinted contours with glow, hero text, all data overlays |
+| Deep Terrain | Dark | Yellow | World map view (30 levels, 5 octaves), elevation coloring, dense zones and data |
+| Signal Lost | Dark | Cyan | Sparse eerie scan, cyan fade contours with glow, scan lines + reticles + zones |
+| Holographic | Dark | Amber | Glowing amber contour lines (holographic_topography), full glow, minimal overlays |
 
 Presets do NOT override resolution or seed, so users can apply a style then fine-tune dimensions and terrain independently.
 

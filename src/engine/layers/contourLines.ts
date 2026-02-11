@@ -23,8 +23,9 @@ export function drawContourLines(rc: RenderContext): void {
     const t = total > 1 ? i / (total - 1) : 0; // normalized 0..1
 
     if (mode === 'elevation') {
-      // Tint from cool (base contour color) at low elevations to warm (accent) at high
-      ctx.strokeStyle = lerpColor(palette.contourLine, palette.accent, t);
+      // Tint from contour color at low elevations to accent at high
+      const baseHex = config.contourColor ?? '#888888';
+      ctx.strokeStyle = lerpColor(baseHex, palette.accent, t);
       ctx.lineWidth = isIndex ? 1.4 : 0.6;
       ctx.globalAlpha = 1;
     } else if (mode === 'fade') {

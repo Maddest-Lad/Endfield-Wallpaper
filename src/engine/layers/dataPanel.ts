@@ -38,6 +38,11 @@ export function drawDataPanel(rc: RenderContext): void {
 
   ctx.save();
 
+  // Panel background
+  ctx.fillStyle = palette.background;
+  ctx.globalAlpha = 0.55;
+  ctx.fillRect(px, py, panelW, panelH);
+
   // Panel border
   ctx.strokeStyle = palette.accent;
   ctx.lineWidth = 1.5;

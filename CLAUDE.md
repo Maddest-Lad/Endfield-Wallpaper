@@ -8,13 +8,13 @@ Everything runs **pure client-side** (React + TypeScript + Tailwind). There is n
 
 ### Visual Aesthetic
 
-The design draws from Endfield's packaging, merchandise, and in-game UI. Key visual traits:
+The design draws from Endfield's packaging, merchandise, and in-game UI (reference images in `style/` and `style_v2/`). Key visual traits:
 
-- **Color palette** -- Yellow (#FFE600) is the signature accent, with support for red, cyan, green, purple, and white alternates. Light and dark themes swap the background between off-white (#F5F5F5) and near-black (#1A1A1A).
-- **Topographic contour lines** -- Simplex-noise heightmaps produce organic contour lines in mono, elevation-gradient, or fade color modes. Contour density, noise scale, octaves, and persistence are all user-tunable.
-- **Mixed-language text** -- Japanese labels (e.g. "暴雨予警", "地形調査", "座標確認") and English labels ("TERRAIN SURVEY", "CLASSIFIED", "SECTOR 7-G") are scattered as annotations. CJK text uses Noto Sans JP / system CJK fonts; technical readouts use a clean sans-serif.
-- **Industrial marks** -- CMYK registration dots (cyan, magenta, yellow, black), hazard stripes (diagonal yellow-and-black), yellow accent bars stamped "ARKNIGHTS: ENDFIELD", corner brackets, center crosshairs, and edge midpoint ticks.
-- **HUD overlays** -- Grid lines, scan lines, reticle targets, data panels with coordinates/elevation/frequency readouts, and corner metadata blocks.
+- **Color palette** -- Yellow (#FFE600) is the signature accent, with support for red, cyan, green, purple, white, gray, and black alternates. Light and dark themes swap the background between off-white (#F5F5F5) and near-black (#1A1A1A). Both accent and contour line colors are independently user-selectable from the same 8-color palette plus a custom color picker.
+- **Topographic contour lines** -- Simplex-noise heightmaps produce organic contour lines in mono, elevation-gradient, or fade color modes. Contour line color is independently configurable from the accent color. An optional glow effect (via Canvas `shadowBlur`) can be layered on top of any color mode, controlled by an intensity slider.
+- **Mixed-language text** -- Japanese labels (e.g. "暴雨予警", "地形調査", "探査レベル") and English labels ("TERRAIN SURVEY", "VALLEY PASS", "MOUNTAIN CONTOUR") are scattered as annotations. CJK text uses Noto Sans JP / system CJK fonts; technical readouts use a clean sans-serif.
+- **Industrial marks** -- CMYK registration dots, hazard stripes, yellow accent bars with chevron arrows stamped "ARKNIGHTS: ENDFIELD", diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched), corner brackets, center crosshairs, and edge midpoint ticks.
+- **HUD overlays** -- Grid lines, scan lines, reticle targets, data panels (with translucent background) with coordinates/elevation/frequency readouts, and corner metadata blocks.
 
 ### The Endfield Font
 
@@ -30,17 +30,17 @@ The app is a single full-viewport layout with two regions:
 
 **Control panel (right, 288px sidebar)** -- A scrollable panel organized into labeled sections:
 
-1. **Presets** -- Six curated style buttons that apply a full config snapshot (all settings except resolution and seed).
+1. **Presets** -- Seven curated style buttons that apply a full config snapshot (all settings except resolution and seed).
 2. **Resolution** -- Dropdown for 1080p, 1440p, 4K, phone (1170x2532), ultrawide (3440x1440), or custom width/height inputs.
-3. **Theme** -- Light/dark toggle and accent color picker (6 preset swatches).
+3. **Theme** -- Light/dark toggle and accent color picker (8 preset swatches + custom color input).
 4. **Terrain Parameters** -- Seed text input plus sliders for noise scale, octaves, persistence, and contour levels.
-5. **Contour Style** -- Tri-state selector for contour color mode: mono, elevation, or fade.
+5. **Contour Style** -- Tri-state selector for contour color mode (mono, elevation, fade), contour line color picker (8 swatches + custom), and glow intensity slider.
 6. **Layers** -- Ten independent toggles controlling which overlay layers are drawn (grid, annotations, Japanese text, frames, accents, scan lines, data panel, reticles, corner data, hero text).
-7. **Action Buttons** -- Randomize (re-rolls all parameters), Export PNG, Copy Link.
+7. **Action Buttons** -- Randomize (re-rolls all parameters, colors, toggles, and contour mode), Export PNG, Copy Link.
 
 ### Preset System
 
-Six curated presets, each a complete config snapshot:
+Seven curated presets, each a complete config snapshot:
 
 | Preset | Theme | Accent | Character |
 |---|---|---|---|
@@ -50,6 +50,7 @@ Six curated presets, each a complete config snapshot:
 | Classified | Dark | Red | Selective overlays, hero text, mono contours |
 | Deep Terrain | Light | Yellow | High-detail (30 levels, 5 octaves), elevation coloring |
 | Signal Lost | Dark | Cyan | Low-detail, minimal overlays, reticles + scan lines only |
+| Holographic | Dark | Amber | Elevation contours with full glow, amber line color, minimal overlays |
 
 Presets do NOT override resolution or seed, so users can apply a style then fine-tune dimensions and terrain independently.
 
@@ -84,19 +85,19 @@ src/
       background.ts    # Solid fill
       grid.ts          # Major/minor grid + coordinate labels
       scanLines.ts     # Faint horizontal/vertical scan lines
-      contourLines.ts  # Contour paths with color modes
+      contourLines.ts  # Contour paths with color modes + glow
       heroText.ts      # Large faint watermark word
       annotations.ts   # Scattered technical labels (EN/JP)
       reticles.ts      # Tactical crosshair/diamond/square symbols
       cornerData.ts    # Environmental readouts, coordinates, classification stamp
       frames.ts        # Border rectangle, corner brackets, center crosshair, edge ticks
-      dataPanel.ts     # Structured data panel (bottom-right)
-      accents.ts       # Yellow bars, hazard stripes, CMYK dots, small marks
+      dataPanel.ts     # Structured data panel (bottom-right) with translucent background
+      accents.ts       # Yellow bars with chevrons, hazard stripes, CMYK dots, hatching patches, scattered crosshairs, diamond markers
   hooks/
     useWallpaperConfig.ts   # Zustand store + defaults + resolution presets
     useGenerateWallpaper.ts # Debounced re-render on config change
   utils/
-    color.ts           # getPalette() — light/dark ThemePalette builder
+    color.ts           # getPalette() — light/dark ThemePalette builder, derives contour colors from config
     fonts.ts           # fontForText() — triple font system with CJK detection
     random.ts          # Seeded PRNG helpers (createRng, randomInRange, shuffle, etc.)
     permalink.ts       # Config <-> base64 URL hash encoding
@@ -106,14 +107,14 @@ src/
     controls/               # Individual control groups
       ActionButtons.tsx     # Export, Randomize, Copy Link
       NoiseControls.tsx     # Seed, scale, octaves, persistence, lacunarity
-      ContourControls.tsx   # Contour color mode selector
+      ContourControls.tsx   # Contour color mode selector, line color picker, glow slider
       ThemeControls.tsx     # Light/dark, accent color picker
       ResolutionPicker.tsx  # Preset + custom dimensions
       PresetPicker.tsx      # Named preset selector
       TextToggles.tsx       # Toggle switches for overlay layers
-    ui/                     # Reusable primitives (Button, Slider, Toggle, Select)
+    ui/                     # Reusable primitives (Button, Slider, Toggle, Select, ColorPicker)
   data/
-    presets.ts         # Named config presets (Field Report, Storm Warning, etc.)
+    presets.ts         # Named config presets (Field Report, Storm Warning, ..., Holographic)
     textContent.ts     # EN_LABELS, JP_LABELS, DATA_LABELS string pools
 ```
 
@@ -136,22 +137,34 @@ src/
 | 1 | **background** | `background.ts` | always | Solid fill using `palette.background` |
 | 2 | **grid** | `grid.ts` | `showGrid` | Major (1/8 width) and minor (1/32 width) grid lines with alphanumeric coordinate labels at intersections |
 | 3 | **scanLines** | `scanLines.ts` | `showScanLines` | 3-6 faint horizontal + 2-4 vertical lines at random positions, plus one dashed accent line |
-| 4 | **contourLines** | `contourLines.ts` | always | Draws all contour paths scaled from grid-space to canvas-space. Every 5th contour is an "index" contour (thicker). Color varies by `contourColorMode` |
+| 4 | **contourLines** | `contourLines.ts` | always | Draws all contour paths scaled from grid-space to canvas-space. Every 5th contour is an "index" contour (thicker). Color varies by `contourColorMode`. Optional glow via `contourGlow` intensity (Canvas `shadowBlur` in accent color) |
 | 5 | **heroText** | `heroText.ts` | `showHeroText` | A single large word rendered as a very faint watermark (6% opacity) with shadow echo and accent underline. Uses the Endfield font |
 | 6 | **annotations** | `annotations.ts` | `showAnnotations` | 10-16 scattered text labels chosen from EN, JP (if CJK enabled), and data-format pools. Zone-based placement across a 4x3 grid prevents clustering |
 | 7 | **reticles** | `reticles.ts` | `showReticles` | 2-4 tactical targeting symbols (circle, diamond, or square variant) biased toward canvas corners |
 | 8 | **cornerData** | `cornerData.ts` | `showCornerData` | Top-left: environmental readouts. Top-right: lat/lon coordinates + grid reference. Bottom-left: classification ID stamp |
 | 9 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
-| 10 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: accent-colored header bar, 5-7 key/value rows, optional CJK footer |
-| 11 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with label text, hazard stripe patch, CMYK registration dots, small accent squares |
+| 10 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: translucent background, accent-colored header bar, 5-7 key/value rows, optional CJK footer |
+| 11 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with chevron arrows and label text, hazard stripe patch, CMYK registration dots, diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched) |
 
 ## Contour Color Modes
 
 Controlled by `config.contourColorMode` (`ContourColorMode` type):
 
 - **`mono`** (default) -- Uniform color. Index contours use `palette.contourIndex`, others use `palette.contourLine`. Full opacity.
-- **`elevation`** -- Contour color lerps from `palette.contourLine` (low elevation) to `palette.accent` (high elevation) based on normalized threshold index. Hex-channel linear interpolation via `lerpColor()`.
+- **`elevation`** -- Contour color lerps from `config.contourColor` (low elevation) to `palette.accent` (high elevation) based on normalized threshold index. Hex-channel linear interpolation via `lerpColor()`.
 - **`fade`** -- Same colors as mono, but opacity scales from 15% (low elevation) to 100% (high elevation). Lower contours fade out, higher ones are prominent.
+
+### Contour Glow
+
+`config.contourGlow` (0-1 float) layers a Canvas `shadowBlur` glow effect on top of **any** color mode. When > 0, contour strokes emit light in the accent color. Index contours glow stronger (up to 12px blur) than regular contours (up to 6px). The glow intensity is purely visual and does not affect contour geometry.
+
+### Contour Line Color
+
+`config.contourColor` (hex string, default `#888888`) controls the base color of contour lines independently from the theme. `getPalette()` in `color.ts` derives `palette.contourLine` and `palette.contourIndex` from this hex value using `hexToRgba()` with theme-appropriate alpha (dark: 0.25/0.45, light: 0.4/0.6).
+
+## Color Picker
+
+`src/components/ui/ColorPicker.tsx` is a shared component used for both accent color and contour line color selection. It provides 8 preset color swatches (yellow, red, cyan, green, purple, white, gray, black) plus a custom color button (rainbow gradient) that opens the native `<input type="color">` picker.
 
 ## State Management
 
@@ -160,10 +173,12 @@ Zustand flat store in `src/hooks/useWallpaperConfig.ts`. The store type is `Wall
 **Actions:**
 - `setConfig(partial)` -- Shallow merge any config fields
 - `setPreset(preset)` -- Switch resolution preset, updating width/height from `RESOLUTION_PRESETS` lookup
-- `randomize()` -- Rerolls seed, noiseScale, octaves, persistence, contourLevels
+- `randomize()` -- Rerolls seed, noise params, theme, accent/contour color (linked), contour mode, glow, and all layer toggles. Resolution is preserved.
 - `applyPreset(name)` -- Applies a named preset from `PRESETS` array (with fresh seed)
 
 **Initialization:** On load, `getInitialConfig()` attempts `decodeConfig(window.location.hash)`. Falls back to `DEFAULTS` if hash is absent or invalid.
+
+**Backwards compatibility:** New config fields (`contourGlow`, `contourColor`) use `?? defaultValue` fallbacks in both the renderer and UI components, so old permalinks without these fields still work.
 
 ## DPR / HiDPI Scaling
 

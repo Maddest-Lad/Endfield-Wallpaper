@@ -96,37 +96,32 @@ function PanelContent({ onClose }: { onClose?: () => void }) {
         <div className="mt-2">
           <ActionButtons />
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className="bg-ef-dark px-4 py-2 space-y-1.5">
-        <p className="text-[7px] text-ef-light/25 text-center leading-relaxed">
-          Unofficial fan project derived from Arknights: Endfield.
-          Not affiliated with or endorsed by Yostar, HyperGryphon, or miHoYo.
-          Non-commercial use only.
-        </p>
-        <p className="text-[7px] text-ef-light/25 text-center leading-relaxed">
-          Endfield font by{' '}
-          <a
-            href="https://github.com/lhclbt/Endfield_Font"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-ef-light/40"
-          >
-            Luo Butan
-          </a>{' '}
-          (CC BY-NC 4.0).{' '}
-          Logo icons by{' '}
-          <a
-            href="https://github.com/Yue-plus/endfield_icons"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-ef-light/40"
-          >
-            Yue-plus
-          </a>{' '}
-          (MIT)
-        </p>
+        {/* Footer */}
+        <div className="bg-ef-dark px-4 py-2 mt-4 -mx-4 -mb-3">
+          <p className="text-[12pt] text-ef-light/25 text-center leading-relaxed">
+            Derivative fan work based on Arknights: Endfield. Not affiliated with Yostar or HyperGryph. Non-commercial use only.
+            {' '}Font:{' '}
+            <a
+              href="https://github.com/lhclbt/Endfield_Font"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-ef-light/40"
+            >
+              Luo Butan
+            </a>{' '}
+            (CC BY-NC 4.0). Icons:{' '}
+            <a
+              href="https://github.com/Yue-plus/endfield_icons"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-ef-light/40"
+            >
+              Yue-plus
+            </a>{' '}
+            (MIT).
+          </p>
+        </div>
       </div>
     </>
   );

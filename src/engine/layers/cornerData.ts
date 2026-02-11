@@ -10,15 +10,35 @@ export function drawCornerData(rc: RenderContext): void {
   const margin = Math.round(width * 0.035);
 
   ctx.save();
-  ctx.globalAlpha = 0.4;
 
   // Top-left: environmental readouts
-  drawTopLeftReadouts(ctx, margin, margin, fontSize, lineH, palette, rng);
+  const tlCount = randomInt(rng, 3, 4);
+  const bgPad = fontSize * 0.6;
+  const tlH = tlCount * lineH + lineH + bgPad;
+  const tlW = fontSize * 12;
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = palette.background;
+  ctx.fillRect(margin - bgPad, margin + lineH - bgPad * 0.5, tlW, tlH);
+  ctx.globalAlpha = 0.5;
+  drawTopLeftReadouts(ctx, margin, margin, fontSize, lineH, palette, rng, tlCount);
 
   // Top-right: coordinates
+  const trW = fontSize * 14;
+  const trH = 3 * lineH + lineH + bgPad;
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = palette.background;
+  ctx.fillRect(width - margin - trW + bgPad, margin + lineH - bgPad * 0.5, trW, trH);
+  ctx.globalAlpha = 0.5;
   drawTopRightCoords(ctx, width - margin, margin, fontSize, lineH, palette, rng);
 
   // Bottom-left: classification stamp
+  const blLines = config.showCjkText ? 3 : 2;
+  const blH = blLines * lineH + bgPad;
+  const blW = fontSize * 10;
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = palette.background;
+  ctx.fillRect(margin - bgPad, height - margin - blH + bgPad * 0.3, blW, blH);
+  ctx.globalAlpha = 0.5;
   drawBottomLeftStamp(ctx, margin, height - margin, fontSize, lineH, palette, rng, config.showCjkText);
 
   ctx.restore();
@@ -32,6 +52,7 @@ function drawTopLeftReadouts(
   lineH: number,
   palette: { textPrimary: string; textSecondary: string; accent: string },
   rng: () => number,
+  count: number,
 ): void {
   const temp = randomInt(rng, -12, 42);
   const humidity = randomInt(rng, 20, 95);
@@ -46,9 +67,6 @@ function drawTopLeftReadouts(
     { label: 'hPa', value: pressure },
     { label: 'WIND', value: `${windSpeed}kt` },
   ];
-
-  // Pick 3-4 of these
-  const count = randomInt(rng, 3, 4);
 
   for (let i = 0; i < count; i++) {
     const line = lines[i];

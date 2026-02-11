@@ -18,11 +18,23 @@ export function drawAnnotations(rc: RenderContext): void {
   const annotations = generateAnnotationLayout(rc);
 
   for (const ann of annotations) {
-    ctx.globalAlpha = ann.opacity;
     ctx.font = fontForText(ann.text, ann.size);
-    ctx.fillStyle = palette.textSecondary;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
+
+    // Draw a subtle backdrop to separate text from contour lines
+    const metrics = ctx.measureText(ann.text);
+    const pad = ann.size * 0.4;
+    const bgX = ann.bracketed ? ann.x - pad * 0.3 : ann.x - pad;
+    const bgW = metrics.width + pad * (ann.bracketed ? 3.2 : 2);
+    const bgH = ann.size * 1.6;
+
+    ctx.globalAlpha = ann.opacity * 0.5;
+    ctx.fillStyle = palette.background;
+    ctx.fillRect(bgX, ann.y - bgH / 2, bgW, bgH);
+
+    ctx.globalAlpha = ann.opacity;
+    ctx.fillStyle = palette.textSecondary;
 
     if (ann.bracketed) {
       drawBracketedLabel(ctx, ann.text, ann.x, ann.y, ann.size, palette.frameLine);
@@ -62,7 +74,7 @@ function generateAnnotationLayout(rc: RenderContext): Annotation[] {
 
     const baseFontSize = Math.max(8, Math.round(width / 180));
     const size = baseFontSize + randomInt(rng, -2, 4);
-    const opacity = randomInRange(rng, 0.15, 0.4);
+    const opacity = randomInRange(rng, 0.25, 0.55);
     const bracketed = rng() > 0.65;
 
     annotations.push({

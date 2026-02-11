@@ -17,6 +17,7 @@ import { drawHeroText } from './layers/heroText';
 import { drawDataPanel } from './layers/dataPanel';
 import { drawAccents } from './layers/accents';
 import { drawZones } from './layers/zones';
+import { drawLogoOverlay } from './layers/logoOverlay';
 
 const GRID_SIZE = 250;
 
@@ -121,5 +122,9 @@ export async function renderWallpaper(
 
   if (config.showAccents) {
     drawAccents(layerRc('accents'));
+  }
+
+  if ((config.logoVariant ?? 'none') !== 'none') {
+    await drawLogoOverlay(layerRc('logoOverlay'));
   }
 }

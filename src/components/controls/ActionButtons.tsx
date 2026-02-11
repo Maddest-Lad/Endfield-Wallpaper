@@ -32,6 +32,10 @@ function buildConfig(store: ReturnType<typeof useWallpaperConfig>): WallpaperCon
     showCornerData: store.showCornerData,
     showZones: store.showZones,
     showHeroText: store.showHeroText,
+    logoVariant: store.logoVariant,
+    logoScale: store.logoScale,
+    logoOpacity: store.logoOpacity,
+    logoColor: store.logoColor,
   };
 }
 

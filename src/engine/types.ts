@@ -25,6 +25,12 @@ export interface WallpaperConfig {
   contourGlow: number;
   contourColor: string;
 
+  // Logo overlay
+  logoVariant: string;
+  logoScale: number;
+  logoOpacity: number;
+  logoColor: string;
+
   // Toggles
   showGrid: boolean;
   showAnnotations: boolean;

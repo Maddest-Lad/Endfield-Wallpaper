@@ -4,6 +4,7 @@ import { ThemeControls } from './controls/ThemeControls';
 import { NoiseControls } from './controls/NoiseControls';
 import { ContourControls } from './controls/ContourControls';
 import { TextToggles } from './controls/TextToggles';
+import { LogoControls } from './controls/LogoControls';
 import { ActionButtons } from './controls/ActionButtons';
 import { Button } from './ui/Button';
 import { useWallpaperConfig } from '../hooks/useWallpaperConfig';
@@ -85,6 +86,11 @@ function PanelContent({ onClose }: { onClose?: () => void }) {
 
         <Divider />
 
+        <SectionHeader>Icon</SectionHeader>
+        <LogoControls />
+
+        <Divider />
+
         <SectionHeader>Output</SectionHeader>
         <ResolutionPicker />
         <div className="mt-2">
@@ -109,7 +115,17 @@ function PanelContent({ onClose }: { onClose?: () => void }) {
           >
             Luo Butan
           </a>{' '}
-          (CC BY-NC 4.0)
+          (CC BY-NC 4.0).{' '}
+          Logo icons by{' '}
+          <a
+            href="https://github.com/Yue-plus/endfield_icons"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-ef-light/40"
+          >
+            Yue-plus
+          </a>{' '}
+          (MIT)
         </p>
       </div>
     </>

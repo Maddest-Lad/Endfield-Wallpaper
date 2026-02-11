@@ -25,14 +25,18 @@ The control panel itself uses `font-sans` (system sans-serif) for readability. C
 
 ### User Experience
 
-The app is a single full-viewport layout with two regions:
+The app is a responsive single-viewport layout that adapts to screen size using a `lg:` breakpoint (1024px):
 
-**Canvas preview (left)** -- Shows a scaled-down live preview of the wallpaper with corner-bracket decorations, a "TERRAIN_PREVIEW" label, and the current resolution display. The canvas re-renders whenever config changes.
+**Desktop (≥ 1024px):** Side-by-side layout with canvas preview filling the left area and the control panel as a static 288px sidebar on the right.
 
-**Control panel (right, 288px sidebar)** -- A scrollable panel organized into labeled sections:
+**Mobile / tablet (< 1024px):** The canvas takes the full viewport. The control panel is hidden behind a **slide-out drawer** triggered by a floating yellow hamburger button (fixed, bottom-right, `z-20`). The drawer slides in from the right as a fixed overlay (`z-40`) with a semi-transparent backdrop (`z-30`). Close via the X button in the drawer header or by tapping the backdrop. Implemented in `ControlPanel.tsx` which renders both wrappers (desktop `hidden lg:flex` and mobile `lg:hidden`) around a shared `PanelContent` inner component.
+
+**Canvas preview** -- The preview is **decoupled from the export resolution**. It fills its container regardless of the configured output dimensions (no aspect-ratio letterboxing). On large screens the render resolution is capped at 1200px on the longest axis for performance, with CSS sizing stretching to fill the container. Exports always render at the exact configured resolution via a separate canvas in `export.ts`. The canvas re-renders whenever config changes.
+
+**Control panel** -- A scrollable panel organized into labeled sections:
 
 1. **Presets** -- Seven curated style buttons that apply a full config snapshot (all settings except resolution and seed).
-2. **Resolution** -- Dropdown for 1080p, 1440p, 4K, phone (1170x2532), ultrawide (3440x1440), or custom width/height inputs.
+2. **Resolution** -- Dropdown for 1080p, 1440p, 4K, ultrawide (3440x1440), Your Device (auto-detected hardware pixels), or custom width/height inputs. On mobile (screen width < 1024), the default is "Your Device" which reads `screen.width * devicePixelRatio` x `screen.height * devicePixelRatio` for a pixel-perfect phone wallpaper.
 3. **Theme** -- Light/dark toggle and accent color picker (8 preset swatches + custom color input).
 4. **Terrain Parameters** -- Seed text input plus sliders for noise scale, octaves, persistence, and contour levels.
 5. **Contour Style** -- Tri-state selector for contour color mode (mono, elevation, fade), contour line color picker (8 swatches + custom), and glow intensity slider.
@@ -57,8 +61,9 @@ Presets do NOT override resolution or seed, so users can apply a style then fine
 
 ### Export and Sharing
 
-- **PNG Export** -- Renders at full configured resolution (up to 4K) using `OffscreenCanvas` when available, falls back to a DOM canvas. Downloads as `endfield-terrain-{seed}-{width}x{height}.png`.
+- **PNG Export** -- Renders at full configured resolution (up to 4K) using `OffscreenCanvas` when available, falls back to a DOM canvas. Downloads as `endfield-terrain-{seed}-{width}x{height}.png`. The export is completely independent of the preview — it creates its own canvas at the exact configured dimensions.
 - **Permalink** -- The full `WallpaperConfig` object is JSON-serialized, base64-encoded, and placed in the URL hash fragment (`#<base64>`). Sharing this URL reproduces the exact wallpaper. The URL is updated via `history.replaceState` (no page reload) and decoded on load.
+- **localStorage persistence** -- Every config update is also saved to `localStorage` (key: `endfield-terrain-config`). Returning users who visit without a URL hash get their last config restored automatically.
 
 ---
 
@@ -93,17 +98,17 @@ src/
       reticles.ts      # Tactical crosshair/diamond/square symbols
       cornerData.ts    # Environmental readouts, coordinates, classification stamp
       frames.ts        # Border rectangle, corner brackets, center crosshair, edge ticks
-      dataPanel.ts     # Structured data panel (bottom-right) with translucent background
+      dataPanel.ts     # Structured data panel (bottom-right) with translucent background, min-width 140px, clipped overflow
       zones.ts         # Territory zone polygons with crosshatch fill (Voronoi + heightmap)
       accents.ts       # Yellow bars with chevrons, hazard stripes, CMYK dots, hatching patches, scattered crosshairs, diamond markers
   hooks/
-    useWallpaperConfig.ts   # Zustand store + defaults + resolution presets
+    useWallpaperConfig.ts   # Zustand store + resolution presets + initialization (hash → localStorage → defaults)
     useGenerateWallpaper.ts # Debounced re-render on config change
   utils/
     color.ts           # getPalette() — light/dark ThemePalette builder, derives contour colors from config
     fonts.ts           # fontForText() — triple font system with CJK detection
     random.ts          # Seeded PRNG helpers (createRng, randomInRange, shuffle, etc.)
-    permalink.ts       # Config <-> base64 URL hash encoding
+    permalink.ts       # Config <-> base64 URL hash encoding + localStorage persistence
   components/
     WallpaperCanvas.tsx     # Canvas element + useGenerateWallpaper hook
     ControlPanel.tsx        # Sidebar layout for all controls
@@ -117,6 +122,7 @@ src/
       TextToggles.tsx       # Toggle switches for overlay layers
     ui/                     # Reusable primitives (Button, Slider, Toggle, Select, ColorPicker)
   data/
+    defaults.ts        # DEFAULTS config (mobile-aware: auto-detects device resolution on small screens)
     presets.ts         # Named config presets (Field Report, Storm Warning, ..., Holographic)
     textContent.ts     # EN_LABELS, JP_LABELS, DATA_LABELS string pools
 ```
@@ -147,7 +153,7 @@ src/
 | 8 | **reticles** | `reticles.ts` | `showReticles` | 2-4 tactical targeting symbols (circle, diamond, or square variant) biased toward canvas corners |
 | 9 | **cornerData** | `cornerData.ts` | `showCornerData` | Top-left: environmental readouts. Top-right: lat/lon coordinates + grid reference. Bottom-left: classification ID stamp |
 | 10 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
-| 11 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: translucent background, accent-colored header bar, 5-7 key/value rows, optional CJK footer |
+| 11 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: translucent background, accent-colored header bar, 5-7 key/value rows, optional CJK footer. Min width 140px; drawing is clipped to panel bounds to prevent text overflow on small canvases |
 | 12 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with chevron arrows and label text, hazard stripe patch, CMYK registration dots, diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched) |
 
 ## Contour Color Modes
@@ -180,15 +186,17 @@ Zustand flat store in `src/hooks/useWallpaperConfig.ts`. The store type is `Wall
 - `randomize()` -- Rerolls seed, noise params, theme, accent/contour color (linked), contour mode, glow, and all layer toggles. Resolution is preserved.
 - `applyPreset(name)` -- Applies a named preset from `PRESETS` array (with fresh seed)
 
-**Initialization:** On load, `getInitialConfig()` attempts `decodeConfig(window.location.hash)`. Falls back to `DEFAULTS` if hash is absent or invalid.
+**Initialization:** On load, `getInitialConfig()` uses a three-tier priority chain: URL hash (shared permalink) → `localStorage` (returning user) → `DEFAULTS`. The `DEFAULTS` in `src/data/defaults.ts` are themselves dynamic: on mobile screens (screen width < 1024), the default resolution preset is `'device'` with hardware pixel dimensions; on desktop it defaults to `1080p`.
 
 **Backwards compatibility:** New config fields (`contourGlow`, `contourColor`) use `?? defaultValue` fallbacks in both the renderer and UI components, so old permalinks without these fields still work.
 
 ## DPR / HiDPI Scaling
 
-The canvas buffer is scaled by `devicePixelRatio` for sharp rendering on HiDPI displays. All layer code draws in logical pixel coordinates -- the transform handles physical pixel mapping. For preview, `useGenerateWallpaper` caps the logical size at **1200px** on the longest axis, then scales the buffer by the device's DPR. The canvas CSS size is pinned to the logical preview size so the browser doesn't stretch.
+The canvas buffer is scaled by `devicePixelRatio` for sharp rendering on HiDPI displays. All layer code draws in logical pixel coordinates -- the transform handles physical pixel mapping.
 
-For export, `exportWallpaper()` renders at full target resolution with `dpr=1` (no extra scaling), producing a pixel-exact PNG.
+**Preview:** `useGenerateWallpaper` fills the container regardless of the configured export resolution (the preview aspect ratio is decoupled from the export aspect ratio). The render resolution is capped at **1200px** on the longest axis for performance -- the canvas CSS size is set to the full container dimensions, so on large displays the preview is slightly upscaled. This is purely a preview optimization; exports are unaffected.
+
+**Export:** `exportWallpaper()` renders at full target resolution with `dpr=1` (no extra scaling), producing a pixel-exact PNG at the configured dimensions.
 
 ## Triple Font System
 
@@ -202,12 +210,13 @@ For export, `exportWallpaper()` renders at full target resolution with `dpr=1` (
 
 ## Permalink System
 
-`src/utils/permalink.ts` implements shareable URLs:
+`src/utils/permalink.ts` implements shareable URLs and config persistence:
 
 - **Encode**: `encodeConfig(config)` -> `JSON.stringify` -> `btoa` -> base64 string
 - **Decode**: `decodeConfig(hash)` -> strip leading `#` -> `atob` -> `JSON.parse` -> validate
-- **URL update**: `updateUrlHash(config)` calls `history.replaceState` to set the hash without triggering navigation
-- **Hydration**: Store calls `decodeConfig(window.location.hash)` during initialization
+- **URL update**: `updateUrlHash(config)` calls `history.replaceState` to set the hash without triggering navigation. Also saves the config to `localStorage` (key: `endfield-terrain-config`) for returning users.
+- **localStorage load**: `loadSavedConfig()` reads and validates from `localStorage`. Used as a fallback when no URL hash is present.
+- **Hydration**: Store calls `decodeConfig(window.location.hash)` → `loadSavedConfig()` → `DEFAULTS` during initialization (first match wins).
 
 ## Important: Manual Config Field Propagation
 

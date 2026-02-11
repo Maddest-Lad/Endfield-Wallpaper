@@ -2,14 +2,11 @@ import type { WallpaperConfig, ResolutionPreset } from '../engine/types';
 import { randomSeed } from '../utils/random';
 
 function getDefaultResolution(): { width: number; height: number; preset: ResolutionPreset } {
-  const isMobile = window.screen.width < 1024;
-  if (isMobile) {
-    const dpr = window.devicePixelRatio || 1;
-    return {
-      width: Math.round(screen.width * dpr),
-      height: Math.round(screen.height * dpr),
-      preset: 'device',
-    };
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.round(screen.width * dpr);
+  const h = Math.round(screen.height * dpr);
+  if (w >= 100 && h >= 100) {
+    return { width: w, height: h, preset: 'device' };
   }
   return { width: 1920, height: 1080, preset: '1080p' };
 }

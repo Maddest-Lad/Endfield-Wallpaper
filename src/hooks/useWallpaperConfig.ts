@@ -16,6 +16,11 @@ const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: numb
   '1440p': { width: 2560, height: 1440 },
   '4k': { width: 3840, height: 2160 },
   ultrawide: { width: 3440, height: 1440 },
+  discord: { width: 960, height: 540 },
+  twitter: { width: 1500, height: 500 },
+  linkedin: { width: 1584, height: 396 },
+  youtube: { width: 2560, height: 1440 },
+  facebook: { width: 1640, height: 624 },
   device: null,
   custom: null,
 };

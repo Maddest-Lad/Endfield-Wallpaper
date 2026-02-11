@@ -31,7 +31,7 @@ The app is a responsive single-viewport layout that adapts to screen size using 
 
 **Mobile / tablet (< 1024px):** The canvas takes the full viewport. The control panel is hidden behind a **slide-out drawer** triggered by a floating yellow hamburger button (fixed, bottom-right, `z-20`). The drawer slides in from the right as a fixed overlay (`z-40`) with a semi-transparent backdrop (`z-30`). Close via the X button in the drawer header or by tapping the backdrop. Implemented in `ControlPanel.tsx` which renders both wrappers (desktop `hidden lg:flex` and mobile `lg:hidden`) around a shared `PanelContent` inner component.
 
-**Canvas preview** -- The preview renders the **same content as the export**, preserving the configured aspect ratio and fitting it into the container (letterboxed if necessary). The render resolution is capped at 1200px on the longest axis for performance; CSS sizing matches the fitted dimensions so nothing is stretched. Exports render at the exact configured resolution via a separate canvas in `export.ts`. The canvas re-renders whenever config changes.
+**Canvas preview** -- The preview renders the **same content as the export**, preserving the configured aspect ratio and fitting it into the container (letterboxed if necessary). The render resolution is capped at 2048px on the longest axis for performance; CSS sizing matches the fitted dimensions so nothing is stretched. Exports render at the exact configured resolution via a separate canvas in `export.ts`. The canvas re-renders whenever config changes, with a three-tier caching system (see below) to minimize redundant work.
 
 **Control panel** -- A scrollable panel organized into labeled sections:
 
@@ -41,7 +41,8 @@ The app is a responsive single-viewport layout that adapts to screen size using 
 4. **Terrain Parameters** -- Seed text input plus sliders for noise scale, octaves, persistence, and contour levels.
 5. **Contour Style** -- Tri-state selector for contour color mode (mono, elevation, fade), contour line color picker (8 swatches + custom), and glow intensity slider.
 6. **Layers** -- Eleven independent toggles controlling which overlay layers are drawn (grid, annotations, Japanese text, frames, accents, scan lines, data panel, reticles, corner data, zones, hero text).
-7. **Action Buttons** -- Randomize (re-rolls all parameters, colors, toggles, and contour mode), Export PNG, Copy Link.
+7. **Icon** -- Logo variant selector (None / Endfield Industries / English / Japanese / Korean / Chinese), scale slider (5%-100%), opacity slider (5%-100%), and color picker. Controls only shown when a variant is selected.
+8. **Output** -- Resolution picker and action buttons: Randomize (re-rolls all parameters, colors, toggles, and contour mode), Export PNG, Copy Link.
 
 ### Preset System
 
@@ -101,6 +102,7 @@ src/
       dataPanel.ts     # Structured data panel (bottom-right) with translucent background, min-width 140px, clipped overflow
       zones.ts         # Territory zone polygons with crosshatch fill (Voronoi + heightmap)
       accents.ts       # Yellow bars with chevrons, hazard stripes, CMYK dots, hatching patches, scattered crosshairs, diamond markers
+      logoOverlay.ts   # SVG logo overlay (async) with configurable variant, scale, opacity, color
   hooks/
     useWallpaperConfig.ts   # Zustand store + resolution presets + initialization (hash → localStorage → defaults)
     useGenerateWallpaper.ts # Debounced re-render on config change
@@ -120,6 +122,7 @@ src/
       ResolutionPicker.tsx  # Preset + custom dimensions
       PresetPicker.tsx      # Named preset selector
       TextToggles.tsx       # Toggle switches for overlay layers
+      LogoControls.tsx      # Logo variant selector, scale/opacity sliders, color picker
     ui/                     # Reusable primitives (Button, Slider, Toggle, Select, ColorPicker)
   data/
     defaults.ts        # DEFAULTS config (mobile-aware: auto-detects device resolution on small screens)
@@ -129,15 +132,16 @@ src/
 
 ## Rendering Pipeline
 
-`renderWallpaper(canvas, config, dpr)` in `src/engine/renderer.ts` executes a synchronous pipeline:
+`renderWallpaper(canvas, config, dpr)` in `src/engine/renderer.ts` executes an async pipeline:
 
 1. **Font loading** -- `loadCanvasFont()` loads the custom Endfield `.ttf` via the FontFace API (cached after first load).
-2. **HiDPI buffer setup** -- Canvas buffer is set to `width * dpr` x `height * dpr`, then `ctx.setTransform(dpr, 0, 0, dpr, 0, 0)` so all drawing uses logical coordinates.
+2. **HiDPI buffer setup** -- Canvas buffer is set to `width * dpr` x `height * dpr` (only resized when dimensions change to avoid clearing the visible canvas). All drawing uses logical coordinates.
 3. **Grid sizing** -- The heightmap grid targets ~250 cells on the longer axis, maintaining the output aspect ratio.
-4. **Heightmap generation** -- `generateHeightmap()` in `terrain.ts` produces a `Float64Array` of fractal octave simplex noise, normalized to [0, 1]. Each octave multiplies frequency by `lacunarity` and amplitude by `persistence`.
-5. **Contour extraction** -- `extractContours()` in `contours.ts` feeds the heightmap into `d3-contour`'s marching-squares generator with `smooth(true)`, returning `ContourData[]` (threshold value + MultiPolygon coordinates).
-6. **RenderContext assembly** -- Bundles `ctx`, dimensions, config, contour data, heightmap, a seeded RNG (`seed + '_render'`), and the `ThemePalette`.
-7. **Layer composition** -- Draws layers in fixed order (see below). Each layer receives the full `RenderContext`. Toggle-gated layers are skipped when their `show*` flag is false.
+4. **Heightmap generation** -- `generateHeightmap()` in `terrain.ts` produces a `Float64Array` of fractal octave simplex noise, normalized to [0, 1]. Each octave multiplies frequency by `lacunarity` and amplitude by `persistence`. **Cached** -- see Caching Strategy below.
+5. **Contour extraction** -- `extractContours()` in `contours.ts` feeds the heightmap into `d3-contour`'s marching-squares generator with `smooth(true)`, returning `ContourData[]` (threshold value + MultiPolygon coordinates). **Cached** -- see Caching Strategy below.
+6. **RenderContext assembly** -- Bundles dimensions, config, contour data, heightmap, and the `ThemePalette`. Each layer receives its own seeded RNG (`seed + '_' + layerName`) and its own `OffscreenCanvas` context for caching.
+7. **Layer rendering + caching** -- Each layer renders to its own cached `OffscreenCanvas`. Only layers whose cache key has changed are re-rendered. Toggle-gated layers are skipped entirely when their `show*` flag is false.
+8. **Compositing** -- All enabled layers' cached canvases are composited onto the main canvas via `drawImage` calls (pixel-to-pixel, ~1-2ms total).
 
 ## Render Layers (composition order)
 
@@ -155,6 +159,52 @@ src/
 | 10 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
 | 11 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: translucent background, accent-colored header bar, 5-7 key/value rows, optional CJK footer. Min width 140px; drawing is clipped to panel bounds to prevent text overflow on small canvases |
 | 12 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with chevron arrows and label text, hazard stripe patch, CMYK registration dots, diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched) |
+| 13 | **logoOverlay** | `logoOverlay.ts` | `logoVariant` | SVG logo overlay (async). Fetches SVG text (cached per variant), injects fill color + opacity, renders via Blob URL → Image → `drawImage`. Centered on canvas, scaled by `logoScale`. Color and opacity configurable via `logoColor` and `logoOpacity` |
+
+## Caching Strategy
+
+`renderer.ts` implements a three-tier caching system to minimize redundant work. All caches are module-scoped and persist across render calls.
+
+### Tier 1: Terrain Data Cache
+
+Two-level cache for the most expensive computations:
+
+- **Heightmap cache** -- Keyed on `seed|gridWidth|gridHeight|noiseScale|octaves|persistence|lacunarity`. Skipped for all visual-only changes (toggles, colors, theme, logo).
+- **Contour cache** -- Keyed on the heightmap key + `contourLevels`. Changing `contourLevels` reuses the cached heightmap and only re-runs contour extraction (much cheaper).
+
+### Tier 2: Per-Layer OffscreenCanvas Cache
+
+Each of the 13 layers renders to its own cached `OffscreenCanvas`. A `Map<string, LayerEntry>` stores one canvas per layer name, keyed on the config fields that affect that layer's output.
+
+**Base key** (shared by most layers): `width|height|seed|theme|accentColor|contourColor` — covers dimensions, RNG seed, and all palette inputs.
+
+**Layer-specific keys:**
+
+| Layer(s) | Cache key |
+|---|---|
+| Most layers (background, grid, scanLines, heroText, annotations, reticles, cornerData, frames, dataPanel, accents) | Base key only |
+| contourLines | Base + `contourColorMode`, `contourGlow`, `contourLevels`, terrain key |
+| zones | Base + terrain key |
+| logoOverlay | Base + `logoVariant`, `logoScale`, `logoOpacity`, `logoColor` |
+
+### Tier 3: Compositing
+
+All enabled layers are composited onto the main canvas via `ctx.drawImage()` calls in order. The background layer is opaque and covers every pixel, so no `clearRect` is needed (this prevents flash-of-white between frames). Canvas dimensions are only changed when they actually differ from the current buffer size.
+
+### What invalidates what
+
+| User action | Terrain data | Layers re-rendered | Compositing |
+|---|---|---|---|
+| Toggle a layer | cached | none | re-composite only |
+| Change theme or accent color | cached | all | re-composite |
+| Change contour style/glow | cached | contourLines only | re-composite |
+| Change logo settings | cached | logoOverlay only | re-composite |
+| Change contourLevels | heightmap cached, contours regenerated | contourLines + zones | re-composite |
+| Change seed or noise params | regenerated | all | re-composite |
+
+### Memory
+
+Each `OffscreenCanvas` allocates a full RGBA buffer. At 2048px preview: ~130MB total for 13 layers. At ~1000px (mobile): ~40MB. Acceptable for modern devices.
 
 ## Contour Color Modes
 
@@ -186,15 +236,15 @@ Zustand flat store in `src/hooks/useWallpaperConfig.ts`. The store type is `Wall
 - `randomize()` -- Rerolls seed, noise params, theme, accent/contour color (linked), contour mode, glow, and all layer toggles. Resolution is preserved.
 - `applyPreset(name)` -- Applies a named preset from `PRESETS` array (with fresh seed)
 
-**Initialization:** On load, `getInitialConfig()` uses a three-tier priority chain: URL hash (shared permalink) → `localStorage` (returning user) → `DEFAULTS`. The `DEFAULTS` in `src/data/defaults.ts` are themselves dynamic: on mobile screens (screen width < 1024), the default resolution preset is `'device'` with hardware pixel dimensions; on desktop it defaults to `1080p`.
+**Initialization:** On load, `getInitialConfig()` uses a three-tier priority chain: URL hash (shared permalink) → `localStorage` (returning user) → `DEFAULTS`. The `DEFAULTS` in `src/data/defaults.ts` always default to `'device'` preset (hardware pixel dimensions via `screen.width * devicePixelRatio`), falling back to `1080p` if detection fails.
 
-**Backwards compatibility:** New config fields (`contourGlow`, `contourColor`) use `?? defaultValue` fallbacks in both the renderer and UI components, so old permalinks without these fields still work.
+**Backwards compatibility:** New config fields (`contourGlow`, `contourColor`, `logoVariant`, `logoScale`, `logoOpacity`, `logoColor`) use `?? defaultValue` fallbacks in both the renderer and UI components, so old permalinks without these fields still work.
 
 ## DPR / HiDPI Scaling
 
 The canvas buffer is scaled by `devicePixelRatio` for sharp rendering on HiDPI displays. All layer code draws in logical pixel coordinates -- the transform handles physical pixel mapping.
 
-**Preview:** `useGenerateWallpaper` fits the configured aspect ratio into the container (letterboxed when the container doesn't match). The render resolution is capped at **1200px** on the longest axis for performance; CSS sizing matches the fitted dimensions exactly so there's no stretching. The preview shows the same content as the export, just scaled down.
+**Preview:** `useGenerateWallpaper` fits the configured aspect ratio into the container (letterboxed when the container doesn't match). The render resolution is capped at **2048px** on the longest axis for performance; CSS sizing matches the fitted dimensions exactly so there's no stretching. The preview shows the same content as the export, just scaled down. The three-tier caching system (terrain data, per-layer OffscreenCanvas, compositing) ensures most interactions only re-render the affected layer(s).
 
 **Export:** `exportWallpaper()` renders at full target resolution with `dpr=1` (no extra scaling), producing a pixel-exact PNG at the configured dimensions.
 

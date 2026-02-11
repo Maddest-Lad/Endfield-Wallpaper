@@ -1,10 +1,21 @@
-import type { WallpaperConfig } from '../engine/types';
+import type { WallpaperConfig, ResolutionPreset } from '../engine/types';
 import { randomSeed } from '../utils/random';
 
+function getDefaultResolution(): { width: number; height: number; preset: ResolutionPreset } {
+  const isMobile = window.screen.width < 1024;
+  if (isMobile) {
+    const dpr = window.devicePixelRatio || 1;
+    return {
+      width: Math.round(screen.width * dpr),
+      height: Math.round(screen.height * dpr),
+      preset: 'device',
+    };
+  }
+  return { width: 1920, height: 1080, preset: '1080p' };
+}
+
 export const DEFAULTS: WallpaperConfig = {
-  width: 1920,
-  height: 1080,
-  preset: '1080p',
+  ...getDefaultResolution(),
   theme: 'dark',
   accentColor: '#FFE600',
   seed: randomSeed(),

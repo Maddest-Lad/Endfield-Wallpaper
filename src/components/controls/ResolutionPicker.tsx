@@ -2,11 +2,16 @@ import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
 import { Select } from '../ui/Select';
 import type { ResolutionPreset } from '../../engine/types';
 
+const dpr = window.devicePixelRatio || 1;
+const devW = Math.round(screen.width * dpr);
+const devH = Math.round(screen.height * dpr);
+
 const presetOptions = [
   { value: '1080p', label: '1920 x 1080 — FHD' },
   { value: '1440p', label: '2560 x 1440 — QHD' },
   { value: '4k', label: '3840 x 2160 — 4K' },
   { value: 'ultrawide', label: '3440 x 1440 — ULTRAWIDE' },
+  { value: 'device', label: `${devW} x ${devH} — YOUR DEVICE` },
   { value: 'custom', label: 'CUSTOM' },
 ];
 

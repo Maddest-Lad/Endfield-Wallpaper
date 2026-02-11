@@ -16,6 +16,7 @@ const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: numb
   '1440p': { width: 2560, height: 1440 },
   '4k': { width: 3840, height: 2160 },
   ultrawide: { width: 3440, height: 1440 },
+  device: null,
   custom: null,
 };
 
@@ -40,6 +41,14 @@ export const useWallpaperConfig = create<WallpaperStore>((set) => ({
 
   setPreset: (preset) =>
     set(() => {
+      if (preset === 'device') {
+        const dpr = window.devicePixelRatio || 1;
+        return {
+          preset,
+          width: Math.round(screen.width * dpr),
+          height: Math.round(screen.height * dpr),
+        };
+      }
       const res = RESOLUTION_PRESETS[preset];
       if (res) {
         return { preset, width: res.width, height: res.height };

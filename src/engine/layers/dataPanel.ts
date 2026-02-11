@@ -24,7 +24,7 @@ const PANEL_LINES_JP = [
 export function drawDataPanel(rc: RenderContext): void {
   const { ctx, width, height, palette, rng } = rc;
 
-  const panelW = Math.round(width * 0.18);
+  const panelW = Math.max(140, Math.round(width * 0.18));
   const lineH = Math.max(14, Math.round(height * 0.022));
   const lineCount = randomInt(rng, 5, 7);
   const panelH = lineH * (lineCount + 2) + lineH;
@@ -37,6 +37,11 @@ export function drawDataPanel(rc: RenderContext): void {
   const fontSize = Math.max(7, Math.round(width / 220));
 
   ctx.save();
+
+  // Clip to panel bounds so text overflow is hidden
+  ctx.beginPath();
+  ctx.rect(px, py, panelW, panelH);
+  ctx.clip();
 
   // Panel background
   ctx.fillStyle = palette.background;

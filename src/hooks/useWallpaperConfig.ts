@@ -4,7 +4,7 @@ import { randomSeed } from '../utils/random';
 import { PRESETS } from '../data/presets';
 import { DEFAULTS } from '../data/defaults';
 import { ACCENT_COLORS } from '../data/colors';
-import { decodeConfig } from '../utils/permalink';
+import { decodeConfig, loadSavedConfig } from '../utils/permalink';
 const CONTOUR_MODES: ContourColorMode[] = ['mono', 'elevation', 'fade'];
 
 function pick<T>(arr: T[]): T {
@@ -20,8 +20,8 @@ const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: numb
 };
 
 function getInitialConfig(): WallpaperConfig {
-  const fromHash = decodeConfig(window.location.hash);
-  return fromHash ?? DEFAULTS;
+  // URL hash takes priority (shared permalink), then localStorage, then defaults
+  return decodeConfig(window.location.hash) ?? loadSavedConfig() ?? DEFAULTS;
 }
 
 interface WallpaperStore extends WallpaperConfig {

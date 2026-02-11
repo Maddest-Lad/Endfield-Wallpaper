@@ -24,9 +24,28 @@ export function decodeConfig(hash: string): WallpaperConfig | null {
   }
 }
 
+const STORAGE_KEY = 'endfield-terrain-config';
+
 export function updateUrlHash(config: WallpaperConfig): void {
   const encoded = encodeConfig(config);
   if (encoded) {
     window.history.replaceState(null, '', `#${encoded}`);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    } catch { /* quota exceeded or private browsing — ignore */ }
+  }
+}
+
+export function loadSavedConfig(): WallpaperConfig | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed.width === 'number' && typeof parsed.seed === 'string') {
+      return { ...DEFAULTS, ...parsed } as WallpaperConfig;
+    }
+    return null;
+  } catch {
+    return null;
   }
 }

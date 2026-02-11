@@ -4,7 +4,10 @@ import { renderWallpaper } from '../engine/renderer';
 import { updateUrlHash } from '../utils/permalink';
 import type { WallpaperConfig } from '../engine/types';
 
-export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+export function useGenerateWallpaper(
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  containerSize: { w: number; h: number } | null,
+) {
   const {
     width,
     height,
@@ -39,7 +42,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
 
   const doRender = useCallback(async () => {
     const canvas = canvasRef.current;
-    if (!canvas || renderingRef.current) return;
+    if (!canvas || renderingRef.current || !containerSize) return;
 
     renderingRef.current = true;
     try {
@@ -55,7 +58,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
         persistence,
         lacunarity,
         contourLevels,
-    
+
         contourColorMode,
         contourGlow,
         contourColor,
@@ -72,23 +75,39 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
         showHeroText,
       };
 
-      // For preview, render at logical size that fits the viewport,
-      // then scale the buffer by devicePixelRatio for sharp HiDPI output
+      // Fit the wallpaper aspect ratio into the available container space.
+      // The container already accounts for padding via its content rect.
       const dpr = window.devicePixelRatio || 1;
-      const maxPreviewDim = 1200;
-      const scale = Math.min(1, maxPreviewDim / Math.max(width, height));
+      const aspect = width / height;
+      let cssW: number, cssH: number;
+
+      if (containerSize.w / containerSize.h > aspect) {
+        // Container is wider than wallpaper — height-constrained
+        cssH = Math.floor(containerSize.h);
+        cssW = Math.floor(cssH * aspect);
+      } else {
+        // Container is taller than wallpaper — width-constrained
+        cssW = Math.floor(containerSize.w);
+        cssH = Math.floor(cssW / aspect);
+      }
+
+      // Never render larger than the actual wallpaper resolution
+      if (cssW > width || cssH > height) {
+        cssW = width;
+        cssH = height;
+      }
 
       const previewConfig: WallpaperConfig = {
         ...config,
-        width: Math.round(width * scale),
-        height: Math.round(height * scale),
+        width: cssW,
+        height: cssH,
       };
 
       await renderWallpaper(canvas, previewConfig, dpr);
 
-      // Pin the CSS size to logical dimensions so the buffer isn't stretched
-      canvas.style.width = `${previewConfig.width}px`;
-      canvas.style.height = `${previewConfig.height}px`;
+      // Pin CSS size to exact logical dimensions — pixel-perfect, no stretching
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
 
       // Silently update URL hash for permalink sharing
       updateUrlHash(config);
@@ -97,6 +116,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
     }
   }, [
     canvasRef,
+    containerSize,
     width,
     height,
     preset,

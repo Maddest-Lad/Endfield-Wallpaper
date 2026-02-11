@@ -1,17 +1,31 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useGenerateWallpaper } from '../hooks/useGenerateWallpaper';
 import { useWallpaperConfig } from '../hooks/useWallpaperConfig';
 
 export function WallpaperCanvas() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { width, height } = useWallpaperConfig();
+  const [containerSize, setContainerSize] = useState<{ w: number; h: number } | null>(null);
 
-  useGenerateWallpaper(canvasRef);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
 
-  const aspect = width / height;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setContainerSize({ w: entry.contentRect.width, h: entry.contentRect.height });
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useGenerateWallpaper(canvasRef, containerSize);
 
   return (
-    <div className="relative flex-1 flex items-center justify-center p-6 overflow-hidden">
+    <div ref={containerRef} className="relative flex-1 flex items-center justify-center p-6 overflow-hidden">
       {/* Corner bracket decorations on the container */}
       <div className="absolute top-4 left-4 w-6 h-6 border-t border-l border-ef-border" />
       <div className="absolute top-4 right-4 w-6 h-6 border-t border-r border-ef-border" />
@@ -28,8 +42,7 @@ export function WallpaperCanvas() {
 
       <canvas
         ref={canvasRef}
-        className="shadow-lg max-w-full max-h-full"
-        style={{ aspectRatio: `${aspect}` }}
+        className="shadow-lg"
       />
     </div>
   );

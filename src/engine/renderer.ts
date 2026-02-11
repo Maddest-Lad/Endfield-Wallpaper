@@ -1,4 +1,4 @@
-import type { WallpaperConfig, RenderContext } from './types';
+import type { WallpaperConfig, RenderContext, ContourData } from './types';
 import { generateHeightmap } from './terrain';
 import { extractContours } from './contours';
 import { getPalette } from '../utils/color';
@@ -20,6 +20,13 @@ import { drawZones } from './layers/zones';
 import { drawLogoOverlay } from './layers/logoOverlay';
 
 const GRID_SIZE = 250;
+
+// Two-level terrain data cache — avoids recomputing expensive heightmap
+// and contour extraction when only visual settings change.
+let cachedTerrainKey = '';
+let cachedHeightmap: Float64Array | null = null;
+let cachedContourKey = '';
+let cachedContours: ContourData[] | null = null;
 
 export async function renderWallpaper(
   canvas: HTMLCanvasElement | OffscreenCanvas,
@@ -44,19 +51,38 @@ export async function renderWallpaper(
   const gridWidth = aspect >= 1 ? GRID_SIZE : Math.round(GRID_SIZE * aspect);
   const gridHeight = aspect >= 1 ? Math.round(GRID_SIZE / aspect) : GRID_SIZE;
 
-  // Generate terrain
-  const heightmap = generateHeightmap({
-    width: gridWidth,
-    height: gridHeight,
-    seed: config.seed,
-    scale: config.noiseScale,
-    octaves: config.octaves,
-    persistence: config.persistence,
-    lacunarity: config.lacunarity,
-  });
+  // Generate terrain (with two-level cache)
+  const terrainKey = `${config.seed}|${gridWidth}|${gridHeight}|${config.noiseScale}|${config.octaves}|${config.persistence}|${config.lacunarity}`;
 
-  // Extract contours
-  const contourData = extractContours(heightmap, gridWidth, gridHeight, config.contourLevels);
+  let heightmap: Float64Array;
+  if (terrainKey === cachedTerrainKey && cachedHeightmap) {
+    heightmap = cachedHeightmap;
+  } else {
+    heightmap = generateHeightmap({
+      width: gridWidth,
+      height: gridHeight,
+      seed: config.seed,
+      scale: config.noiseScale,
+      octaves: config.octaves,
+      persistence: config.persistence,
+      lacunarity: config.lacunarity,
+    });
+    cachedTerrainKey = terrainKey;
+    cachedHeightmap = heightmap;
+    cachedContourKey = '';
+    cachedContours = null;
+  }
+
+  // Extract contours (cached separately so contourLevels changes reuse heightmap)
+  const contourKey = `${terrainKey}|${config.contourLevels}`;
+  let contourData: ContourData[];
+  if (contourKey === cachedContourKey && cachedContours) {
+    contourData = cachedContours;
+  } else {
+    contourData = extractContours(heightmap, gridWidth, gridHeight, config.contourLevels);
+    cachedContourKey = contourKey;
+    cachedContours = contourData;
+  }
 
   // Build render context
   const palette = getPalette(config.theme, config.accentColor, config.contourColor ?? '#888888');

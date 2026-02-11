@@ -3,11 +3,10 @@ import { Select } from '../ui/Select';
 import type { ResolutionPreset } from '../../engine/types';
 
 const presetOptions = [
-  { value: '1080p', label: '1920 x 1080' },
-  { value: '1440p', label: '2560 x 1440' },
-  { value: '4k', label: '3840 x 2160' },
-  { value: 'phone', label: '1170 x 2532' },
-  { value: 'ultrawide', label: '3440 x 1440' },
+  { value: '1080p', label: '1920 x 1080 — FHD' },
+  { value: '1440p', label: '2560 x 1440 — QHD' },
+  { value: '4k', label: '3840 x 2160 — 4K' },
+  { value: 'ultrawide', label: '3440 x 1440 — ULTRAWIDE' },
   { value: 'custom', label: 'CUSTOM' },
 ];
 

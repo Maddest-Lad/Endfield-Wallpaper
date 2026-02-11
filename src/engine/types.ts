@@ -22,6 +22,8 @@ export interface WallpaperConfig {
   lacunarity: number;
   contourLevels: number;
   contourColorMode: ContourColorMode;
+  contourGlow: number;
+  contourColor: string;
 
   // Toggles
   showGrid: boolean;

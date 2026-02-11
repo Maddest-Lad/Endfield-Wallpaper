@@ -14,6 +14,8 @@ export const JP_LABELS = [
   '調査報告',
   '情報処理',
   '基地司令',
+  '探査レベル',
+  '開発水準',
 ];
 
 export const EN_LABELS = [
@@ -33,6 +35,12 @@ export const EN_LABELS = [
   'SURVEY POINT',
   'RESTRICTED AREA',
   'SIGNAL ACQUIRED',
+  'VALLEY PASS',
+  'POWER PLATEAU',
+  'ORIGIN LODESPRING',
+  'THE HUB',
+  'MOUNTAIN CONTOUR',
+  'INITIALIZE ACCESS',
 ];
 
 export const DATA_LABELS = [
@@ -50,4 +58,8 @@ export const DATA_LABELS = [
   'BEARING: 247\u00B0',
   'GRID: 4E-7N',
   'DATUM: WGS84',
+  'OS_REL_1.0.13',
+  'UID:6002768573',
+  'EXPLORATION LV.06',
+  'REG.DEV LV.12',
 ];

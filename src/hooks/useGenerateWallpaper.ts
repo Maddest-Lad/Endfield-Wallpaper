@@ -19,6 +19,8 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
     contourLevels,
 
     contourColorMode,
+    contourGlow,
+    contourColor,
     showGrid,
     showAnnotations,
     showCjkText,
@@ -54,6 +56,8 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
         contourLevels,
     
         contourColorMode,
+        contourGlow,
+        contourColor,
         showGrid,
         showAnnotations,
         showCjkText,
@@ -104,6 +108,8 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
     contourLevels,
 
     contourColorMode,
+    contourGlow,
+    contourColor,
     showGrid,
     showAnnotations,
     showCjkText,

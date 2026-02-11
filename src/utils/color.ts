@@ -1,11 +1,18 @@
 import type { ThemeMode, ThemePalette } from '../engine/types';
 
-export function getPalette(theme: ThemeMode, accentColor: string): ThemePalette {
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+export function getPalette(theme: ThemeMode, accentColor: string, contourColor: string): ThemePalette {
   if (theme === 'dark') {
     return {
       background: '#1A1A1A',
-      contourLine: 'rgba(200, 200, 200, 0.25)',
-      contourIndex: 'rgba(220, 220, 220, 0.45)',
+      contourLine: hexToRgba(contourColor, 0.25),
+      contourIndex: hexToRgba(contourColor, 0.45),
       gridMajor: 'rgba(255, 255, 255, 0.06)',
       gridMinor: 'rgba(255, 255, 255, 0.03)',
       gridLabel: 'rgba(255, 255, 255, 0.12)',
@@ -18,8 +25,8 @@ export function getPalette(theme: ThemeMode, accentColor: string): ThemePalette 
 
   return {
     background: '#F5F5F5',
-    contourLine: 'rgba(160, 160, 160, 0.35)',
-    contourIndex: 'rgba(120, 120, 120, 0.55)',
+    contourLine: hexToRgba(contourColor, 0.4),
+    contourIndex: hexToRgba(contourColor, 0.6),
     gridMajor: 'rgba(0, 0, 0, 0.06)',
     gridMinor: 'rgba(0, 0, 0, 0.025)',
     gridLabel: 'rgba(0, 0, 0, 0.12)',

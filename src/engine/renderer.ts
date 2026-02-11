@@ -57,7 +57,7 @@ export async function renderWallpaper(
   const contourData = extractContours(heightmap, gridWidth, gridHeight, config.contourLevels);
 
   // Build render context
-  const palette = getPalette(config.theme, config.accentColor);
+  const palette = getPalette(config.theme, config.accentColor, config.contourColor ?? '#888888');
   const rng = createRng(config.seed + '_render');
 
   const rc: RenderContext = {

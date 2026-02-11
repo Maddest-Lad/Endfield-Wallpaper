@@ -30,13 +30,13 @@ export function WallpaperCanvas() {
       />
 
       {rendering && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 pointer-events-none">
-          <div className="flex gap-[3px]">
-            <span className="w-1 h-3 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_infinite]" />
-            <span className="w-1 h-3 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.15s_infinite]" />
-            <span className="w-1 h-3 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.3s_infinite]" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 pointer-events-none">
+          <div className="flex gap-1">
+            <span className="w-1.5 h-5 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_infinite]" />
+            <span className="w-1.5 h-5 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.15s_infinite]" />
+            <span className="w-1.5 h-5 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.3s_infinite]" />
           </div>
-          <span className="text-[10px] text-ef-mid uppercase tracking-[0.25em] font-sans">
+          <span className="text-sm text-ef-mid uppercase tracking-[0.25em] font-sans">
             Processing
           </span>
         </div>

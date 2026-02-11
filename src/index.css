@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Endfield';
+  src: url('/fonts/EndfieldByButan.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-endfield: 'Endfield', 'Arial Black', 'Impact', sans-serif;
+
+  --color-ef-yellow: #FFE600;
+  --color-ef-dark: #1A1A1A;
+  --color-ef-light: #F5F5F5;
+  --color-ef-mid: #8A8A8A;
+  --color-ef-border: #D4D4D4;
+  --color-ef-cyan: #00AEEF;
+  --color-ef-magenta: #EC008C;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-endfield);
+  background-color: var(--color-ef-light);
+  color: var(--color-ef-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  height: 100dvh;
+}
+
+#root {
+  height: 100dvh;
+  width: 100vw;
+}
+
+/* Custom scrollbar for control panel */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-ef-border);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ef-mid);
+}

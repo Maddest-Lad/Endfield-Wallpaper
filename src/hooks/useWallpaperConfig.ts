@@ -15,7 +15,6 @@ const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: numb
   '1080p': { width: 1920, height: 1080 },
   '1440p': { width: 2560, height: 1440 },
   '4k': { width: 3840, height: 2160 },
-  phone: { width: 1170, height: 2532 },
   ultrawide: { width: 3440, height: 1440 },
   custom: null,
 };

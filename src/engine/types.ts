@@ -1,6 +1,6 @@
 export type ThemeMode = 'light' | 'dark';
 
-export type ResolutionPreset = '1080p' | '1440p' | '4k' | 'phone' | 'ultrawide' | 'custom';
+export type ResolutionPreset = '1080p' | '1440p' | '4k' | 'ultrawide' | 'custom';
 
 export type ContourColorMode = 'mono' | 'elevation' | 'fade';
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useWallpaperConfig } from './useWallpaperConfig';
 import { renderWallpaper } from '../engine/renderer';
+import { updateUrlHash } from '../utils/permalink';
 import type { WallpaperConfig } from '../engine/types';
 
 export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
@@ -17,6 +18,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
     lacunarity,
     contourLevels,
     paperGrain,
+    contourColorMode,
     showGrid,
     showAnnotations,
     showCjkText,
@@ -51,6 +53,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
         lacunarity,
         contourLevels,
         paperGrain,
+        contourColorMode,
         showGrid,
         showAnnotations,
         showCjkText,
@@ -80,6 +83,9 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
       // Pin the CSS size to logical dimensions so the buffer isn't stretched
       canvas.style.width = `${previewConfig.width}px`;
       canvas.style.height = `${previewConfig.height}px`;
+
+      // Silently update URL hash for permalink sharing
+      updateUrlHash(config);
     } finally {
       renderingRef.current = false;
     }
@@ -97,6 +103,7 @@ export function useGenerateWallpaper(canvasRef: React.RefObject<HTMLCanvasElemen
     lacunarity,
     contourLevels,
     paperGrain,
+    contourColorMode,
     showGrid,
     showAnnotations,
     showCjkText,

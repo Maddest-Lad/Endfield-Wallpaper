@@ -1,6 +1,8 @@
 import { ResolutionPicker } from './controls/ResolutionPicker';
+import { PresetPicker } from './controls/PresetPicker';
 import { ThemeControls } from './controls/ThemeControls';
 import { NoiseControls } from './controls/NoiseControls';
+import { ContourControls } from './controls/ContourControls';
 import { TextToggles } from './controls/TextToggles';
 import { ActionButtons } from './controls/ActionButtons';
 
@@ -34,6 +36,11 @@ export function ControlPanel() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 flex flex-col gap-1">
+        <SectionHeader>Presets</SectionHeader>
+        <PresetPicker />
+
+        <Divider />
+
         <SectionHeader>Resolution</SectionHeader>
         <ResolutionPicker />
 
@@ -46,6 +53,11 @@ export function ControlPanel() {
 
         <SectionHeader>Terrain Parameters</SectionHeader>
         <NoiseControls />
+
+        <Divider />
+
+        <SectionHeader>Contour Style</SectionHeader>
+        <ContourControls />
 
         <Divider />
 

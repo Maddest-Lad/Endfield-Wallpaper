@@ -3,7 +3,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = 'primary', className = '', children, ...props }: ButtonProps) {
-  const base = 'font-endfield uppercase tracking-widest text-xs px-5 py-2.5 transition-all cursor-pointer';
+  const base = 'font-sans uppercase tracking-widest text-xs px-5 py-2.5 transition-all cursor-pointer';
   const variants = {
     primary: 'bg-ef-yellow text-ef-dark hover:brightness-110 active:brightness-95',
     secondary:

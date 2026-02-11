@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { WallpaperConfig, ResolutionPreset } from '../engine/types';
 import { randomSeed } from '../utils/random';
+import { PRESETS } from '../data/presets';
+import { decodeConfig } from '../utils/permalink';
 
 const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: number } | null> = {
   '1080p': { width: 1920, height: 1080 },
@@ -11,23 +13,12 @@ const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: numb
   custom: null,
 };
 
-interface WallpaperStore extends WallpaperConfig {
-  setConfig: (partial: Partial<WallpaperConfig>) => void;
-  setPreset: (preset: ResolutionPreset) => void;
-  randomize: () => void;
-}
-
-export const useWallpaperConfig = create<WallpaperStore>((set) => ({
-  // Resolution
+const DEFAULTS: WallpaperConfig = {
   width: 1920,
   height: 1080,
   preset: '1080p',
-
-  // Theme
   theme: 'light',
   accentColor: '#FFE600',
-
-  // Noise
   seed: randomSeed(),
   noiseScale: 0.006,
   octaves: 4,
@@ -35,8 +26,7 @@ export const useWallpaperConfig = create<WallpaperStore>((set) => ({
   lacunarity: 2.0,
   contourLevels: 20,
   paperGrain: 0.03,
-
-  // Toggles
+  contourColorMode: 'mono',
   showGrid: true,
   showAnnotations: true,
   showCjkText: true,
@@ -47,6 +37,24 @@ export const useWallpaperConfig = create<WallpaperStore>((set) => ({
   showReticles: true,
   showCornerData: true,
   showHeroText: false,
+};
+
+function getInitialConfig(): WallpaperConfig {
+  const fromHash = decodeConfig(window.location.hash);
+  return fromHash ?? DEFAULTS;
+}
+
+interface WallpaperStore extends WallpaperConfig {
+  setConfig: (partial: Partial<WallpaperConfig>) => void;
+  setPreset: (preset: ResolutionPreset) => void;
+  randomize: () => void;
+  applyPreset: (name: string) => void;
+}
+
+const initialConfig = getInitialConfig();
+
+export const useWallpaperConfig = create<WallpaperStore>((set) => ({
+  ...initialConfig,
 
   setConfig: (partial) => set(partial),
 
@@ -66,5 +74,12 @@ export const useWallpaperConfig = create<WallpaperStore>((set) => ({
       octaves: 3 + Math.floor(Math.random() * 3),
       persistence: 0.35 + Math.random() * 0.3,
       contourLevels: 14 + Math.floor(Math.random() * 16),
+    }),
+
+  applyPreset: (name) =>
+    set(() => {
+      const preset = PRESETS.find((p) => p.name === name);
+      if (!preset) return {};
+      return { ...preset.config, seed: randomSeed() };
     }),
 }));

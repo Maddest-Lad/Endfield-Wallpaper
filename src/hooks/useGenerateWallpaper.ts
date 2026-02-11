@@ -46,11 +46,15 @@ export function useGenerateWallpaper(
   setRenderingRef.current = setRendering;
 
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const hiresRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const renderingRef = useRef(false);
   const dirtyRef = useRef(false);
-  const doRenderRef = useRef<() => Promise<void>>();
+  const doRenderRef = useRef<(maxPreview: number) => Promise<void>>();
 
-  const doRender = useCallback(async () => {
+  const MAX_FAST = 1200;
+  const MAX_HIRES = 2048;
+
+  const doRender = useCallback(async (maxPreview: number) => {
     const canvas = canvasRef.current;
     if (!canvas || !containerSize) return;
 
@@ -111,9 +115,8 @@ export function useGenerateWallpaper(
       }
 
       // Cap render resolution for performance (preview only)
-      const MAX_PREVIEW = 1200;
       const longest = Math.max(cssW, cssH);
-      const renderScale = longest > MAX_PREVIEW ? MAX_PREVIEW / longest : 1;
+      const renderScale = longest > maxPreview ? maxPreview / longest : 1;
       const renderW = Math.floor(cssW * renderScale);
       const renderH = Math.floor(cssH * renderScale);
 
@@ -135,7 +138,7 @@ export function useGenerateWallpaper(
       renderingRef.current = false;
       if (dirtyRef.current) {
         dirtyRef.current = false;
-        setTimeout(() => doRenderRef.current?.(), 0);
+        setTimeout(() => doRenderRef.current?.(maxPreview), 0);
       } else {
         setRenderingRef.current(false);
       }
@@ -182,13 +185,24 @@ export function useGenerateWallpaper(
   useEffect(() => {
     setRendering(true);
     clearTimeout(debounceRef.current);
+    clearTimeout(hiresRef.current);
     debounceRef.current = setTimeout(async () => {
       // Yield a frame so React can paint the loading indicator
       // before the synchronous render blocks the main thread.
       await new Promise((r) => requestAnimationFrame(r));
-      await doRender();
+      await doRender(MAX_FAST);
+
+      // Schedule a hi-res upgrade after 2s of idle
+      clearTimeout(hiresRef.current);
+      hiresRef.current = setTimeout(async () => {
+        await new Promise((r) => requestAnimationFrame(r));
+        await doRenderRef.current?.(MAX_HIRES);
+      }, 2000);
     }, 150);
-    return () => clearTimeout(debounceRef.current);
+    return () => {
+      clearTimeout(debounceRef.current);
+      clearTimeout(hiresRef.current);
+    };
   }, [doRender]);
 
   return rendering;

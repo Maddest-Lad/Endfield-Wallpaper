@@ -59,9 +59,10 @@ export async function renderWallpaper(
 
   // Build render context
   const palette = getPalette(config.theme, config.accentColor, config.contourColor ?? '#888888');
-  const rng = createRng(config.seed + '_render');
 
-  const rc: RenderContext = {
+  // Each layer gets its own seeded RNG so toggling one layer
+  // never shifts the random sequence for any other layer.
+  const baseRc: Omit<RenderContext, 'rng'> = {
     ctx,
     width,
     height,
@@ -70,52 +71,55 @@ export async function renderWallpaper(
     heightmap,
     gridWidth,
     gridHeight,
-    rng,
     palette,
   };
+  const layerRc = (name: string): RenderContext => ({
+    ...baseRc,
+    rng: createRng(config.seed + '_' + name),
+  });
 
   // Render layers in order
-  drawBackground(rc);
+  drawBackground(layerRc('background'));
 
   if (config.showGrid) {
-    drawGrid(rc);
+    drawGrid(layerRc('grid'));
   }
 
   if (config.showScanLines) {
-    drawScanLines(rc);
+    drawScanLines(layerRc('scanLines'));
   }
 
-  drawContourLines(rc);
+  drawContourLines(layerRc('contourLines'));
 
   if (config.showZones) {
-    drawZones(rc);
+    drawZones(layerRc('zones'));
   }
 
   if (config.showHeroText) {
-    drawHeroText(rc);
+    drawHeroText(layerRc('heroText'));
   }
 
   if (config.showAnnotations) {
-    drawAnnotations(rc);
+    drawAnnotations(layerRc('annotations'));
   }
 
   if (config.showReticles) {
-    drawReticles(rc);
+    drawReticles(layerRc('reticles'));
   }
 
   if (config.showCornerData) {
-    drawCornerData(rc);
+    drawCornerData(layerRc('cornerData'));
   }
 
   if (config.showFrames) {
-    drawFrames(rc);
+    drawFrames(layerRc('frames'));
   }
 
   if (config.showDataPanel) {
-    drawDataPanel(rc);
+    drawDataPanel(layerRc('dataPanel'));
   }
 
   if (config.showAccents) {
-    drawAccents(rc);
+    drawAccents(layerRc('accents'));
   }
 }

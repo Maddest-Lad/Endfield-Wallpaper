@@ -1,13 +1,5 @@
 import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
-
-const ACCENT_PRESETS = [
-  '#FFE600', // Endfield Yellow
-  '#FF4444', // Red
-  '#00AEEF', // Cyan
-  '#4ADE80', // Green
-  '#A855F7', // Purple
-  '#FFFFFF', // White
-];
+import { ColorPicker } from '../ui/ColorPicker';
 
 export function ThemeControls() {
   const { theme, accentColor, setConfig } = useWallpaperConfig();
@@ -38,22 +30,11 @@ export function ThemeControls() {
         </button>
       </div>
 
-      {/* Accent color */}
-      <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] text-ef-mid uppercase tracking-widest">Accent</span>
-        <div className="flex gap-1.5">
-          {ACCENT_PRESETS.map((color) => (
-            <button
-              key={color}
-              onClick={() => setConfig({ accentColor: color })}
-              className={`w-6 h-6 border cursor-pointer transition-all ${
-                accentColor === color ? 'border-ef-dark scale-110' : 'border-ef-border hover:border-ef-mid'
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        </div>
-      </div>
+      <ColorPicker
+        label="Accent"
+        value={accentColor}
+        onChange={(color) => setConfig({ accentColor: color })}
+      />
     </div>
   );
 }

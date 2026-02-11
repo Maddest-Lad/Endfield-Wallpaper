@@ -4,7 +4,7 @@ import { randomSeed } from '../utils/random';
 import { PRESETS } from '../data/presets';
 import { decodeConfig } from '../utils/permalink';
 
-const ACCENT_COLORS = ['#FFE600', '#FF4444', '#00AEEF', '#4ADE80', '#A855F7', '#FFFFFF'];
+const ACCENT_COLORS = ['#FFE600', '#FF4444', '#00AEEF', '#4ADE80', '#A855F7', '#FFFFFF', '#888888', '#1A1A1A'];
 const CONTOUR_MODES: ContourColorMode[] = ['mono', 'elevation', 'fade'];
 
 function pick<T>(arr: T[]): T {

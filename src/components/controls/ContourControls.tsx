@@ -1,20 +1,12 @@
 import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
 import { Slider } from '../ui/Slider';
+import { ColorPicker } from '../ui/ColorPicker';
 import type { ContourColorMode } from '../../engine/types';
 
 const MODES: { value: ContourColorMode; label: string }[] = [
   { value: 'mono', label: 'Mono' },
   { value: 'elevation', label: 'Elevation' },
   { value: 'fade', label: 'Fade' },
-];
-
-const CONTOUR_COLORS = [
-  '#888888', // Default gray
-  '#1A1A1A', // Black
-  '#C8C8C8', // Light gray
-  '#FFE600', // Yellow
-  '#FF4444', // Red
-  '#00AEEF', // Cyan
 ];
 
 export function ContourControls() {
@@ -46,21 +38,11 @@ export function ContourControls() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] text-ef-mid uppercase tracking-widest">Line Color</span>
-        <div className="flex gap-1.5">
-          {CONTOUR_COLORS.map((color) => (
-            <button
-              key={color}
-              onClick={() => setConfig({ contourColor: color })}
-              className={`w-6 h-6 border cursor-pointer transition-all ${
-                contourColor === color ? 'border-ef-dark scale-110' : 'border-ef-border hover:border-ef-mid'
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
-        </div>
-      </div>
+      <ColorPicker
+        label="Line Color"
+        value={contourColor}
+        onChange={(color) => setConfig({ contourColor: color })}
+      />
 
       <Slider
         label="Glow"

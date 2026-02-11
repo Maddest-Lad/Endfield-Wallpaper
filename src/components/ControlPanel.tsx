@@ -80,9 +80,23 @@ export function ControlPanel() {
       </div>
 
       {/* Footer — dark to match header */}
-      <div className="bg-ef-dark px-4 py-2">
-        <p className="text-[8px] text-ef-light/30 uppercase tracking-widest text-center">
-          GEN-2026 // ENDFIELD INDUSTRIES
+      <div className="bg-ef-dark px-4 py-2 space-y-1.5">
+        <p className="text-[7px] text-ef-light/25 text-center leading-relaxed">
+          Unofficial fan project derived from Arknights: Endfield.
+          Not affiliated with or endorsed by Yostar, HyperGryphon, or miHoYo.
+          Non-commercial use only.
+        </p>
+        <p className="text-[7px] text-ef-light/25 text-center leading-relaxed">
+          Endfield font by{' '}
+          <a
+            href="https://github.com/lhclbt/Endfield_Font"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-ef-light/40"
+          >
+            Luo Butan
+          </a>{' '}
+          (CC BY-NC 4.0)
         </p>
       </div>
     </aside>

@@ -29,7 +29,8 @@ export async function renderWallpaper(
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   if (!ctx) throw new Error('Could not get 2D context');
 
-  const { width, height } = config;
+  const width = Math.max(100, config.width);
+  const height = Math.max(100, config.height);
 
   // Scale buffer for HiDPI; all drawing stays in logical coords
   canvas.width = width * dpr;

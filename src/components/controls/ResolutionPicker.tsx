@@ -26,15 +26,19 @@ export function ResolutionPicker() {
         <div className="flex gap-2 items-center">
           <input
             type="number"
+            min={100}
             value={width}
-            onChange={(e) => setConfig({ width: parseInt(e.target.value) || 1920 })}
+            onChange={(e) => setConfig({ width: parseInt(e.target.value) || width })}
+            onBlur={() => { if (width < 100) setConfig({ width: 100 }); }}
             className="w-20 bg-transparent border border-ef-border text-xs text-ef-dark px-2 py-1 font-mono focus:border-ef-yellow focus:outline-none"
           />
           <span className="text-[10px] text-ef-mid">x</span>
           <input
             type="number"
+            min={100}
             value={height}
-            onChange={(e) => setConfig({ height: parseInt(e.target.value) || 1080 })}
+            onChange={(e) => setConfig({ height: parseInt(e.target.value) || height })}
+            onBlur={() => { if (height < 100) setConfig({ height: 100 }); }}
             className="w-20 bg-transparent border border-ef-border text-xs text-ef-dark px-2 py-1 font-mono focus:border-ef-yellow focus:outline-none"
           />
         </div>

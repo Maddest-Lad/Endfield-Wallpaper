@@ -13,7 +13,7 @@ interface SelectProps {
 export function Select({ label, value, options, onChange }: SelectProps) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10px] text-ef-mid uppercase tracking-widest">{label}</span>
+      <span className="text-[11px] text-ef-mid uppercase tracking-widest">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}

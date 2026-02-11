@@ -10,7 +10,7 @@ export function PresetPicker() {
         <button
           key={p.name}
           onClick={() => applyPreset(p.name)}
-          className="text-[9px] uppercase tracking-wider px-2 py-1
+          className="text-[10px] uppercase tracking-wider px-2 py-1
             border border-ef-border text-ef-dark bg-transparent
             hover:border-ef-mid hover:bg-ef-dark/5 active:bg-ef-dark/10
             cursor-pointer transition-all"

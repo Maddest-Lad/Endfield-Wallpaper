@@ -10,7 +10,7 @@ export function ThemeControls() {
       <div className="flex gap-2">
         <button
           onClick={() => setConfig({ theme: 'light' })}
-          className={`flex-1 text-[10px] uppercase tracking-widest py-1.5 border cursor-pointer transition-colors ${
+          className={`flex-1 text-[11px] uppercase tracking-widest py-1.5 border cursor-pointer transition-colors ${
             theme === 'light'
               ? 'bg-ef-dark text-ef-light border-ef-dark'
               : 'bg-transparent text-ef-mid border-ef-border hover:border-ef-mid'
@@ -20,7 +20,7 @@ export function ThemeControls() {
         </button>
         <button
           onClick={() => setConfig({ theme: 'dark' })}
-          className={`flex-1 text-[10px] uppercase tracking-widest py-1.5 border cursor-pointer transition-colors ${
+          className={`flex-1 text-[11px] uppercase tracking-widest py-1.5 border cursor-pointer transition-colors ${
             theme === 'dark'
               ? 'bg-ef-dark text-ef-light border-ef-dark'
               : 'bg-transparent text-ef-mid border-ef-border hover:border-ef-mid'

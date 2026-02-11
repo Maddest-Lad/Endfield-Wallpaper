@@ -13,7 +13,7 @@ export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] text-ef-mid uppercase tracking-widest">{label}</span>
+      <span className="text-[11px] text-ef-mid uppercase tracking-widest">{label}</span>
       <div className="flex gap-1.5">
         {ACCENT_COLORS.map((color) => (
           <button

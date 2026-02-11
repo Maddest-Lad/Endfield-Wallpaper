@@ -18,13 +18,13 @@ export function ContourControls() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
-        <span className="text-[10px] text-ef-mid uppercase tracking-widest">Contour Mode</span>
+        <span className="text-[11px] text-ef-mid uppercase tracking-widest">Contour Mode</span>
         <div className="flex gap-1">
           {MODES.map((m) => (
             <button
               key={m.value}
               onClick={() => setConfig({ contourColorMode: m.value })}
-              className={`flex-1 text-[9px] uppercase tracking-wider px-2 py-1.5
+              className={`flex-1 text-[10px] uppercase tracking-wider px-2 py-1.5
                 border cursor-pointer transition-all
                 ${
                   contourColorMode === m.value

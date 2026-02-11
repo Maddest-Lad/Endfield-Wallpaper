@@ -75,6 +75,14 @@ The custom display font (`EndfieldByButan.ttf`) is created by Luo Butan (罗醭�
 
 The original character designs referenced by the font are the property of miHoYo / HyperGryphon. The font creator notes that miHoYo retains final interpretation rights over the original character designs.
 
+## Icon Attribution
+
+The logo icons (Endfield Industries and localized variants) are created by Yue-plus.
+
+- Author: Yue-plus
+- Source: [github.com/Yue-plus/endfield_icons](https://github.com/Yue-plus/endfield_icons)
+- License: [MIT](https://opensource.org/licenses/MIT)
+
 ## License
 
 This project is for personal and non-commercial use only, in accordance with the Arknights fan content guidelines. You may not use this project or its output for any commercial purpose.

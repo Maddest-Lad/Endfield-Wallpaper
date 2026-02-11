@@ -25,7 +25,6 @@ const DEFAULTS: WallpaperConfig = {
   persistence: 0.5,
   lacunarity: 2.0,
   contourLevels: 20,
-  paperGrain: 0.03,
   contourColorMode: 'mono',
   showGrid: true,
   showAnnotations: true,

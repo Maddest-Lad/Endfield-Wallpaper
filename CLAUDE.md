@@ -15,7 +15,6 @@ The design draws from Endfield's packaging, merchandise, and in-game UI. Key vis
 - **Mixed-language text** -- Japanese labels (e.g. "暴雨予警", "地形調査", "座標確認") and English labels ("TERRAIN SURVEY", "CLASSIFIED", "SECTOR 7-G") are scattered as annotations. CJK text uses Noto Sans JP / system CJK fonts; technical readouts use a clean sans-serif.
 - **Industrial marks** -- CMYK registration dots (cyan, magenta, yellow, black), hazard stripes (diagonal yellow-and-black), yellow accent bars stamped "ARKNIGHTS: ENDFIELD", corner brackets, center crosshairs, and edge midpoint ticks.
 - **HUD overlays** -- Grid lines, scan lines, reticle targets, data panels with coordinates/elevation/frequency readouts, and corner metadata blocks.
-- **Paper grain** -- A noise-based grain texture applied after contour drawing to simulate printed-document texture.
 
 ### The Endfield Font
 
@@ -34,7 +33,7 @@ The app is a single full-viewport layout with two regions:
 1. **Presets** -- Six curated style buttons that apply a full config snapshot (all settings except resolution and seed).
 2. **Resolution** -- Dropdown for 1080p, 1440p, 4K, phone (1170x2532), ultrawide (3440x1440), or custom width/height inputs.
 3. **Theme** -- Light/dark toggle and accent color picker (6 preset swatches).
-4. **Terrain Parameters** -- Seed text input plus sliders for noise scale, octaves, persistence, contour levels, and paper grain.
+4. **Terrain Parameters** -- Seed text input plus sliders for noise scale, octaves, persistence, and contour levels.
 5. **Contour Style** -- Tri-state selector for contour color mode: mono, elevation, or fade.
 6. **Layers** -- Ten independent toggles controlling which overlay layers are drawn (grid, annotations, Japanese text, frames, accents, scan lines, data panel, reticles, corner data, hero text).
 7. **Action Buttons** -- Randomize (re-rolls all parameters), Export PNG, Copy Link.
@@ -82,7 +81,7 @@ src/
     renderer.ts        # Orchestrates layer composition
     export.ts          # Full-resolution PNG export via OffscreenCanvas
     layers/            # One file per visual layer
-      background.ts    # Solid fill + paper grain
+      background.ts    # Solid fill
       grid.ts          # Major/minor grid + coordinate labels
       scanLines.ts     # Faint horizontal/vertical scan lines
       contourLines.ts  # Contour paths with color modes
@@ -138,14 +137,13 @@ src/
 | 2 | **grid** | `grid.ts` | `showGrid` | Major (1/8 width) and minor (1/32 width) grid lines with alphanumeric coordinate labels at intersections |
 | 3 | **scanLines** | `scanLines.ts` | `showScanLines` | 3-6 faint horizontal + 2-4 vertical lines at random positions, plus one dashed accent line |
 | 4 | **contourLines** | `contourLines.ts` | always | Draws all contour paths scaled from grid-space to canvas-space. Every 5th contour is an "index" contour (thicker). Color varies by `contourColorMode` |
-| 5 | **grain** | `background.ts` | `paperGrain > 0` | Random-brightness pixel blocks overlaid at configurable opacity. Drawn after contours but before text so text stays crisp |
-| 6 | **heroText** | `heroText.ts` | `showHeroText` | A single large word rendered as a very faint watermark (6% opacity) with shadow echo and accent underline. Uses the Endfield font |
-| 7 | **annotations** | `annotations.ts` | `showAnnotations` | 10-16 scattered text labels chosen from EN, JP (if CJK enabled), and data-format pools. Zone-based placement across a 4x3 grid prevents clustering |
-| 8 | **reticles** | `reticles.ts` | `showReticles` | 2-4 tactical targeting symbols (circle, diamond, or square variant) biased toward canvas corners |
-| 9 | **cornerData** | `cornerData.ts` | `showCornerData` | Top-left: environmental readouts. Top-right: lat/lon coordinates + grid reference. Bottom-left: classification ID stamp |
-| 10 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
-| 11 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: accent-colored header bar, 5-7 key/value rows, optional CJK footer |
-| 12 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with label text, hazard stripe patch, CMYK registration dots, small accent squares |
+| 5 | **heroText** | `heroText.ts` | `showHeroText` | A single large word rendered as a very faint watermark (6% opacity) with shadow echo and accent underline. Uses the Endfield font |
+| 6 | **annotations** | `annotations.ts` | `showAnnotations` | 10-16 scattered text labels chosen from EN, JP (if CJK enabled), and data-format pools. Zone-based placement across a 4x3 grid prevents clustering |
+| 7 | **reticles** | `reticles.ts` | `showReticles` | 2-4 tactical targeting symbols (circle, diamond, or square variant) biased toward canvas corners |
+| 8 | **cornerData** | `cornerData.ts` | `showCornerData` | Top-left: environmental readouts. Top-right: lat/lon coordinates + grid reference. Bottom-left: classification ID stamp |
+| 9 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
+| 10 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: accent-colored header bar, 5-7 key/value rows, optional CJK footer |
+| 11 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with label text, hazard stripe patch, CMYK registration dots, small accent squares |
 
 ## Contour Color Modes
 

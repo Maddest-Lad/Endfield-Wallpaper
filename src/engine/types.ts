@@ -21,7 +21,6 @@ export interface WallpaperConfig {
   persistence: number;
   lacunarity: number;
   contourLevels: number;
-  paperGrain: number;
   contourColorMode: ContourColorMode;
 
   // Toggles

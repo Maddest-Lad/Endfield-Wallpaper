@@ -2,7 +2,7 @@ import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
 import { Slider } from '../ui/Slider';
 
 export function NoiseControls() {
-  const { seed, noiseScale, octaves, persistence, contourLevels, paperGrain, setConfig } =
+  const { seed, noiseScale, octaves, persistence, contourLevels, setConfig } =
     useWallpaperConfig();
 
   return (
@@ -56,15 +56,6 @@ export function NoiseControls() {
         onChange={(v) => setConfig({ contourLevels: v })}
       />
 
-      <Slider
-        label="Paper Grain"
-        value={paperGrain}
-        min={0}
-        max={0.1}
-        step={0.005}
-        onChange={(v) => setConfig({ paperGrain: v })}
-        displayValue={paperGrain.toFixed(3)}
-      />
     </div>
   );
 }

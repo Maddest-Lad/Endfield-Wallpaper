@@ -12,8 +12,8 @@ export function Slider({ label, value, min, max, step, onChange, displayValue }:
   return (
     <div className="flex flex-col gap-1">
       <div className="flex justify-between items-center">
-        <span className="text-[10px] text-ef-mid uppercase tracking-widest">{label}</span>
-        <span className="text-[10px] text-ef-mid font-mono">{displayValue ?? value}</span>
+        <span className="text-[11px] text-ef-mid uppercase tracking-widest">{label}</span>
+        <span className="text-[11px] text-ef-mid font-mono">{displayValue ?? value}</span>
       </div>
       <input
         type="range"

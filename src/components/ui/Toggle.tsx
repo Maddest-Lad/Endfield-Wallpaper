@@ -7,7 +7,7 @@ interface ToggleProps {
 export function Toggle({ label, checked, onChange }: ToggleProps) {
   return (
     <label className="flex items-center justify-between cursor-pointer group">
-      <span className="text-[10px] text-ef-mid uppercase tracking-widest group-hover:text-ef-dark transition-colors">
+      <span className="text-[11px] text-ef-mid uppercase tracking-widest group-hover:text-ef-dark transition-colors">
         {label}
       </span>
       <div className="relative">

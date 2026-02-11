@@ -60,8 +60,7 @@ export function ActionButtons() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Button onClick={() => store.randomize()}>RANDOMIZE</Button>
-      <Button variant="secondary" onClick={handleExport} disabled={exporting}>
+      <Button onClick={handleExport} disabled={exporting}>
         {exporting ? 'EXPORTING...' : 'EXPORT PNG'}
       </Button>
       <Button variant="secondary" onClick={handleCopyLink}>

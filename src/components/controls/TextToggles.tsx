@@ -5,7 +5,6 @@ export function TextToggles() {
   const {
     showGrid,
     showAnnotations,
-    showCjkText,
     showFrames,
     showAccents,
     showScanLines,
@@ -20,8 +19,7 @@ export function TextToggles() {
   return (
     <div className="flex flex-col gap-2.5">
       <Toggle label="Grid" checked={showGrid} onChange={(v) => setConfig({ showGrid: v })} />
-      <Toggle label="Contour Annotations" checked={showAnnotations} onChange={(v) => setConfig({ showAnnotations: v })} />
-      <Toggle label="Japanese Text" checked={showCjkText} onChange={(v) => setConfig({ showCjkText: v })} />
+      <Toggle label="Text Labels" checked={showAnnotations} onChange={(v) => setConfig({ showAnnotations: v })} />
       <Toggle label="Frames" checked={showFrames} onChange={(v) => setConfig({ showFrames: v })} />
       <Toggle label="Accents" checked={showAccents} onChange={(v) => setConfig({ showAccents: v })} />
       <Toggle label="Scan Lines" checked={showScanLines} onChange={(v) => setConfig({ showScanLines: v })} />

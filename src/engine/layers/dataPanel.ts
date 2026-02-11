@@ -22,7 +22,7 @@ const PANEL_LINES_JP = [
 ];
 
 export function drawDataPanel(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng, config } = rc;
+  const { ctx, width, height, palette, rng } = rc;
 
   const panelW = Math.round(width * 0.18);
   const lineH = Math.max(14, Math.round(height * 0.022));
@@ -88,16 +88,14 @@ export function drawDataPanel(rc: RenderContext): void {
     ctx.fillText(value, px + panelW - 6, y);
   }
 
-  // Optional JP label at the bottom
-  if (config.showCjkText) {
-    const jpText = randomPick(rng, PANEL_LINES_JP);
-    const jpY = py + headerH + lineH * (usedLines.length + 0.7);
-    ctx.globalAlpha = 0.3;
-    ctx.font = fontForText(jpText, fontSize + 2);
-    ctx.fillStyle = palette.textSecondary;
-    ctx.textAlign = 'left';
-    ctx.fillText(jpText, px + 6, jpY);
-  }
+  // JP label at the bottom
+  const jpText = randomPick(rng, PANEL_LINES_JP);
+  const jpY = py + headerH + lineH * (usedLines.length + 0.7);
+  ctx.globalAlpha = 0.3;
+  ctx.font = fontForText(jpText, fontSize + 2);
+  ctx.fillStyle = palette.textSecondary;
+  ctx.textAlign = 'left';
+  ctx.fillText(jpText, px + 6, jpY);
 
   ctx.restore();
 }

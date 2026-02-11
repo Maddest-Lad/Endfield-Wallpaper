@@ -3,7 +3,7 @@ import { fontForText } from '../../utils/fonts';
 import { randomInt } from '../../utils/random';
 
 export function drawCornerData(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng, config } = rc;
+  const { ctx, width, height, palette, rng } = rc;
 
   const fontSize = Math.max(7, Math.round(width / 220));
   const lineH = fontSize * 1.7;
@@ -32,14 +32,14 @@ export function drawCornerData(rc: RenderContext): void {
   drawTopRightCoords(ctx, width - margin, margin, fontSize, lineH, palette, rng);
 
   // Bottom-left: classification stamp
-  const blLines = config.showCjkText ? 3 : 2;
+  const blLines = 3;
   const blH = blLines * lineH + bgPad;
   const blW = fontSize * 10;
   ctx.globalAlpha = 0.35;
   ctx.fillStyle = palette.background;
   ctx.fillRect(margin - bgPad, height - margin - blH + bgPad * 0.3, blW, blH);
   ctx.globalAlpha = 0.5;
-  drawBottomLeftStamp(ctx, margin, height - margin, fontSize, lineH, palette, rng, config.showCjkText);
+  drawBottomLeftStamp(ctx, margin, height - margin, fontSize, lineH, palette, rng);
 
   ctx.restore();
 }
@@ -130,15 +130,11 @@ function drawBottomLeftStamp(
   lineH: number,
   palette: { textPrimary: string; textSecondary: string; accent: string },
   rng: () => number,
-  showCjk: boolean,
 ): void {
   const id = `EF-${randomInt(rng, 1000, 9999)}`;
   const rev = `REV-${String.fromCharCode(65 + randomInt(rng, 0, 5))}.${randomInt(rng, 1, 9).toString().padStart(2, '0')}`;
 
-  const lines: string[] = [id, rev];
-  if (showCjk) {
-    lines.push('認証済み');
-  }
+  const lines: string[] = [id, rev, '認証済み'];
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';

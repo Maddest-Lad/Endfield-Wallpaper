@@ -1,3 +1,4 @@
+// Japanese labels — CJK font (Noto Sans JP / system CJK)
 export const JP_LABELS = [
   '暴雨予警',
   '警告',
@@ -16,33 +17,66 @@ export const JP_LABELS = [
   '基地司令',
   '探査レベル',
   '開発水準',
+  '汚染区域',
+  '源石反応',
+  '天災警報',
 ];
 
+// English labels — standard sans-serif font
 export const EN_LABELS = [
   'TERRAIN SURVEY',
-  'SECTOR 7-G',
-  'LOC:A10300',
   'WARNING',
   'CLASSIFIED',
   'MISSION-DEPENDENT',
   'SYSTEM INTERFACE',
   'HANDLE WITH CARE',
-  'FRAGILE',
-  'ENDFIELD INDUSTRIES',
-  'PAYLOAD',
   'COORDINATES VERIFIED',
-  'OBSERVE',
   'SURVEY POINT',
   'RESTRICTED AREA',
   'SIGNAL ACQUIRED',
+  'INITIALIZE ACCESS',
+  'TALOS-II',
+  'VALLEY IV',
+  'WULING',
+  'OMV DIJIANG',
   'VALLEY PASS',
   'POWER PLATEAU',
   'ORIGIN LODESPRING',
   'THE HUB',
-  'MOUNTAIN CONTOUR',
-  'INITIALIZE ACCESS',
+  'ABURREY QUARRY',
+  'JINGYU VALLEY',
+  'ENDFIELD INDUSTRIES',
+  'RHODES ISLAND',
+  'HONGSHAN SCIENCES',
+  'ORIGINIUM DETECTED',
+  'CORRUPTION ZONE',
+  'CATASTROPHE ALERT',
+  'AIC INDEX',
+  'LANDBREAKER SIGHTED',
+  'RELAY TOWER',
+  'PROTOCOL RESONANCE',
+  'AUTOMATION CORE',
 ];
 
+// English labels — Endfield decorative font (renders as garbled symbols)
+export const ENDFIELD_LABELS = [
+  'ENDFIELD',
+  'TALOS-II',
+  'SECTOR 7-G',
+  'PAYLOAD',
+  'LOC:A10300',
+  'MOUNTAIN CONTOUR',
+  'ÆTHERGATE',
+  'STEEL OATH',
+  'BONEKRUSHER',
+  'CABAL',
+  'TRANQUILITY',
+  'RESONANCE',
+  'DIJIANG',
+  'FRAGILE',
+];
+
+// Data readout labels — standard font, technical strings
 export const DATA_LABELS = [
   '92\u00B0F',
   'ELEV. 340m',

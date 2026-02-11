@@ -5,7 +5,7 @@ import { getPalette } from '../utils/color';
 import { createRng } from '../utils/random';
 import { loadCanvasFont } from '../utils/fonts';
 
-import { drawBackground } from './layers/background';
+import { drawBackground, drawGrain } from './layers/background';
 import { drawGrid } from './layers/grid';
 import { drawContourLines } from './layers/contourLines';
 import { drawScanLines } from './layers/scanLines';
@@ -84,6 +84,9 @@ export async function renderWallpaper(
   }
 
   drawContourLines(rc);
+
+  // Grain applied after contours but before text so text stays crisp
+  drawGrain(rc);
 
   if (config.showHeroText) {
     drawHeroText(rc);

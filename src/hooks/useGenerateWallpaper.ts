@@ -89,23 +89,25 @@ export function useGenerateWallpaper(
       // Preview fills the container, decoupled from export aspect ratio.
       // Export still renders at the exact configured resolution.
       const dpr = window.devicePixelRatio || 1;
+
+      // Render at a capped resolution for performance, but CSS-fill the container.
       const MAX_PREVIEW = 1200;
       const longest = Math.max(containerSize.w, containerSize.h);
-      const scale = longest > MAX_PREVIEW ? MAX_PREVIEW / longest : 1;
-      const cssW = Math.floor(containerSize.w * scale);
-      const cssH = Math.floor(containerSize.h * scale);
+      const renderScale = longest > MAX_PREVIEW ? MAX_PREVIEW / longest : 1;
+      const renderW = Math.floor(containerSize.w * renderScale);
+      const renderH = Math.floor(containerSize.h * renderScale);
 
       const previewConfig: WallpaperConfig = {
         ...config,
-        width: cssW,
-        height: cssH,
+        width: renderW,
+        height: renderH,
       };
 
       await renderWallpaper(canvas, previewConfig, dpr);
 
-      // Pin CSS size to exact logical dimensions — pixel-perfect, no stretching
-      canvas.style.width = `${cssW}px`;
-      canvas.style.height = `${cssH}px`;
+      // CSS fills the container; slight upscale on large displays is fine for a preview
+      canvas.style.width = `${Math.floor(containerSize.w)}px`;
+      canvas.style.height = `${Math.floor(containerSize.h)}px`;
 
       // Silently update URL hash for permalink sharing
       updateUrlHash(config);

@@ -1,5 +1,6 @@
 import type { RenderContext } from '../types';
 import { randomInRange, randomInt } from '../../utils/random';
+import { fontForText } from '../../utils/fonts';
 
 export function drawScanLines(rc: RenderContext): void {
   const { ctx, width, height, palette, rng } = rc;
@@ -21,7 +22,8 @@ export function drawScanLines(rc: RenderContext): void {
 
     // Small tick mark + label at the edge
     ctx.globalAlpha = 0.08;
-    ctx.font = `${Math.max(6, Math.round(width / 280))}px monospace`;
+    const labelSize = Math.max(6, Math.round(width / 280));
+    ctx.font = fontForText(`${Math.round(y)}`, labelSize, false, 'standard');
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = palette.textSecondary;

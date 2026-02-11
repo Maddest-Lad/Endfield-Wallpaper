@@ -27,7 +27,7 @@ export async function renderWallpaper(
 ): Promise<void> {
   await loadCanvasFont();
 
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D | null;
   if (!ctx) throw new Error('Could not get 2D context');
 
   const width = Math.max(100, config.width);

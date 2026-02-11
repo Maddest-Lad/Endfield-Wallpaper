@@ -1,0 +1,30 @@
+import type { WallpaperConfig } from '../engine/types';
+import { randomSeed } from '../utils/random';
+
+export const DEFAULTS: WallpaperConfig = {
+  width: 1920,
+  height: 1080,
+  preset: '1080p',
+  theme: 'light',
+  accentColor: '#FFE600',
+  seed: randomSeed(),
+  noiseScale: 0.006,
+  octaves: 4,
+  persistence: 0.5,
+  lacunarity: 2.0,
+  contourLevels: 20,
+  contourColorMode: 'mono',
+  contourGlow: 0,
+  contourColor: '#888888',
+  showGrid: true,
+  showAnnotations: true,
+  showCjkText: true,
+  showFrames: true,
+  showAccents: true,
+  showScanLines: true,
+  showDataPanel: true,
+  showReticles: true,
+  showCornerData: true,
+  showZones: true,
+  showHeroText: false,
+};

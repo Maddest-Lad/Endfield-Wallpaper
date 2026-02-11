@@ -3,6 +3,8 @@ import type { RenderContext } from '../types';
 export function drawFrames(rc: RenderContext): void {
   const { ctx, width, height, palette } = rc;
 
+  ctx.save();
+
   const inset = Math.round(width * 0.015);
   const armLength = Math.round(width * 0.025);
 
@@ -36,7 +38,6 @@ export function drawFrames(rc: RenderContext): void {
   ctx.beginPath();
   ctx.arc(cx, cy, crossSize * 0.4, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.globalAlpha = 1;
 
   // Edge midpoint ticks
   const tickLen = Math.round(width * 0.008);
@@ -57,7 +58,8 @@ export function drawFrames(rc: RenderContext): void {
   ctx.lineTo(width - inset - tickLen, cy);
 
   ctx.stroke();
-  ctx.globalAlpha = 1;
+
+  ctx.restore();
 }
 
 function drawCornerBracket(

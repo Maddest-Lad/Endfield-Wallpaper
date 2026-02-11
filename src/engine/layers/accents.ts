@@ -3,12 +3,14 @@ import { fontForText } from '../../utils/fonts';
 import { randomInRange } from '../../utils/random';
 
 export function drawAccents(rc: RenderContext): void {
+  rc.ctx.save();
   drawYellowBars(rc);
   drawHazardStripes(rc);
   drawCmykDots(rc);
   drawHatchingPatches(rc);
   drawScatteredCrosshairs(rc);
   drawSmallAccentMarks(rc);
+  rc.ctx.restore();
 }
 
 function drawYellowBars(rc: RenderContext): void {

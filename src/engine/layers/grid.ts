@@ -4,6 +4,8 @@ import { fontForText } from '../../utils/fonts';
 export function drawGrid(rc: RenderContext): void {
   const { ctx, width, height, palette } = rc;
 
+  ctx.save();
+
   const majorStep = Math.round(width / 8);
   const minorStep = Math.round(majorStep / 4);
 
@@ -52,4 +54,6 @@ export function drawGrid(rc: RenderContext): void {
     }
     col++;
   }
+
+  ctx.restore();
 }

@@ -39,10 +39,16 @@ export function useGenerateWallpaper(
 
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const renderingRef = useRef(false);
+  const dirtyRef = useRef(false);
 
   const doRender = useCallback(async () => {
     const canvas = canvasRef.current;
-    if (!canvas || renderingRef.current || !containerSize) return;
+    if (!canvas || !containerSize) return;
+
+    if (renderingRef.current) {
+      dirtyRef.current = true;
+      return;
+    }
 
     renderingRef.current = true;
     try {
@@ -113,6 +119,10 @@ export function useGenerateWallpaper(
       updateUrlHash(config);
     } finally {
       renderingRef.current = false;
+      if (dirtyRef.current) {
+        dirtyRef.current = false;
+        setTimeout(doRender, 0);
+      }
     }
   }, [
     canvasRef,

@@ -1,4 +1,5 @@
 import type { WallpaperConfig } from '../engine/types';
+import { DEFAULTS } from '../data/defaults';
 
 export function encodeConfig(config: WallpaperConfig): string {
   try {
@@ -15,7 +16,7 @@ export function decodeConfig(hash: string): WallpaperConfig | null {
     const parsed = JSON.parse(atob(raw));
     // Basic validation: must have width and seed
     if (typeof parsed.width === 'number' && typeof parsed.seed === 'string') {
-      return parsed as WallpaperConfig;
+      return { ...DEFAULTS, ...parsed } as WallpaperConfig;
     }
     return null;
   } catch {

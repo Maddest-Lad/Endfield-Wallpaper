@@ -1,6 +1,6 @@
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomPick, randomInt } from '../../utils/random';
+import { randomPick, randomInt, shuffle } from '../../utils/random';
 
 const PANEL_LINES_EN = [
   ['OPERATION ZONE', 'SECTOR {S}'],
@@ -100,13 +100,4 @@ export function drawDataPanel(rc: RenderContext): void {
   }
 
   ctx.restore();
-}
-
-function shuffle<T>(rng: () => number, arr: T[]): T[] {
-  const result = [...arr];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
 }

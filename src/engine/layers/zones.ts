@@ -1,7 +1,7 @@
 import { Delaunay } from 'd3-delaunay';
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomInRange, randomInt } from '../../utils/random';
+import { randomInRange, randomInt, shuffle } from '../../utils/random';
 import { EN_LABELS } from '../../data/textContent';
 
 /** Union-Find for merging Voronoi cells into territory regions. */
@@ -89,11 +89,7 @@ function subsampleExtrema(
   if (extrema.length <= targetCount) return extrema;
 
   // Shuffle for deterministic tie-breaking
-  const shuffled = [...extrema];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
+  const shuffled = shuffle(rng, extrema);
 
   const selected: Extremum[] = [shuffled[0]];
   const used = new Set<number>([0]);

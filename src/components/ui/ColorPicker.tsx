@@ -1,15 +1,5 @@
 import { useRef } from 'react';
-
-const COLOR_PRESETS = [
-  '#FFE600', // Endfield Yellow
-  '#FF4444', // Red
-  '#00AEEF', // Cyan
-  '#4ADE80', // Green
-  '#A855F7', // Purple
-  '#FFFFFF', // White
-  '#888888', // Gray
-  '#1A1A1A', // Black
-];
+import { ACCENT_COLORS } from '../../data/colors';
 
 interface ColorPickerProps {
   label: string;
@@ -19,13 +9,13 @@ interface ColorPickerProps {
 
 export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const isPreset = COLOR_PRESETS.includes(value);
+  const isPreset = ACCENT_COLORS.includes(value);
 
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-[10px] text-ef-mid uppercase tracking-widest">{label}</span>
       <div className="flex gap-1.5">
-        {COLOR_PRESETS.map((color) => (
+        {ACCENT_COLORS.map((color) => (
           <button
             key={color}
             onClick={() => onChange(color)}

@@ -3,6 +3,8 @@ import type { RenderContext, ContourData } from '../types';
 export function drawContourLines(rc: RenderContext): void {
   const { ctx, width, height, contourData, gridWidth, gridHeight, palette, config } = rc;
 
+  ctx.save();
+
   const scaleX = width / gridWidth;
   const scaleY = height / gridHeight;
   const mode = config.contourColorMode;
@@ -47,9 +49,7 @@ export function drawContourLines(rc: RenderContext): void {
     drawContourPath(ctx, contour, scaleX, scaleY);
   }
 
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = 'transparent';
+  ctx.restore();
 }
 
 function lerpColor(a: string, b: string, t: number): string {

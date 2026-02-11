@@ -2,9 +2,9 @@ import { create } from 'zustand';
 import type { WallpaperConfig, ResolutionPreset, ContourColorMode } from '../engine/types';
 import { randomSeed } from '../utils/random';
 import { PRESETS } from '../data/presets';
+import { DEFAULTS } from '../data/defaults';
+import { ACCENT_COLORS } from '../data/colors';
 import { decodeConfig } from '../utils/permalink';
-
-const ACCENT_COLORS = ['#FFE600', '#FF4444', '#00AEEF', '#4ADE80', '#A855F7', '#FFFFFF', '#888888', '#1A1A1A'];
 const CONTOUR_MODES: ContourColorMode[] = ['mono', 'elevation', 'fade'];
 
 function pick<T>(arr: T[]): T {
@@ -18,34 +18,6 @@ const RESOLUTION_PRESETS: Record<ResolutionPreset, { width: number; height: numb
   phone: { width: 1170, height: 2532 },
   ultrawide: { width: 3440, height: 1440 },
   custom: null,
-};
-
-const DEFAULTS: WallpaperConfig = {
-  width: 1920,
-  height: 1080,
-  preset: '1080p',
-  theme: 'light',
-  accentColor: '#FFE600',
-  seed: randomSeed(),
-  noiseScale: 0.006,
-  octaves: 4,
-  persistence: 0.5,
-  lacunarity: 2.0,
-  contourLevels: 20,
-  contourColorMode: 'mono',
-  contourGlow: 0,
-  contourColor: '#888888',
-  showGrid: true,
-  showAnnotations: true,
-  showCjkText: true,
-  showFrames: true,
-  showAccents: true,
-  showScanLines: true,
-  showDataPanel: true,
-  showReticles: true,
-  showCornerData: true,
-  showZones: true,
-  showHeroText: false,
 };
 
 function getInitialConfig(): WallpaperConfig {

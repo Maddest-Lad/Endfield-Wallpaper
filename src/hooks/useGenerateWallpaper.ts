@@ -40,6 +40,7 @@ export function useGenerateWallpaper(
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const renderingRef = useRef(false);
   const dirtyRef = useRef(false);
+  const doRenderRef = useRef<() => Promise<void>>();
 
   const doRender = useCallback(async () => {
     const canvas = canvasRef.current;
@@ -121,7 +122,7 @@ export function useGenerateWallpaper(
       renderingRef.current = false;
       if (dirtyRef.current) {
         dirtyRef.current = false;
-        setTimeout(doRender, 0);
+        setTimeout(() => doRenderRef.current?.(), 0);
       }
     }
   }, [
@@ -154,6 +155,10 @@ export function useGenerateWallpaper(
     showZones,
     showHeroText,
   ]);
+
+  // Always point to the latest doRender so the dirty-flag retry
+  // uses current config values instead of a stale closure.
+  doRenderRef.current = doRender;
 
   useEffect(() => {
     clearTimeout(debounceRef.current);

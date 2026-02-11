@@ -20,7 +20,7 @@ export function WallpaperCanvas() {
     return () => observer.disconnect();
   }, []);
 
-  useGenerateWallpaper(canvasRef, containerSize);
+  const rendering = useGenerateWallpaper(canvasRef, containerSize);
 
   return (
     <div ref={containerRef} className="relative flex-1 flex items-center justify-center p-6 overflow-hidden">
@@ -28,6 +28,19 @@ export function WallpaperCanvas() {
         ref={canvasRef}
         className="shadow-[0_4px_24px_rgba(0,0,0,0.25)]"
       />
+
+      {rendering && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 pointer-events-none">
+          <div className="flex gap-[3px]">
+            <span className="w-1 h-3 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_infinite]" />
+            <span className="w-1 h-3 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.15s_infinite]" />
+            <span className="w-1 h-3 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.3s_infinite]" />
+          </div>
+          <span className="text-[10px] text-ef-mid uppercase tracking-[0.25em] font-sans">
+            Processing
+          </span>
+        </div>
+      )}
     </div>
   );
 }

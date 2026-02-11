@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useWallpaperConfig } from './useWallpaperConfig';
 import { renderWallpaper } from '../engine/renderer';
 import { updateUrlHash } from '../utils/permalink';
@@ -7,7 +7,7 @@ import type { WallpaperConfig } from '../engine/types';
 export function useGenerateWallpaper(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   containerSize: { w: number; h: number } | null,
-) {
+): boolean {
   const {
     width,
     height,
@@ -36,6 +36,10 @@ export function useGenerateWallpaper(
     showZones,
     showHeroText,
   } = useWallpaperConfig();
+
+  const [rendering, setRendering] = useState(false);
+  const setRenderingRef = useRef(setRendering);
+  setRenderingRef.current = setRendering;
 
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const renderingRef = useRef(false);
@@ -123,6 +127,8 @@ export function useGenerateWallpaper(
       if (dirtyRef.current) {
         dirtyRef.current = false;
         setTimeout(() => doRenderRef.current?.(), 0);
+      } else {
+        setRenderingRef.current(false);
       }
     }
   }, [
@@ -161,8 +167,16 @@ export function useGenerateWallpaper(
   doRenderRef.current = doRender;
 
   useEffect(() => {
+    setRendering(true);
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(doRender, 150);
+    debounceRef.current = setTimeout(async () => {
+      // Yield a frame so React can paint the loading indicator
+      // before the synchronous render blocks the main thread.
+      await new Promise((r) => requestAnimationFrame(r));
+      await doRender();
+    }, 150);
     return () => clearTimeout(debounceRef.current);
   }, [doRender]);
+
+  return rendering;
 }

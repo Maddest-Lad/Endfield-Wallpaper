@@ -42,6 +42,12 @@ body {
   width: 100vw;
 }
 
+/* Loading indicator bars */
+@keyframes pulse-bar {
+  0%, 100% { opacity: 0.25; transform: scaleY(0.6); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
 /* Custom scrollbar for control panel */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;

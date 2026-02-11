@@ -24,7 +24,7 @@ function drawYellowBars(rc: RenderContext): void {
 
   // Text on the bar
   const textSize = Math.max(7, Math.round(barHeight * 0.75));
-  ctx.font = fontForText('ENDFIELD', textSize, true);
+  ctx.font = fontForText('ENDFIELD', textSize, true, 'endfield');
   ctx.fillStyle = rc.config.theme === 'dark' ? '#1A1A1A' : '#1A1A1A';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';

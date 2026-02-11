@@ -13,12 +13,39 @@ export async function loadCanvasFont(): Promise<void> {
   }
 }
 
+export type FontStyle = 'endfield' | 'standard' | 'auto';
+
 const CJK_REGEX = /[\u3000-\u9FFF\uF900-\uFAFF]/;
 
-export function fontForText(text: string, sizePx: number, bold = false): string {
+const FONT_ENDFIELD = "'Endfield', 'Arial Black', 'Impact', sans-serif";
+const FONT_STANDARD = "'Inter', 'Helvetica Neue', 'Arial', sans-serif";
+const FONT_CJK = "'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif";
+
+/**
+ * Returns a CSS font string for canvas text.
+ *   'endfield'  — custom Endfield branding font (titles, hero text, accent labels)
+ *   'standard'  — clean sans-serif (data readouts, coordinates, technical labels)
+ *   'auto'      — detects CJK → CJK font, otherwise standard sans-serif
+ */
+export function fontForText(
+  text: string,
+  sizePx: number,
+  bold = false,
+  style: FontStyle = 'auto',
+): string {
   const weight = bold ? 'bold ' : '';
-  if (CJK_REGEX.test(text)) {
-    return `${weight}${sizePx}px 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif`;
+
+  if (style === 'endfield') {
+    return `${weight}${sizePx}px ${FONT_ENDFIELD}`;
   }
-  return `${weight}${sizePx}px 'Endfield', 'Arial Black', 'Impact', sans-serif`;
+
+  if (style === 'standard') {
+    return `${weight}${sizePx}px ${FONT_STANDARD}`;
+  }
+
+  // 'auto' — CJK detection
+  if (CJK_REGEX.test(text)) {
+    return `${weight}${sizePx}px ${FONT_CJK}`;
+  }
+  return `${weight}${sizePx}px ${FONT_STANDARD}`;
 }

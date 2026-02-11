@@ -52,7 +52,7 @@ export function drawDataPanel(rc: RenderContext): void {
 
   // Header text
   ctx.globalAlpha = 1;
-  ctx.font = fontForText('ENDFIELD', fontSize + 1, true);
+  ctx.font = fontForText('ENDFIELD', fontSize + 1, true, 'endfield');
   ctx.fillStyle = '#1A1A1A';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
@@ -72,12 +72,12 @@ export function drawDataPanel(rc: RenderContext): void {
       .replace('{N}', `${randomInt(rng, 1, 5)}`)
       .replace('{F}', `${(140 + rng() * 20).toFixed(1)}`);
 
-    ctx.font = fontForText(label, fontSize - 1);
+    ctx.font = fontForText(label, fontSize - 1, false, 'standard');
     ctx.fillStyle = palette.textSecondary;
     ctx.textAlign = 'left';
     ctx.fillText(label, px + 6, y);
 
-    ctx.font = fontForText(value, fontSize, true);
+    ctx.font = fontForText(value, fontSize, true, 'standard');
     ctx.fillStyle = palette.textPrimary;
     ctx.textAlign = 'right';
     ctx.fillText(value, px + panelW - 6, y);

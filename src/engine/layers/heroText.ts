@@ -30,7 +30,7 @@ export function drawHeroText(rc: RenderContext): void {
     y = randomInRange(rng, height * 0.2, height * 0.45);
   }
 
-  ctx.font = fontForText(word, fontSize, true);
+  ctx.font = fontForText(word, fontSize, true, 'endfield');
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
 

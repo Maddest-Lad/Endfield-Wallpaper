@@ -37,7 +37,7 @@ export function drawGrid(rc: RenderContext): void {
 
   // Coordinate labels at major intersections
   const labelSize = Math.max(7, Math.round(width / 250));
-  ctx.font = fontForText('A', labelSize);
+  ctx.font = fontForText('A', labelSize, false, 'standard');
   ctx.fillStyle = palette.gridLabel;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';

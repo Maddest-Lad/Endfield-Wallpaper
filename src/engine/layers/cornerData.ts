@@ -54,13 +54,13 @@ function drawTopLeftReadouts(
     const line = lines[i];
     const ly = y + i * lineH + lineH;
 
-    ctx.font = fontForText(line.label, fontSize - 1);
+    ctx.font = fontForText(line.label, fontSize - 1, false, 'standard');
     ctx.fillStyle = palette.textSecondary;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText(`${line.label}:`, x, ly);
 
-    ctx.font = fontForText(line.value, fontSize, true);
+    ctx.font = fontForText(line.value, fontSize, true, 'standard');
     ctx.fillStyle = palette.textPrimary;
     ctx.fillText(line.value, x + fontSize * 4, ly);
   }
@@ -98,7 +98,7 @@ function drawTopRightCoords(
   ctx.textBaseline = 'top';
 
   for (let i = 0; i < lines.length; i++) {
-    ctx.font = fontForText(lines[i], fontSize);
+    ctx.font = fontForText(lines[i], fontSize, false, 'standard');
     ctx.fillStyle = i < 2 ? palette.textPrimary : palette.textSecondary;
     ctx.fillText(lines[i], x, y + lineH + i * lineH);
   }
@@ -127,7 +127,8 @@ function drawBottomLeftStamp(
 
   for (let i = lines.length - 1; i >= 0; i--) {
     const ly = y - (lines.length - 1 - i) * lineH;
-    ctx.font = fontForText(lines[i], fontSize);
+    // JP text gets auto-detected, EN labels use standard
+    ctx.font = fontForText(lines[i], fontSize, false);
     ctx.fillStyle = palette.textSecondary;
     ctx.fillText(lines[i], x, ly);
   }

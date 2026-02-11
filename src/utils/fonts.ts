@@ -4,9 +4,10 @@ export async function loadCanvasFont(): Promise<void> {
   if (fontLoaded) return;
 
   try {
-    const font = new FontFace('Endfield', 'url(/fonts/EndfieldByButan.ttf)');
-    const loaded = await font.load();
-    document.fonts.add(loaded);
+    // Use the CSS @font-face declaration rather than creating a separate
+    // FontFace object — Firefox mobile doesn't reliably register JS-created
+    // FontFace instances for canvas drawing.
+    await document.fonts.load("16px 'Endfield'");
     fontLoaded = true;
   } catch (e) {
     console.warn('Failed to load Endfield font for canvas, using fallback:', e);

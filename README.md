@@ -57,16 +57,26 @@ src/
   components/          # UI components
   data/                # Presets and text pools
 ```
+## Disclaimer
+
+This is an unofficial fan project derived from Arknights: Endfield. It is not affiliated with, endorsed by, or associated with Yostar, HyperGryphon, or miHoYo (HoYoverse) in any way.
+
+Arknights and Arknights: Endfield are trademarks of miHoYo / HyperGryphon. All game assets, character designs, and related intellectual property belong to their respective owners.
+
+This project is created under the [Arknights Re-Creation Terms and Conditions](https://arknights.global/fankit/guidelines) for non-profit, non-commercial fan use only. It may not be used for any commercial purpose.
+
 ## Font Attribution
 
-Author: Luo Butan (罗醭坦) — Bilibili @罗醭坦
-Source: [github.com/lhclbt/Endfield_Font](https://github.com/lhclbt/Endfield_Font)
-License: CC BY-NC 4.0 (Creative Commons Attribution-NonCommercial 4.0)
+The custom display font (`EndfieldByButan.ttf`) is created by Luo Butan (罗醭坦).
 
-The original character designs are the property of miHoYo / HyperGryphon. The font creator notes that miHoYo retains final interpretation rights over the original character designs.
+- Author: Luo Butan - Bilibili @罗醭坦
+- Source: [github.com/lhclbt/Endfield_Font](https://github.com/lhclbt/Endfield_Font)
+- License: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) (Creative Commons Attribution-NonCommercial 4.0)
+
+The original character designs referenced by the font are the property of miHoYo / HyperGryphon. The font creator notes that miHoYo retains final interpretation rights over the original character designs.
 
 ## License
 
-This project is for personal and non-commercial use. The Endfield Font included in this project is licensed under CC BY-NC 4.0 — commercial use of the font is prohibited.
+This project is for personal and non-commercial use only, in accordance with the Arknights fan content guidelines. You may not use this project or its output for any commercial purpose.
 
-Arknights: Endfield is a trademark of miHoYo / HyperGryphon. This project is a fan work and is not affiliated with or endorsed by miHoYo.
+The Endfield Font included in this project is licensed under CC BY-NC 4.0 - commercial use of the font is prohibited. If you redistribute or adapt this project, you must retain the font attribution above.

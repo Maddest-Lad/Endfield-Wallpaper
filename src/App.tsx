@@ -13,7 +13,7 @@ export default function App() {
       {/* Mobile toggle button */}
       <button
         onClick={() => setPanelOpen(true)}
-        className="md:hidden fixed bottom-4 right-4 z-20 w-11 h-11 bg-ef-yellow flex items-center justify-center shadow-lg cursor-pointer active:brightness-90"
+        className="lg:hidden fixed bottom-4 right-4 z-20 w-11 h-11 bg-ef-yellow flex items-center justify-center shadow-lg cursor-pointer active:brightness-90"
         aria-label="Open controls"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="square">

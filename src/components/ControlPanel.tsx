@@ -44,7 +44,7 @@ function PanelContent({ onClose }: { onClose?: () => void }) {
         {onClose && (
           <button
             onClick={onClose}
-            className="md:hidden w-8 h-8 flex items-center justify-center text-ef-light/60 hover:text-ef-light transition-colors cursor-pointer"
+            className="lg:hidden w-8 h-8 flex items-center justify-center text-ef-light/60 hover:text-ef-light transition-colors cursor-pointer"
             aria-label="Close panel"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -120,12 +120,12 @@ export function ControlPanel({ isOpen, onClose }: { isOpen?: boolean; onClose?: 
   return (
     <>
       {/* Desktop: static sidebar */}
-      <aside className="hidden md:flex w-72 border-l border-ef-border bg-white flex-col h-full font-sans">
+      <aside className="hidden lg:flex w-72 border-l border-ef-border bg-white flex-col h-full font-sans">
         <PanelContent />
       </aside>
 
       {/* Mobile: slide-out drawer */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         {/* Backdrop */}
         {isOpen && (
           <div

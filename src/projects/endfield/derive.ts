@@ -1,7 +1,7 @@
 import type { WallpaperConfig, ContourData, ThemePalette } from './types';
 import { generateHeightmap } from './terrain';
 import { extractContours } from './contours';
-import { getPalette } from '../utils/color';
+import { getPalette } from './palette';
 
 /** Target cells on the longer axis of the heightmap grid. */
 const GRID_SIZE = 250;

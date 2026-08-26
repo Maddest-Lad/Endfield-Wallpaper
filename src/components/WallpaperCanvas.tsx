@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
 import { useRenderCanvas } from '../app/shell/useRenderCanvas';
 import { usePersistConfig } from '../app/shell/usePersistConfig';
-import { endfieldPipeline } from '../engine/pipeline';
-import { endfieldStore } from '../engine/store';
-import { previewCache } from '../engine/renderer';
+import { endfieldPipeline } from '@projects/endfield/pipeline';
+import { endfieldStore } from '@projects/endfield/store';
+import { previewCache } from '@projects/endfield/renderer';
 
 export function WallpaperCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);

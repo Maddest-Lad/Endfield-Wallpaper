@@ -1,7 +1,7 @@
 import { createProjectStore } from '@core/store/createProjectStore';
 import type { WallpaperConfig } from './types';
-import { createDefaults } from '../data/defaults';
-import { PRESETS } from '../data/presets';
+import { createDefaults } from './defaults';
+import { PRESETS } from './presets';
 import { randomizeEndfield } from './randomize';
 
 /**

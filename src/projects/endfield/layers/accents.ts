@@ -1,5 +1,5 @@
 import type { RenderContext } from '../types';
-import { fontForText } from '../../utils/fonts';
+import { fontForText } from '../fonts';
 import { randomInRange } from '@core/utils/random';
 
 export function drawAccents(rc: RenderContext): void {

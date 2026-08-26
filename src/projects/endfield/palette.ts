@@ -1,4 +1,4 @@
-import type { ThemeMode, ThemePalette } from '../engine/types';
+import type { ThemeMode, ThemePalette } from './types';
 
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);

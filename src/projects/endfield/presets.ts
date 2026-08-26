@@ -1,4 +1,4 @@
-import type { WallpaperConfig } from '../engine/types';
+import type { WallpaperConfig } from './types';
 
 export interface Preset {
   name: string;

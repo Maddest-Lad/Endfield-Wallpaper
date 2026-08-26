@@ -1,5 +1,5 @@
-import { PRESETS } from '../../data/presets';
-import { endfieldStore } from '../../engine/store';
+import { PRESETS } from '@projects/endfield/presets';
+import { endfieldStore } from '@projects/endfield/store';
 
 export function PresetPicker() {
   const applyPreset = endfieldStore.actions.applyPreset;

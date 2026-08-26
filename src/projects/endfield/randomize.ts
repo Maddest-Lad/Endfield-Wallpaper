@@ -1,6 +1,6 @@
 import type { WallpaperConfig, ContourColorMode } from './types';
 import { randomSeed } from '@core/utils/random';
-import { ACCENT_COLORS } from '../data/colors';
+import { ACCENT_COLORS } from './colors';
 
 const CONTOUR_MODES: ContourColorMode[] = ['mono', 'elevation', 'fade'];
 

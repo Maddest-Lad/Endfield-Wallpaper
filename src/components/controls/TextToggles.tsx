@@ -1,4 +1,4 @@
-import { endfieldStore } from '../../engine/store';
+import { endfieldStore } from '@projects/endfield/store';
 import { Toggle } from '../ui/Toggle';
 
 export function TextToggles() {

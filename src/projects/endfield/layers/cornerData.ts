@@ -1,5 +1,5 @@
 import type { RenderContext } from '../types';
-import { fontForText } from '../../utils/fonts';
+import { fontForText } from '../fonts';
 import { randomInt } from '@core/utils/random';
 
 export function drawCornerData(rc: RenderContext): void {

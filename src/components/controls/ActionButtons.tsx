@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { exportWallpaper } from '../../engine/export';
-import { endfieldStore } from '../../engine/store';
+import { exportWallpaper } from '@projects/endfield/export';
+import { endfieldStore } from '@projects/endfield/store';
 import { encodeConfig } from '@core/router/permalink';
 import { Button } from '../ui/Button';
 

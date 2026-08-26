@@ -1,4 +1,4 @@
-import { endfieldStore } from '../../engine/store';
+import { endfieldStore } from '@projects/endfield/store';
 import { Select } from '../ui/Select';
 import { Slider } from '../ui/Slider';
 import { ColorPicker } from '../ui/ColorPicker';

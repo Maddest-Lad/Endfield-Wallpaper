@@ -18,9 +18,9 @@
   <path d="M40 40 h46 M40 40 v46"/><path d="M920 40 h-46 M920 40 v46"/>
   <path d="M40 500 h46 M40 500 v-46"/><path d="M920 500 h-46 M920 500 v-46"/>
 </g>
-<rect x="40" y="444" width="150" height="7" fill="#FFE600"/>
-<text x="40" y="478" font-family="Arial Black, Impact, sans-serif" font-size="30"
+<rect x="40" y="382" width="150" height="7" fill="#FFE600"/>
+<text x="40" y="416" font-family="Arial Black, Impact, sans-serif" font-size="30"
       letter-spacing="9" fill="#F5F5F5">ENDFIELD</text>
-<text x="42" y="500" font-family="Arial, sans-serif" font-size="12"
+<text x="42" y="440" font-family="Arial, sans-serif" font-size="12"
       letter-spacing="5" fill="#8A8A8A">TERRAIN SURVEY</text>
 </svg>

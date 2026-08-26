@@ -22,6 +22,7 @@ export function CanvasStage({ project }: { project: AnyProject }) {
     return () => observer.disconnect();
   }, []);
 
+  const accent = project.meta.cardAccent;
   const config = project.useConfig();
   const rendering = useRenderCanvas(canvasRef, containerSize, config, project.render);
   usePersistConfig(project.meta.id, config);
@@ -33,11 +34,11 @@ export function CanvasStage({ project }: { project: AnyProject }) {
       {rendering && (
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 pointer-events-none">
           <div className="flex gap-1">
-            <span className="w-1.5 h-5 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_infinite]" />
-            <span className="w-1.5 h-5 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.15s_infinite]" />
-            <span className="w-1.5 h-5 bg-ef-yellow animate-[pulse-bar_0.8s_ease-in-out_0.3s_infinite]" />
+            <span className="w-1.5 h-5 animate-[pulse-bar_0.8s_ease-in-out_infinite]" style={{ backgroundColor: accent }} />
+            <span className="w-1.5 h-5 animate-[pulse-bar_0.8s_ease-in-out_0.15s_infinite]" style={{ backgroundColor: accent }} />
+            <span className="w-1.5 h-5 animate-[pulse-bar_0.8s_ease-in-out_0.3s_infinite]" style={{ backgroundColor: accent }} />
           </div>
-          <span className="text-sm text-ef-mid uppercase tracking-[0.25em] font-sans">
+          <span className="text-sm text-site-mid uppercase tracking-[0.25em] font-sans">
             Processing
           </span>
         </div>

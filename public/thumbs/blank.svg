@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<rect width="960" height="540" fill="#F5F5F5"/>
+<rect x="38.5" y="38.5" width="883" height="463" fill="none" stroke="#1A1A1A" stroke-width="1" opacity="0.35"/>
+<g stroke="#1A1A1A" stroke-width="1" opacity="0.35">
+  <path d="M464 270 h32 M480 254 v32"/>
+</g>
+<text x="480" y="330" text-anchor="middle" font-family="Arial, sans-serif" font-size="11"
+      letter-spacing="5" fill="#8A8A8A">BLANK CANVAS</text>
+</svg>

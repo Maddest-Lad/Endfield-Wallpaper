@@ -1,9 +1,9 @@
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
+import { endfieldStore } from '../../engine/store';
 import { Slider } from '../ui/Slider';
 
 export function NoiseControls() {
-  const { seed, noiseScale, octaves, persistence, contourLevels, setConfig } =
-    useWallpaperConfig();
+  const { seed, noiseScale, octaves, persistence, contourLevels } = endfieldStore.useConfig();
+  const { setConfig } = endfieldStore.actions;
 
   return (
     <div className="flex flex-col gap-3">

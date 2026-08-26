@@ -1,20 +1,9 @@
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
+import { endfieldStore } from '../../engine/store';
 import { Toggle } from '../ui/Toggle';
 
 export function TextToggles() {
-  const {
-    showGrid,
-    showAnnotations,
-    showFrames,
-    showAccents,
-    showScanLines,
-    showDataPanel,
-    showReticles,
-    showCornerData,
-    showZones,
-    showHeroText,
-    setConfig,
-  } = useWallpaperConfig();
+  const { showGrid, showAnnotations, showFrames, showAccents, showScanLines, showDataPanel, showReticles, showCornerData, showZones, showHeroText } = endfieldStore.useConfig();
+  const { setConfig } = endfieldStore.actions;
 
   return (
     <div className="flex flex-col gap-2.5">

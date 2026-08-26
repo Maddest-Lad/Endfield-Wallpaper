@@ -1,4 +1,4 @@
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
+import { endfieldStore } from '../../engine/store';
 import { Select } from '../ui/Select';
 import { Slider } from '../ui/Slider';
 import { ColorPicker } from '../ui/ColorPicker';
@@ -14,11 +14,11 @@ const LOGO_OPTIONS = [
 ];
 
 export function LogoControls() {
-  const logoVariant = useWallpaperConfig((s) => s.logoVariant) ?? 'none';
-  const logoScale = useWallpaperConfig((s) => s.logoScale) ?? 0.3;
-  const logoOpacity = useWallpaperConfig((s) => s.logoOpacity) ?? 0.15;
-  const logoColor = useWallpaperConfig((s) => s.logoColor) ?? '';
-  const setConfig = useWallpaperConfig((s) => s.setConfig);
+  const logoVariant = endfieldStore.useConfig((c) => c.logoVariant) ?? 'none';
+  const logoScale = endfieldStore.useConfig((c) => c.logoScale) ?? 0.3;
+  const logoOpacity = endfieldStore.useConfig((c) => c.logoOpacity) ?? 0.15;
+  const logoColor = endfieldStore.useConfig((c) => c.logoColor) ?? '';
+  const setConfig = endfieldStore.actions.setConfig;
 
   return (
     <div className="flex flex-col gap-3">

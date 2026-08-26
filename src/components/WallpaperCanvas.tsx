@@ -1,5 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
-import { useGenerateWallpaper } from '../hooks/useGenerateWallpaper';
+import { useRenderCanvas } from '../app/shell/useRenderCanvas';
+import { usePersistConfig } from '../app/shell/usePersistConfig';
+import { endfieldPipeline } from '../engine/pipeline';
+import { endfieldStore } from '../engine/store';
+import { previewCache } from '../engine/renderer';
 
 export function WallpaperCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -20,7 +24,9 @@ export function WallpaperCanvas() {
     return () => observer.disconnect();
   }, []);
 
-  const rendering = useGenerateWallpaper(canvasRef, containerSize);
+  const config = endfieldStore.useConfig();
+  const rendering = useRenderCanvas(canvasRef, containerSize, endfieldPipeline, config, previewCache);
+  usePersistConfig('endfield', config);
 
   return (
     <div ref={containerRef} className="relative flex-1 flex items-center justify-center p-2 lg:p-6 overflow-hidden">

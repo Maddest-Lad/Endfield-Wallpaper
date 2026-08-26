@@ -1,8 +1,9 @@
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
+import { endfieldStore } from '../../engine/store';
 import { ColorPicker } from '../ui/ColorPicker';
 
 export function ThemeControls() {
-  const { theme, accentColor, setConfig } = useWallpaperConfig();
+  const { theme, accentColor } = endfieldStore.useConfig();
+  const { setConfig } = endfieldStore.actions;
 
   return (
     <div className="flex flex-col gap-3">

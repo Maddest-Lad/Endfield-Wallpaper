@@ -1,12 +1,15 @@
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
+import { useMemo } from 'react';
+import { endfieldStore } from '../../engine/store';
 import { Select } from '../ui/Select';
 import type { ResolutionPreset } from '../../engine/types';
 
-const dpr = window.devicePixelRatio || 1;
-const devW = Math.round(screen.width * dpr);
-const devH = Math.round(screen.height * dpr);
-
-const presetOptions = [
+// Built lazily — reading screen/devicePixelRatio at module scope would run on
+// import, before this project's route is even mounted.
+function buildPresetOptions() {
+  const dpr = window.devicePixelRatio || 1;
+  const devW = Math.round(screen.width * dpr);
+  const devH = Math.round(screen.height * dpr);
+  return [
   { value: 'device', label: `${devW} x ${devH} — YOUR DEVICE` },
   { value: '1080p', label: '1920 x 1080 — FHD' },
   { value: '1440p', label: '2560 x 1440 — QHD' },
@@ -19,10 +22,13 @@ const presetOptions = [
   { value: 'facebook', label: '1640 x 624 — FACEBOOK' },
   { value: 'twitch', label: '1200 x 480 — TWITCH' },
   { value: 'custom', label: 'CUSTOM' },
-];
+  ];
+}
 
 export function ResolutionPicker() {
-  const { preset, width, height, setPreset, setConfig } = useWallpaperConfig();
+  const presetOptions = useMemo(() => buildPresetOptions(), []);
+  const { preset, width, height } = endfieldStore.useConfig();
+  const { setResolutionPreset, setConfig } = endfieldStore.actions;
 
   return (
     <div className="flex flex-col gap-3">
@@ -30,7 +36,7 @@ export function ResolutionPicker() {
         label="Resolution"
         value={preset}
         options={presetOptions}
-        onChange={(v) => setPreset(v as ResolutionPreset)}
+        onChange={(v) => setResolutionPreset(v as ResolutionPreset)}
       />
       {preset === 'custom' && (
         <div className="flex gap-2 items-center">

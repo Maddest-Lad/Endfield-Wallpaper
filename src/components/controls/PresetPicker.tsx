@@ -1,8 +1,8 @@
 import { PRESETS } from '../../data/presets';
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
+import { endfieldStore } from '../../engine/store';
 
 export function PresetPicker() {
-  const applyPreset = useWallpaperConfig((s) => s.applyPreset);
+  const applyPreset = endfieldStore.actions.applyPreset;
 
   return (
     <div className="flex flex-wrap gap-1.5">

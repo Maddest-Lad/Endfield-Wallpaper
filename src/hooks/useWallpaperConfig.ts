@@ -31,7 +31,7 @@ function getInitialConfig(): WallpaperConfig {
   return decodeConfig(window.location.hash) ?? loadSavedConfig() ?? DEFAULTS;
 }
 
-interface WallpaperStore extends WallpaperConfig {
+export interface WallpaperStore extends WallpaperConfig {
   setConfig: (partial: Partial<WallpaperConfig>) => void;
   setPreset: (preset: ResolutionPreset) => void;
   randomize: () => void;
@@ -87,6 +87,7 @@ export const useWallpaperConfig = create<WallpaperStore>((set) => ({
         showCornerData: Math.random() > 0.4,
         showZones: Math.random() > 0.4,
         showHeroText: Math.random() > 0.7,
+        edgePadding: Math.random() > 0.6 ? Math.round(Math.random() * 30) / 200 : 0,
       };
     }),
 

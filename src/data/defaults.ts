@@ -24,6 +24,7 @@ export const DEFAULTS: WallpaperConfig = {
   contourColorMode: 'mono',
   contourGlow: 0,
   contourColor: '#888888',
+  edgePadding: 0,
   logoVariant: 'none',
   logoScale: 0.3,
   logoOpacity: 0.15,

@@ -31,6 +31,9 @@ export interface WallpaperConfig {
   logoOpacity: number;
   logoColor: string;
 
+  // Edge padding (0–0.15 fraction of width, pushes frames/accents inward)
+  edgePadding: number;
+
   // Toggles
   showGrid: boolean;
   showAnnotations: boolean;

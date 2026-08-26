@@ -7,6 +7,7 @@ import { TextToggles } from './controls/TextToggles';
 import { LogoControls } from './controls/LogoControls';
 import { ActionButtons } from './controls/ActionButtons';
 import { Button } from './ui/Button';
+import { Slider } from './ui/Slider';
 import { useWallpaperConfig } from '../hooks/useWallpaperConfig';
 
 function SectionHeader({ children }: { children: string }) {
@@ -29,6 +30,7 @@ function Divider() {
 
 function PanelContent({ onClose }: { onClose?: () => void }) {
   const randomize = useWallpaperConfig((s) => s.randomize);
+  const { edgePadding, setConfig } = useWallpaperConfig();
 
   return (
     <>
@@ -82,6 +84,17 @@ function PanelContent({ onClose }: { onClose?: () => void }) {
         <Divider />
 
         <SectionHeader>Layers</SectionHeader>
+        <div className="mb-3">
+          <Slider
+            label="Edge Padding"
+            value={edgePadding}
+            min={0}
+            max={0.15}
+            step={0.005}
+            onChange={(v) => setConfig({ edgePadding: v })}
+            displayValue={`${Math.round(edgePadding * 100)}%`}
+          />
+        </div>
         <TextToggles />
 
         <Divider />

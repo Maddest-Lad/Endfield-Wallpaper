@@ -4,8 +4,9 @@ import { encodeConfig } from '../../utils/permalink';
 import { Button } from '../ui/Button';
 import { useState } from 'react';
 import type { WallpaperConfig } from '../../engine/types';
+import type { WallpaperStore } from '../../hooks/useWallpaperConfig';
 
-function buildConfig(store: ReturnType<typeof useWallpaperConfig>): WallpaperConfig {
+function buildConfig(store: WallpaperStore): WallpaperConfig {
   return {
     width: store.width,
     height: store.height,
@@ -21,6 +22,7 @@ function buildConfig(store: ReturnType<typeof useWallpaperConfig>): WallpaperCon
     contourColorMode: store.contourColorMode,
     contourGlow: store.contourGlow,
     contourColor: store.contourColor,
+    edgePadding: store.edgePadding,
     showGrid: store.showGrid,
     showAnnotations: store.showAnnotations,
     showCjkText: store.showCjkText,

@@ -1,11 +1,12 @@
 import type { RenderContext } from '../types';
 
 export function drawFrames(rc: RenderContext): void {
-  const { ctx, width, height, palette } = rc;
+  const { ctx, width, height, palette, config } = rc;
+  const edgePad = (config.edgePadding ?? 0) * Math.min(width, height);
 
   ctx.save();
 
-  const inset = Math.round(width * 0.015);
+  const inset = Math.round(width * 0.015) + Math.round(edgePad);
   const armLength = Math.round(width * 0.025);
 
   ctx.strokeStyle = palette.frameLine;

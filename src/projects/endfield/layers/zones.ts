@@ -1,8 +1,8 @@
 import { Delaunay } from 'd3-delaunay';
 import type { RenderContext } from '../types';
-import { fontForText } from '../../utils/fonts';
+import { fontForText } from '../fonts';
 import { randomInRange, randomInt, shuffle } from '@core/utils/random';
-import { EN_LABELS } from '../../data/textContent';
+import { EN_LABELS } from '../textContent';
 
 /** Union-Find for merging Voronoi cells into territory regions. */
 class UnionFind {

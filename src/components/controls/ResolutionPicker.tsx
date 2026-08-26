@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { endfieldStore } from '../../engine/store';
+import { endfieldStore } from '@projects/endfield/store';
 import { Select } from '../ui/Select';
-import type { ResolutionPreset } from '../../engine/types';
+import type { ResolutionPreset } from '@projects/endfield/types';
 
 // Built lazily — reading screen/devicePixelRatio at module scope would run on
 // import, before this project's route is even mounted.

@@ -8,7 +8,7 @@ import { LogoControls } from './controls/LogoControls';
 import { ActionButtons } from './controls/ActionButtons';
 import { Button } from './ui/Button';
 import { Slider } from './ui/Slider';
-import { endfieldStore } from '../engine/store';
+import { endfieldStore } from '@projects/endfield/store';
 
 function SectionHeader({ children }: { children: string }) {
   return (

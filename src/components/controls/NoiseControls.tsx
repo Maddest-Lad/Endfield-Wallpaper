@@ -1,4 +1,4 @@
-import { endfieldStore } from '../../engine/store';
+import { endfieldStore } from '@projects/endfield/store';
 import { Slider } from '../ui/Slider';
 
 export function NoiseControls() {

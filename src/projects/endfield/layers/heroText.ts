@@ -1,5 +1,5 @@
 import type { RenderContext } from '../types';
-import { fontForText } from '../../utils/fonts';
+import { fontForText } from '../fonts';
 import { randomInRange, randomPick } from '@core/utils/random';
 
 const HERO_WORDS = [

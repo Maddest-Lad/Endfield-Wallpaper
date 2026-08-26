@@ -1,5 +1,5 @@
 import type { RenderContext } from '../types';
-import { fontForText } from '../../utils/fonts';
+import { fontForText } from '../fonts';
 import { randomPick, randomInt, shuffle } from '@core/utils/random';
 
 const PANEL_LINES_EN = [

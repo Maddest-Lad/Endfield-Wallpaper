@@ -1,5 +1,5 @@
 import type { RenderContext } from '../types';
-import { fontForText } from '../../utils/fonts';
+import { fontForText } from '../fonts';
 
 export function drawGrid(rc: RenderContext): void {
   const { ctx, width, height, data: { palette } } = rc;

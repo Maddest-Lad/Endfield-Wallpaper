@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { ACCENT_COLORS } from '../../data/colors';
+import { ACCENT_COLORS } from '@projects/endfield/colors';
 
 interface ColorPickerProps {
   label: string;

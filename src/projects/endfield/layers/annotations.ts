@@ -1,7 +1,7 @@
 import type { RenderContext } from '../types';
-import { fontForText } from '../../utils/fonts';
+import { fontForText } from '../fonts';
 import { randomInRange, randomInt, shuffle } from '@core/utils/random';
-import { JP_LABELS, EN_LABELS, DATA_LABELS, ENDFIELD_LABELS } from '../../data/textContent';
+import { JP_LABELS, EN_LABELS, DATA_LABELS, ENDFIELD_LABELS } from '../textContent';
 
 type FontStyle = 'standard' | 'endfield' | 'cjk';
 

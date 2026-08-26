@@ -1,4 +1,4 @@
-import type { WallpaperConfig, ResolutionPreset } from '../engine/types';
+import type { WallpaperConfig, ResolutionPreset } from './types';
 import { randomSeed } from '@core/utils/random';
 
 function getDefaultResolution(): { width: number; height: number; preset: ResolutionPreset } {

@@ -7,7 +7,7 @@ import type { ProjectMeta } from '@core/project/defineProject';
 export const blankMeta: ProjectMeta = {
   id: 'blank',
   title: 'Blank Canvas',
-  tagline: 'Starting point for new experiments',
+  tagline: 'Starter template',
   version: 'v1.0',
   thumb: 'thumbs/blank.svg',
   cardAccent: '#8A8A8A',

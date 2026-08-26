@@ -32,7 +32,7 @@ export function PanelShell({ project, isOpen, onClose, onBack }: PanelShellProps
           <div className="min-w-0">
             <button
               onClick={onBack}
-              className="font-endfield text-base uppercase tracking-[0.25em] text-white hover:opacity-70 transition-colors cursor-pointer text-left truncate block"
+              className="project-title text-base uppercase tracking-[0.25em] text-white hover:opacity-70 transition-colors cursor-pointer text-left truncate block"
             >
               {meta.title}
             </button>

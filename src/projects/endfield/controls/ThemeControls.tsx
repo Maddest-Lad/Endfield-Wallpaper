@@ -1,5 +1,5 @@
 import { endfieldStore } from '@projects/endfield/store';
-import { ColorPicker } from '../ui/ColorPicker';
+import { ColorPicker } from '@core/ui/ColorPicker';
 
 export function ThemeControls() {
   const { theme, accentColor } = endfieldStore.useConfig();

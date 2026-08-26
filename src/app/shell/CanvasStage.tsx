@@ -1,11 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
-import { useRenderCanvas } from '../app/shell/useRenderCanvas';
-import { usePersistConfig } from '../app/shell/usePersistConfig';
-import { endfieldPipeline } from '@projects/endfield/pipeline';
-import { endfieldStore } from '@projects/endfield/store';
-import { previewCache } from '@projects/endfield/renderer';
+import type { AnyProject } from '@core/project/defineProject';
+import { useRenderCanvas } from './useRenderCanvas';
+import { usePersistConfig } from './usePersistConfig';
 
-export function WallpaperCanvas() {
+export function CanvasStage({ project }: { project: AnyProject }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [containerSize, setContainerSize] = useState<{ w: number; h: number } | null>(null);
@@ -24,16 +22,13 @@ export function WallpaperCanvas() {
     return () => observer.disconnect();
   }, []);
 
-  const config = endfieldStore.useConfig();
-  const rendering = useRenderCanvas(canvasRef, containerSize, endfieldPipeline, config, previewCache);
-  usePersistConfig('endfield', config);
+  const config = project.useConfig();
+  const rendering = useRenderCanvas(canvasRef, containerSize, config, project.render);
+  usePersistConfig(project.meta.id, config);
 
   return (
     <div ref={containerRef} className="relative flex-1 flex items-center justify-center p-2 lg:p-6 overflow-hidden">
-      <canvas
-        ref={canvasRef}
-        className="shadow-[0_4px_24px_rgba(0,0,0,0.25)]"
-      />
+      <canvas ref={canvasRef} className="shadow-[0_4px_24px_rgba(0,0,0,0.25)]" />
 
       {rendering && (
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 pointer-events-none">

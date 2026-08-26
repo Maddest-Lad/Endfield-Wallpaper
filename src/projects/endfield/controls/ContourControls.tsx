@@ -1,6 +1,6 @@
 import { endfieldStore } from '@projects/endfield/store';
-import { Slider } from '../ui/Slider';
-import { ColorPicker } from '../ui/ColorPicker';
+import { Slider } from '@core/ui/Slider';
+import { ColorPicker } from '@core/ui/ColorPicker';
 import type { ContourColorMode } from '@projects/endfield/types';
 
 const MODES: { value: ContourColorMode; label: string }[] = [

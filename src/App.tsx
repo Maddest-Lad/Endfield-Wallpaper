@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { WallpaperCanvas } from './components/WallpaperCanvas';
-import { ControlPanel } from './components/ControlPanel';
+import endfield from '@projects/endfield';
+import { CanvasStage } from './app/shell/CanvasStage';
+import { PanelShell } from './app/shell/PanelShell';
 
 export default function App() {
   const [panelOpen, setPanelOpen] = useState(false);
+  const project = endfield;
 
   return (
-    <div className="theme-endfield flex h-full w-full overflow-hidden bg-ef-light">
-      <WallpaperCanvas />
-      <ControlPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
+    <div className={`${project.meta.themeClass ?? ''} flex h-full w-full overflow-hidden bg-ef-light`}>
+      <CanvasStage project={project} />
+      <PanelShell project={project} isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
 
-      {/* Mobile toggle button */}
+      {/* Mobile toggle */}
       <button
         onClick={() => setPanelOpen(true)}
         className="lg:hidden fixed bottom-4 right-4 z-20 w-11 h-11 bg-ef-yellow flex items-center justify-center shadow-lg cursor-pointer active:brightness-90"

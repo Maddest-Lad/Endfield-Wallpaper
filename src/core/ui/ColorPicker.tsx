@@ -1,21 +1,24 @@
 import { useRef } from 'react';
-import { ACCENT_COLORS } from '@projects/endfield/colors';
+/** Neutral fallback so core/ui stays free of any project's palette. */
+const DEFAULT_SWATCHES = ['#FFE600', '#FF3B30', '#00AEEF', '#34C759', '#AF52DE', '#FFFFFF', '#8A8A8A', '#1A1A1A'];
 
 interface ColorPickerProps {
   label: string;
   value: string;
   onChange: (color: string) => void;
+  /** Project-supplied palette; falls back to a neutral set. */
+  swatches?: string[];
 }
 
-export function ColorPicker({ label, value, onChange }: ColorPickerProps) {
+export function ColorPicker({ label, value, onChange, swatches = DEFAULT_SWATCHES }: ColorPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const isPreset = ACCENT_COLORS.includes(value);
+  const isPreset = swatches.includes(value);
 
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-[11px] text-ef-mid uppercase tracking-widest">{label}</span>
       <div className="flex gap-1.5">
-        {ACCENT_COLORS.map((color) => (
+        {swatches.map((color) => (
           <button
             key={color}
             onClick={() => onChange(color)}

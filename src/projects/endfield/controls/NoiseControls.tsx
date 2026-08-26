@@ -1,5 +1,5 @@
 import { endfieldStore } from '@projects/endfield/store';
-import { Slider } from '../ui/Slider';
+import { Slider } from '@core/ui/Slider';
 
 export function NoiseControls() {
   const { seed, noiseScale, octaves, persistence, contourLevels } = endfieldStore.useConfig();

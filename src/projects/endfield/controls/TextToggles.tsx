@@ -1,5 +1,5 @@
 import { endfieldStore } from '@projects/endfield/store';
-import { Toggle } from '../ui/Toggle';
+import { Toggle } from '@core/ui/Toggle';
 
 export function TextToggles() {
   const { showGrid, showAnnotations, showFrames, showAccents, showScanLines, showDataPanel, showReticles, showCornerData, showZones, showHeroText } = endfieldStore.useConfig();

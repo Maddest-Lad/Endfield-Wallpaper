@@ -1,0 +1,27 @@
+/* Endfield project theme. Token VALUES are global (Tailwind v4 generates utilities
+   at build time from the CSS graph, so these must stay eagerly reachable); token
+   APPLICATION is scoped to .theme-endfield, which the project route sets. */
+
+@font-face {
+  font-family: 'Endfield';
+  src: url('/fonts/EndfieldByButan.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-endfield: 'Endfield', 'Arial Black', 'Impact', sans-serif;
+
+  --color-ef-yellow: #FFE600;
+  --color-ef-dark: #1A1A1A;
+  --color-ef-light: #F5F5F5;
+  --color-ef-mid: #8A8A8A;
+  --color-ef-border: #D4D4D4;
+  --color-ef-cyan: #00AEEF;
+  --color-ef-magenta: #EC008C;
+}
+
+.theme-endfield {
+  font-family: var(--font-endfield);
+}

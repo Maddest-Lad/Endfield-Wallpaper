@@ -1,5 +1,6 @@
 import type { AnyProject, ProjectMeta } from '@core/project/defineProject';
 import { endfieldMeta } from '@projects/endfield/meta';
+import { dysonMeta } from '@projects/dyson/meta';
 import { blankMeta } from '@projects/blank/meta';
 
 export interface RegistryEntry {
@@ -11,6 +12,7 @@ export interface RegistryEntry {
 
 export const PROJECTS: RegistryEntry[] = [
   { meta: endfieldMeta, load: () => import('@projects/endfield').then((m) => m.default) },
+  { meta: dysonMeta, load: () => import('@projects/dyson').then((m) => m.default) },
   { meta: blankMeta, load: () => import('@projects/blank').then((m) => m.default) },
 ];
 

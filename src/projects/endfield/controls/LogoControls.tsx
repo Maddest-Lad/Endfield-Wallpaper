@@ -1,7 +1,7 @@
 import { endfieldStore } from '@projects/endfield/store';
-import { Select } from '../ui/Select';
-import { Slider } from '../ui/Slider';
-import { ColorPicker } from '../ui/ColorPicker';
+import { Select } from '@core/ui/Select';
+import { Slider } from '@core/ui/Slider';
+import { ColorPicker } from '@core/ui/ColorPicker';
 
 const LOGO_OPTIONS = [
   { value: 'none', label: 'None' },

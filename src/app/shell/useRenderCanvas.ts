@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import type { BaseConfig, Pipeline } from '@core/project/types';
-import { renderPipeline } from '@core/render/pipeline';
-import type { LayerCache } from '@core/render/layerCache';
+import type { BaseConfig } from '@core/project/types';
+import type { RenderRequest } from '@core/project/defineProject';
 
 /** Preview renders are capped on the longest axis for performance. */
 const MAX_PREVIEW = 2048;
@@ -15,12 +14,11 @@ const MAX_PREVIEW = 2048;
  *
  * Returns whether a render is currently in flight.
  */
-export function useRenderCanvas<C extends BaseConfig, D>(
+export function useRenderCanvas(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   containerSize: { w: number; h: number } | null,
-  pipeline: Pipeline<C, D>,
-  config: C,
-  cache: LayerCache,
+  config: BaseConfig,
+  render: (canvas: HTMLCanvasElement, req: RenderRequest) => Promise<void>,
 ): boolean {
   const [rendering, setRendering] = useState(false);
   const setRenderingRef = useRef(setRendering);
@@ -59,13 +57,12 @@ export function useRenderCanvas<C extends BaseConfig, D>(
       const longest = Math.max(cssW, cssH);
       const renderScale = longest > MAX_PREVIEW ? MAX_PREVIEW / longest : 1;
 
-      await renderPipeline(
-        pipeline,
-        canvas,
-        { ...config, width: Math.floor(cssW * renderScale), height: Math.floor(cssH * renderScale) },
+      await render(canvas, {
+        width: Math.floor(cssW * renderScale),
+        height: Math.floor(cssH * renderScale),
         dpr,
-        cache,
-      );
+        target: 'preview',
+      });
 
       // CSS size matches the fitted dimensions — no stretching
       canvas.style.width = `${cssW}px`;
@@ -79,7 +76,7 @@ export function useRenderCanvas<C extends BaseConfig, D>(
         setRenderingRef.current(false);
       }
     }
-  }, [canvasRef, containerSize, pipeline, config, cache]);
+  }, [canvasRef, containerSize, config, render]);
 
   // Always point to the latest doRender so the dirty-flag retry uses current
   // config values instead of a stale closure.

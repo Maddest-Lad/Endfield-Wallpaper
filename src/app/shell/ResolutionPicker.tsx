@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { endfieldStore } from '@projects/endfield/store';
-import { Select } from '../ui/Select';
-import type { ResolutionPreset } from '@projects/endfield/types';
+import type { AnyProject } from '@core/project/defineProject';
+import { Select } from '@core/ui/Select';
+import type { ResolutionPreset } from '@core/output/resolutions';
 
 // Built lazily — reading screen/devicePixelRatio at module scope would run on
 // import, before this project's route is even mounted.
@@ -25,10 +25,9 @@ function buildPresetOptions() {
   ];
 }
 
-export function ResolutionPicker() {
+export function ResolutionPicker({ project }: { project: AnyProject }) {
   const presetOptions = useMemo(() => buildPresetOptions(), []);
-  const { preset, width, height } = endfieldStore.useConfig();
-  const { setResolutionPreset, setConfig } = endfieldStore.actions;
+  const { preset, width, height } = project.useConfig();
 
   return (
     <div className="flex flex-col gap-3">
@@ -36,7 +35,7 @@ export function ResolutionPicker() {
         label="Resolution"
         value={preset}
         options={presetOptions}
-        onChange={(v) => setResolutionPreset(v as ResolutionPreset)}
+        onChange={(v) => project.setResolutionPreset(v as ResolutionPreset)}
       />
       {preset === 'custom' && (
         <div className="flex gap-2 items-center">
@@ -44,8 +43,8 @@ export function ResolutionPicker() {
             type="number"
             min={100}
             value={width}
-            onChange={(e) => setConfig({ width: parseInt(e.target.value) || width })}
-            onBlur={() => { if (width < 100) setConfig({ width: 100 }); }}
+            onChange={(e) => project.setDimensions({ width: parseInt(e.target.value) || width })}
+            onBlur={() => { if (width < 100) project.setDimensions({ width: 100 }); }}
             className="w-20 bg-transparent border border-ef-border text-xs text-ef-dark px-2 py-1 font-mono focus:border-ef-yellow focus:outline-none"
           />
           <span className="text-[10px] text-ef-mid">x</span>
@@ -53,8 +52,8 @@ export function ResolutionPicker() {
             type="number"
             min={100}
             value={height}
-            onChange={(e) => setConfig({ height: parseInt(e.target.value) || height })}
-            onBlur={() => { if (height < 100) setConfig({ height: 100 }); }}
+            onChange={(e) => project.setDimensions({ height: parseInt(e.target.value) || height })}
+            onBlur={() => { if (height < 100) project.setDimensions({ height: 100 }); }}
             className="w-20 bg-transparent border border-ef-border text-xs text-ef-dark px-2 py-1 font-mono focus:border-ef-yellow focus:outline-none"
           />
         </div>

@@ -141,8 +141,8 @@ export async function renderWallpaper(
     rng: createRng(config.seed + '_' + name),
   });
 
-  // Cache keys — baseKey covers dimensions, seed, and palette inputs
-  const baseKey = `${width}|${height}|${config.seed}|${config.theme}|${config.accentColor}|${config.contourColor}`;
+  // Cache keys — baseKey covers dimensions, seed, palette inputs, and layout params
+  const baseKey = `${width}|${height}|${config.seed}|${config.theme}|${config.accentColor}|${config.contourColor}|${config.edgePadding ?? 0}`;
   const contourLayerKey = `${baseKey}|${config.contourColorMode}|${config.contourGlow}|${config.contourLevels}|${terrainKey}`;
   const zonesKey = `${baseKey}|${terrainKey}`;
   const logoKey = `${baseKey}|${config.logoVariant}|${config.logoScale}|${config.logoOpacity}|${config.logoColor}`;

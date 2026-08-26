@@ -2,7 +2,7 @@ import type { WallpaperConfig } from '../engine/types';
 
 export interface Preset {
   name: string;
-  config: Omit<WallpaperConfig, 'width' | 'height' | 'preset' | 'seed'>;
+  config: Partial<Omit<WallpaperConfig, 'width' | 'height' | 'preset' | 'seed'>>;
 }
 
 export const PRESETS: Preset[] = [
@@ -37,6 +37,7 @@ export const PRESETS: Preset[] = [
       logoScale: 0.3,
       logoOpacity: 0.15,
       logoColor: '',
+      edgePadding: 0,
     },
   },
   {
@@ -70,6 +71,7 @@ export const PRESETS: Preset[] = [
       logoScale: 0.3,
       logoOpacity: 0.15,
       logoColor: '',
+      edgePadding: 0,
     },
   },
   {
@@ -103,6 +105,7 @@ export const PRESETS: Preset[] = [
       logoScale: 0.3,
       logoOpacity: 0.15,
       logoColor: '',
+      edgePadding: 0,
     },
   },
   {
@@ -136,6 +139,7 @@ export const PRESETS: Preset[] = [
       logoScale: 0.3,
       logoOpacity: 0.15,
       logoColor: '',
+      edgePadding: 0,
     },
   },
   {
@@ -169,6 +173,7 @@ export const PRESETS: Preset[] = [
       logoScale: 0.3,
       logoOpacity: 0.15,
       logoColor: '',
+      edgePadding: 0,
     },
   },
   {
@@ -202,6 +207,7 @@ export const PRESETS: Preset[] = [
       logoScale: 0.3,
       logoOpacity: 0.15,
       logoColor: '',
+      edgePadding: 0,
     },
   },
   {
@@ -235,6 +241,7 @@ export const PRESETS: Preset[] = [
       logoScale: 0.3,
       logoOpacity: 0.15,
       logoColor: '',
+      edgePadding: 0,
     },
   },
 ];

@@ -24,6 +24,7 @@ export function useGenerateWallpaper(
     contourColorMode,
     contourGlow,
     contourColor,
+    edgePadding,
     showGrid,
     showAnnotations,
     showCjkText,
@@ -48,7 +49,7 @@ export function useGenerateWallpaper(
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const renderingRef = useRef(false);
   const dirtyRef = useRef(false);
-  const doRenderRef = useRef<() => Promise<void>>();
+  const doRenderRef = useRef<(() => Promise<void>) | undefined>(undefined);
 
   const doRender = useCallback(async () => {
     const canvas = canvasRef.current;
@@ -77,6 +78,7 @@ export function useGenerateWallpaper(
         contourColorMode,
         contourGlow,
         contourColor,
+        edgePadding,
         showGrid,
         showAnnotations,
         showCjkText,
@@ -158,6 +160,7 @@ export function useGenerateWallpaper(
     contourColorMode,
     contourGlow,
     contourColor,
+    edgePadding,
     showGrid,
     showAnnotations,
     showCjkText,

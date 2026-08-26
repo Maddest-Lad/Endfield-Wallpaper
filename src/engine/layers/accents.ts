@@ -14,14 +14,15 @@ export function drawAccents(rc: RenderContext): void {
 }
 
 function drawYellowBars(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, palette, rng, config } = rc;
+  const edgePad = (config.edgePadding ?? 0) * Math.min(width, height);
 
   const barHeight = Math.round(height * 0.012);
-  const topBarY = Math.round(height * 0.02);
+  const topBarY = Math.round(height * 0.02) + Math.round(edgePad);
 
   // Primary top bar — partial width, offset
   const barWidth = width * randomInRange(rng, 0.55, 0.8);
-  const barX = width * randomInRange(rng, 0, 0.15);
+  const barX = width * randomInRange(rng, 0, 0.15) + Math.round(edgePad);
 
   ctx.fillStyle = palette.accent;
   ctx.fillRect(barX, topBarY, barWidth, barHeight);
@@ -66,14 +67,15 @@ function drawYellowBars(rc: RenderContext): void {
 }
 
 function drawHazardStripes(rc: RenderContext): void {
-  const { ctx, width, height, palette } = rc;
+  const { ctx, width, height, palette, config } = rc;
+  const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
 
   const patchW = Math.round(width * 0.06);
   const patchH = Math.round(height * 0.018);
   const stripeW = Math.round(patchH * 0.7);
 
   // Position in a corner
-  const margin = Math.round(width * 0.025);
+  const margin = Math.round(width * 0.025) + edgePad;
   const x = width - margin - patchW;
   const y = height - margin - patchH;
 
@@ -102,12 +104,13 @@ function drawHazardStripes(rc: RenderContext): void {
 }
 
 function drawCmykDots(rc: RenderContext): void {
-  const { ctx, width, height } = rc;
+  const { ctx, width, height, config } = rc;
+  const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
 
   const dotR = Math.max(2, Math.round(width / 800));
   const spacing = dotR * 3;
-  const startX = Math.round(width * 0.03);
-  const startY = height - Math.round(height * 0.035);
+  const startX = Math.round(width * 0.03) + edgePad;
+  const startY = height - Math.round(height * 0.035) - edgePad;
 
   const colors = ['#00AEEF', '#EC008C', '#FFE600', '#1A1A1A'];
 
@@ -120,7 +123,10 @@ function drawCmykDots(rc: RenderContext): void {
 }
 
 function drawHatchingPatches(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, palette, rng, config } = rc;
+  const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
+  const ix = (f: number) => edgePad + f * (width - edgePad * 2);
+  const iy = (f: number) => edgePad + f * (height - edgePad * 2);
   const count = 3 + Math.floor(rng() * 3); // 3-5
 
   for (let i = 0; i < count; i++) {
@@ -132,17 +138,17 @@ function drawHatchingPatches(rc: RenderContext): void {
     let x: number, y: number;
     const edgeBias = rng();
     if (edgeBias < 0.25) {
-      x = randomInRange(rng, width * 0.05, width * 0.85);
-      y = randomInRange(rng, height * 0.04, height * 0.15);
+      x = randomInRange(rng, ix(0.05), ix(0.85));
+      y = randomInRange(rng, iy(0.04), iy(0.15));
     } else if (edgeBias < 0.5) {
-      x = randomInRange(rng, width * 0.75, width * 0.92);
-      y = randomInRange(rng, height * 0.1, height * 0.85);
+      x = randomInRange(rng, ix(0.75), ix(0.92));
+      y = randomInRange(rng, iy(0.1), iy(0.85));
     } else if (edgeBias < 0.75) {
-      x = randomInRange(rng, width * 0.05, width * 0.85);
-      y = randomInRange(rng, height * 0.8, height * 0.92);
+      x = randomInRange(rng, ix(0.05), ix(0.85));
+      y = randomInRange(rng, iy(0.8), iy(0.92));
     } else {
-      x = randomInRange(rng, width * 0.03, width * 0.15);
-      y = randomInRange(rng, height * 0.1, height * 0.85);
+      x = randomInRange(rng, ix(0.03), ix(0.15));
+      y = randomInRange(rng, iy(0.1), iy(0.85));
     }
 
     ctx.save();
@@ -168,7 +174,10 @@ function drawHatchingPatches(rc: RenderContext): void {
 }
 
 function drawScatteredCrosshairs(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, palette, rng, config } = rc;
+  const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
+  const ix = (f: number) => edgePad + f * (width - edgePad * 2);
+  const iy = (f: number) => edgePad + f * (height - edgePad * 2);
   const count = 8 + Math.floor(rng() * 5); // 8-12
   const armLength = Math.max(3, Math.round(width * 0.006));
   const minDist = width * 0.08;
@@ -177,8 +186,8 @@ function drawScatteredCrosshairs(rc: RenderContext): void {
   for (let i = 0; i < count; i++) {
     let x = 0, y = 0;
     for (let attempt = 0; attempt < 5; attempt++) {
-      x = randomInRange(rng, width * 0.04, width * 0.96);
-      y = randomInRange(rng, height * 0.04, height * 0.96);
+      x = randomInRange(rng, ix(0.04), ix(0.96));
+      y = randomInRange(rng, iy(0.04), iy(0.96));
 
       const valid = positions.every(
         (p) => Math.hypot(p.x - x, p.y - y) > minDist
@@ -204,7 +213,10 @@ function drawScatteredCrosshairs(rc: RenderContext): void {
 }
 
 function drawSmallAccentMarks(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, palette, rng, config } = rc;
+  const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
+  const ix = (f: number) => edgePad + f * (width - edgePad * 2);
+  const iy = (f: number) => edgePad + f * (height - edgePad * 2);
   const markSize = Math.max(4, Math.round(width / 350));
 
   for (let i = 0; i < 4; i++) {
@@ -213,20 +225,20 @@ function drawSmallAccentMarks(rc: RenderContext): void {
 
     switch (edge) {
       case 0: // top
-        x = randomInRange(rng, width * 0.1, width * 0.9);
-        y = randomInRange(rng, height * 0.03, height * 0.08);
+        x = randomInRange(rng, ix(0.1), ix(0.9));
+        y = randomInRange(rng, iy(0.03), iy(0.08));
         break;
       case 1: // right
-        x = randomInRange(rng, width * 0.92, width * 0.97);
-        y = randomInRange(rng, height * 0.1, height * 0.9);
+        x = randomInRange(rng, ix(0.92), ix(0.97));
+        y = randomInRange(rng, iy(0.1), iy(0.9));
         break;
       case 2: // bottom
-        x = randomInRange(rng, width * 0.1, width * 0.9);
-        y = randomInRange(rng, height * 0.92, height * 0.97);
+        x = randomInRange(rng, ix(0.1), ix(0.9));
+        y = randomInRange(rng, iy(0.92), iy(0.97));
         break;
       default: // left
-        x = randomInRange(rng, width * 0.03, width * 0.08);
-        y = randomInRange(rng, height * 0.1, height * 0.9);
+        x = randomInRange(rng, ix(0.03), ix(0.08));
+        y = randomInRange(rng, iy(0.1), iy(0.9));
         break;
     }
 

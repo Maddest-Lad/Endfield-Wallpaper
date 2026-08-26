@@ -6,7 +6,7 @@ export default function App() {
   const [panelOpen, setPanelOpen] = useState(false);
 
   return (
-    <div className="flex h-full w-full bg-ef-light">
+    <div className="theme-endfield flex h-full w-full overflow-hidden bg-ef-light">
       <WallpaperCanvas />
       <ControlPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
 

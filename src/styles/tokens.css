@@ -1,0 +1,50 @@
+/* Neutral site chrome — gallery, shell, and anything not owned by a project. */
+
+@theme {
+  --color-site-ink: #1A1A1A;
+  --color-site-paper: #F5F5F5;
+  --color-site-line: #D4D4D4;
+  --color-site-mid: #8A8A8A;
+  --color-site-accent: #FFE600;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-site-paper);
+  color: var(--color-site-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100dvh;
+}
+
+#root {
+  height: 100dvh;
+  width: 100vw;
+}
+
+/* Loading indicator bars */
+@keyframes pulse-bar {
+  0%, 100% { opacity: 0.25; transform: scaleY(0.6); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+/* Custom scrollbar for control panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-site-line);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-site-mid);
+}

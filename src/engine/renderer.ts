@@ -4,7 +4,7 @@ import { createLayerCache } from '@core/render/layerCache';
 import { endfieldPipeline } from './pipeline';
 
 /** Cache for the live preview. Export renders one-shot and shares nothing with it. */
-const previewCache = createLayerCache();
+export const previewCache = createLayerCache();
 
 export async function renderWallpaper(
   canvas: HTMLCanvasElement | OffscreenCanvas,

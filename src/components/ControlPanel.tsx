@@ -8,7 +8,7 @@ import { LogoControls } from './controls/LogoControls';
 import { ActionButtons } from './controls/ActionButtons';
 import { Button } from './ui/Button';
 import { Slider } from './ui/Slider';
-import { useWallpaperConfig } from '../hooks/useWallpaperConfig';
+import { endfieldStore } from '../engine/store';
 
 function SectionHeader({ children }: { children: string }) {
   return (
@@ -29,8 +29,9 @@ function Divider() {
 }
 
 function PanelContent({ onClose }: { onClose?: () => void }) {
-  const randomize = useWallpaperConfig((s) => s.randomize);
-  const { edgePadding, setConfig } = useWallpaperConfig();
+  const randomize = endfieldStore.actions.randomize;
+  const { edgePadding } = endfieldStore.useConfig();
+  const { setConfig } = endfieldStore.actions;
 
   return (
     <>

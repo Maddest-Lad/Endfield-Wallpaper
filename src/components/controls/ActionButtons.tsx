@@ -1,64 +1,25 @@
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
-import { exportWallpaper } from '../../engine/export';
-import { encodeConfig } from '../../utils/permalink';
-import { Button } from '../ui/Button';
 import { useState } from 'react';
-import type { WallpaperConfig } from '../../engine/types';
-import type { WallpaperStore } from '../../hooks/useWallpaperConfig';
-
-function buildConfig(store: WallpaperStore): WallpaperConfig {
-  return {
-    width: store.width,
-    height: store.height,
-    preset: store.preset,
-    theme: store.theme,
-    accentColor: store.accentColor,
-    seed: store.seed,
-    noiseScale: store.noiseScale,
-    octaves: store.octaves,
-    persistence: store.persistence,
-    lacunarity: store.lacunarity,
-    contourLevels: store.contourLevels,
-    contourColorMode: store.contourColorMode,
-    contourGlow: store.contourGlow,
-    contourColor: store.contourColor,
-    edgePadding: store.edgePadding,
-    showGrid: store.showGrid,
-    showAnnotations: store.showAnnotations,
-    showCjkText: store.showCjkText,
-    showFrames: store.showFrames,
-    showAccents: store.showAccents,
-    showScanLines: store.showScanLines,
-    showDataPanel: store.showDataPanel,
-    showReticles: store.showReticles,
-    showCornerData: store.showCornerData,
-    showZones: store.showZones,
-    showHeroText: store.showHeroText,
-    logoVariant: store.logoVariant,
-    logoScale: store.logoScale,
-    logoOpacity: store.logoOpacity,
-    logoColor: store.logoColor,
-  };
-}
+import { exportWallpaper } from '../../engine/export';
+import { endfieldStore } from '../../engine/store';
+import { encodeConfig } from '@core/router/permalink';
+import { Button } from '../ui/Button';
 
 export function ActionButtons() {
-  const store = useWallpaperConfig();
+  const config = endfieldStore.useConfig();
   const [exporting, setExporting] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      await exportWallpaper(buildConfig(store));
+      await exportWallpaper(config);
     } finally {
       setExporting(false);
     }
   };
 
   const handleCopyLink = async () => {
-    const config = buildConfig(store);
-    const encoded = encodeConfig(config);
-    const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
+    const url = `${window.location.origin}${window.location.pathname}#${encodeConfig(config)}`;
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

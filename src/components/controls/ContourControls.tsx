@@ -1,4 +1,4 @@
-import { useWallpaperConfig } from '../../hooks/useWallpaperConfig';
+import { endfieldStore } from '../../engine/store';
 import { Slider } from '../ui/Slider';
 import { ColorPicker } from '../ui/ColorPicker';
 import type { ContourColorMode } from '../../engine/types';
@@ -10,10 +10,10 @@ const MODES: { value: ContourColorMode; label: string }[] = [
 ];
 
 export function ContourControls() {
-  const contourColorMode = useWallpaperConfig((s) => s.contourColorMode);
-  const contourGlow = useWallpaperConfig((s) => s.contourGlow) ?? 0;
-  const contourColor = useWallpaperConfig((s) => s.contourColor) ?? '#888888';
-  const setConfig = useWallpaperConfig((s) => s.setConfig);
+  const contourColorMode = endfieldStore.useConfig((c) => c.contourColorMode);
+  const contourGlow = endfieldStore.useConfig((c) => c.contourGlow) ?? 0;
+  const contourColor = endfieldStore.useConfig((c) => c.contourColor) ?? '#888888';
+  const setConfig = endfieldStore.actions.setConfig;
 
   return (
     <div className="flex flex-col gap-3">

@@ -1,278 +1,208 @@
-# CLAUDE.md — Endfield Terrain Generator
+# CLAUDE.md — Fieldgrid
 
 ## Overview
 
-WallpaperV2 is a browser-based wallpaper generator inspired by the visual design language of **Arknights: Endfield**. It produces topographic terrain maps overlaid with industrial/military HUD elements, mixed Japanese and English text labels, and print-production marks -- all rendered to an HTML Canvas and exportable as high-resolution PNGs.
+Fieldgrid is a browser-based platform for **generative art experiments**. Each experiment is a
+self-contained "project" that renders to an HTML canvas and exports a high-resolution PNG. A gallery
+home page lists them; each has its own route.
 
-Everything runs **pure client-side** (React + TypeScript + Tailwind). There is no backend; terrain generation, contour extraction, and all rendering happen in the browser. Users configure the output through a control panel, then export or share a permalink.
+Everything is **pure client-side** (React 19 + TypeScript + Vite + Tailwind v4 + Zustand). There is no
+backend. Deployed to GitHub Pages at https://maddest-lad.github.io/fieldgrid/.
 
-### Visual Aesthetic
+> **Adding a new project? Use the `new-project` skill** (`.claude/skills/new-project/`). It has the
+> scaffold steps and, more importantly, the rules that are easy to get wrong.
 
-The design draws from Endfield's packaging, merchandise, and in-game UI (reference images in `style/` and `style_v2/`). Key visual traits:
-
-- **Color palette** -- Yellow (#FFE600) is the signature accent, with support for red, cyan, green, purple, white, gray, and black alternates. Light and dark themes swap the background between off-white (#F5F5F5) and near-black (#1A1A1A). Both accent and contour line colors are independently user-selectable from the same 8-color palette plus a custom color picker.
-- **Topographic contour lines** -- Simplex-noise heightmaps produce organic contour lines in mono, elevation-gradient, or fade color modes. Contour line color is independently configurable from the accent color. An optional glow effect (via Canvas `shadowBlur`) can be layered on top of any color mode, controlled by an intensity slider.
-- **Mixed-language text** -- Japanese labels (e.g. "暴雨予警", "地形調査", "探査レベル") and English labels ("TERRAIN SURVEY", "VALLEY PASS", "MOUNTAIN CONTOUR") are scattered as annotations. CJK text uses Noto Sans JP / system CJK fonts; technical readouts use a clean sans-serif.
-- **Industrial marks** -- CMYK registration dots, hazard stripes, yellow accent bars with chevron arrows stamped "ARKNIGHTS: ENDFIELD", diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched), corner brackets, center crosshairs, and edge midpoint ticks.
-- **Territory zones** -- Irregular angular polygons generated via Voronoi tessellation (d3-delaunay), filled with diagonal crosshatch lines. Seed points are biased toward heightmap peaks/valleys so zone boundaries semi-align with contour features. Zones are merged using contour-threshold-aligned elevation bands with gradient-aware constraints, then isolated so no two zones share edges.
-- **HUD overlays** -- Grid lines, scan lines, reticle targets, data panels (with translucent background) with coordinates/elevation/frequency readouts, and corner metadata blocks.
-
-### The Endfield Font
-
-`public/fonts/EndfieldByButan.ttf` is a custom display font where standard ASCII characters map to **decorative symbol glyphs** (geometric shapes, arrows, custom marks). When you type normal Latin text, it renders as seemingly garbled symbols. **This is intentional and desired** -- the garbled look IS the Endfield aesthetic. The font is used for hero text, accent bar labels, and the control panel header title.
-
-The control panel itself uses `font-sans` (system sans-serif) for readability. Canvas text routing is handled by `src/utils/fonts.ts` which selects between `'endfield'`, `'standard'` (Inter/Helvetica), or `'auto'` (CJK detection) font stacks depending on the text content and intended use.
-
-### User Experience
-
-The app is a responsive single-viewport layout that adapts to screen size using a `lg:` breakpoint (1024px):
-
-**Desktop (≥ 1024px):** Side-by-side layout with canvas preview filling the left area and the control panel as a static 288px sidebar on the right.
-
-**Mobile / tablet (< 1024px):** The canvas takes the full viewport. The control panel is hidden behind a **slide-out drawer** triggered by a floating yellow hamburger button (fixed, bottom-right, `z-20`). The drawer slides in from the right as a fixed overlay (`z-40`) with a semi-transparent backdrop (`z-30`). Close via the X button in the drawer header or by tapping the backdrop. Implemented in `ControlPanel.tsx` which renders both wrappers (desktop `hidden lg:flex` and mobile `lg:hidden`) around a shared `PanelContent` inner component.
-
-**Canvas preview** -- The preview renders the **same content as the export**, preserving the configured aspect ratio and fitting it into the container (letterboxed if necessary). The render resolution is capped at 2048px on the longest axis for performance; CSS sizing matches the fitted dimensions so nothing is stretched. Exports render at the exact configured resolution via a separate canvas in `export.ts`. The canvas re-renders whenever config changes, with a three-tier caching system (see below) to minimize redundant work.
-
-**Control panel** -- A scrollable panel organized into labeled sections:
-
-1. **Presets** -- Seven curated style buttons that apply a full config snapshot (all settings except resolution and seed).
-2. **Resolution** -- Dropdown for 1080p, 1440p, 4K, ultrawide (3440x1440), Your Device (auto-detected hardware pixels), or custom width/height inputs. On mobile (screen width < 1024), the default is "Your Device" which reads `screen.width * devicePixelRatio` x `screen.height * devicePixelRatio` for a pixel-perfect phone wallpaper.
-3. **Theme** -- Light/dark toggle and accent color picker (8 preset swatches + custom color input).
-4. **Terrain Parameters** -- Seed text input plus sliders for noise scale, octaves, persistence, and contour levels.
-5. **Contour Style** -- Tri-state selector for contour color mode (mono, elevation, fade), contour line color picker (8 swatches + custom), and glow intensity slider.
-6. **Layers** -- Eleven independent toggles controlling which overlay layers are drawn (grid, annotations, Japanese text, frames, accents, scan lines, data panel, reticles, corner data, zones, hero text).
-7. **Icon** -- Logo variant selector (None / Endfield Industries / English / Japanese / Korean / Chinese), scale slider (5%-100%), opacity slider (5%-100%), and color picker. Controls only shown when a variant is selected.
-8. **Output** -- Resolution picker and action buttons: Randomize (re-rolls all parameters, colors, toggles, and contour mode), Export PNG, Copy Link.
-
-### Preset System
-
-Seven curated presets, each a complete config snapshot:
-
-| Preset | Theme | Accent | Character |
-|---|---|---|---|
-| Field Report | Dark | Yellow | Core industrial look (floor_plating/store), all overlays on, grey mono contours |
-| Storm Warning | Dark | Yellow | Dense contours (28 levels, 6 octaves), elevation coloring with glow, hero text |
-| Minimal Survey | Light | Grey | Clean print aesthetic, stripped-down: no annotations, no CJK, fade contours |
-| Classified | Dark | Red | Military redacted look, red-tinted contours with glow, hero text, all data overlays |
-| Deep Terrain | Dark | Yellow | World map view (30 levels, 5 octaves), elevation coloring, dense zones and data |
-| Signal Lost | Dark | Cyan | Sparse eerie scan, cyan fade contours with glow, scan lines + reticles + zones |
-| Holographic | Dark | Amber | Glowing amber contour lines (holographic_topography), full glow, minimal overlays |
-
-Presets do NOT override resolution or seed, so users can apply a style then fine-tune dimensions and terrain independently.
-
-### Export and Sharing
-
-- **PNG Export** -- Renders at full configured resolution (up to 4K) using `OffscreenCanvas` when available, falls back to a DOM canvas. Downloads as `endfield-terrain-{seed}-{width}x{height}.png`. The export is completely independent of the preview — it creates its own canvas at the exact configured dimensions.
-- **Permalink** -- The full `WallpaperConfig` object is JSON-serialized, base64-encoded, and placed in the URL hash fragment (`#<base64>`). Sharing this URL reproduces the exact wallpaper. The URL is updated via `history.replaceState` (no page reload) and decoded on load.
-- **localStorage persistence** -- Every config update is also saved to `localStorage` (key: `endfield-terrain-config`). Returning users who visit without a URL hash get their last config restored automatically.
-
----
-
-## Tech Stack
-
-- **Build**: Vite 7, TypeScript ~5.9
-- **UI**: React 19, Tailwind CSS v4 (CSS-first config via `@tailwindcss/vite`)
-- **State**: Zustand v5 (flat store, no middleware)
-- **Noise**: simplex-noise v4 (`createNoise2D`), alea v1 (seeded PRNG)
-- **Contours**: d3-contour v4 (marching squares)
-- **Zones**: d3-delaunay v6 (Voronoi tessellation)
-- **Rendering**: Canvas 2D API (no WebGL)
-- **Lint**: ESLint 9, typescript-eslint
-
-## Project Structure
+## Structure
 
 ```
 src/
-  engine/              # Pure rendering pipeline (no React)
-    types.ts           # WallpaperConfig, RenderContext, ThemePalette, ContourData
-    terrain.ts         # Heightmap generation (fractal simplex noise)
-    contours.ts        # d3-contour extraction
-    renderer.ts        # Orchestrates layer composition
-    export.ts          # Full-resolution PNG export via OffscreenCanvas
-    layers/            # One file per visual layer
-      background.ts    # Solid fill
-      grid.ts          # Major/minor grid + coordinate labels
-      scanLines.ts     # Faint horizontal/vertical scan lines
-      contourLines.ts  # Contour paths with color modes + glow
-      heroText.ts      # Large faint watermark word
-      annotations.ts   # Scattered technical labels (EN/JP)
-      reticles.ts      # Tactical crosshair/diamond/square symbols
-      cornerData.ts    # Environmental readouts, coordinates, classification stamp
-      frames.ts        # Border rectangle, corner brackets, center crosshair, edge ticks
-      dataPanel.ts     # Structured data panel (bottom-right) with translucent background, min-width 140px, clipped overflow
-      zones.ts         # Territory zone polygons with crosshatch fill (Voronoi + heightmap)
-      accents.ts       # Yellow bars with chevrons, hazard stripes, CMYK dots, hatching patches, scattered crosshairs, diamond markers
-      logoOverlay.ts   # SVG logo overlay (async) with configurable variant, scale, opacity, color
-  hooks/
-    useWallpaperConfig.ts   # Zustand store + resolution presets + initialization (hash → localStorage → defaults)
-    useGenerateWallpaper.ts # Debounced re-render on config change
-  utils/
-    color.ts           # getPalette() — light/dark ThemePalette builder, derives contour colors from config
-    fonts.ts           # fontForText() — triple font system with CJK detection
-    random.ts          # Seeded PRNG helpers (createRng, randomInRange, shuffle, etc.)
-    permalink.ts       # Config <-> base64 URL hash encoding + localStorage persistence
-  components/
-    WallpaperCanvas.tsx     # Canvas element + useGenerateWallpaper hook
-    ControlPanel.tsx        # Sidebar layout for all controls
-    controls/               # Individual control groups
-      ActionButtons.tsx     # Export, Randomize, Copy Link
-      NoiseControls.tsx     # Seed, scale, octaves, persistence, lacunarity
-      ContourControls.tsx   # Contour color mode selector, line color picker, glow slider
-      ThemeControls.tsx     # Light/dark, accent color picker
-      ResolutionPicker.tsx  # Preset + custom dimensions
-      PresetPicker.tsx      # Named preset selector
-      TextToggles.tsx       # Toggle switches for overlay layers
-      LogoControls.tsx      # Logo variant selector, scale/opacity sliders, color picker
-    ui/                     # Reusable primitives (Button, Slider, Toggle, Select, ColorPicker)
-  data/
-    defaults.ts        # DEFAULTS config (mobile-aware: auto-detects device resolution on small screens)
-    presets.ts         # Named config presets (Field Report, Storm Warning, ..., Holographic)
-    textContent.ts     # EN_LABELS, JP_LABELS, DATA_LABELS string pools
+  core/              art-agnostic. MUST NOT import from ../projects
+    project/         types.ts (the four core types), defineProject.ts (AnyProject facade)
+    render/          pipeline.ts (layer walker), layerCache.ts, exportPng.ts
+    store/           createProjectStore.ts
+    router/          hashRoute.ts, permalink.ts
+    canvas/          fonts.ts
+    output/          resolutions.ts
+    utils/           random.ts
+    ui/              Button, Slider, Toggle, Select, ColorPicker, Section — no domain knowledge
+
+  app/               site chrome, generic over AnyProject
+    App.tsx          route switch
+    registry.ts      eager meta + lazy loaders + the inflight promise map
+    ProjectRoute.tsx use(loadProject(id)), theme class, cache disposal
+    AppShell.tsx     canvas + panel + mobile FAB
+    gallery/         Gallery, ProjectCard
+    shell/           CanvasStage, PanelShell, OutputSection, ResolutionPicker,
+                     ActionButtons, useRenderCanvas, usePersistConfig
+
+  projects/
+    endfield/        Arknights: Endfield-styled topographic terrain maps
+    blank/           minimal starter — copy this to begin a new project
+
+  styles/            tokens.css (neutral site), project-endfield.css
 ```
 
-## Rendering Pipeline
+Path aliases: `@core/*`, `@app/*`, `@projects/*`.
 
-`renderWallpaper(canvas, config, dpr)` in `src/engine/renderer.ts` executes an async pipeline:
+## The four core types
 
-1. **Font loading** -- `loadCanvasFont()` loads the custom Endfield `.ttf` via the FontFace API (cached after first load).
-2. **HiDPI buffer setup** -- Canvas buffer is set to `width * dpr` x `height * dpr` (only resized when dimensions change to avoid clearing the visible canvas). All drawing uses logical coordinates.
-3. **Grid sizing** -- The heightmap grid targets ~250 cells on the longer axis, maintaining the output aspect ratio.
-4. **Heightmap generation** -- `generateHeightmap()` in `terrain.ts` produces a `Float64Array` of fractal octave simplex noise, normalized to [0, 1]. Each octave multiplies frequency by `lacunarity` and amplitude by `persistence`. **Cached** -- see Caching Strategy below.
-5. **Contour extraction** -- `extractContours()` in `contours.ts` feeds the heightmap into `d3-contour`'s marching-squares generator with `smooth(true)`, returning `ContourData[]` (threshold value + MultiPolygon coordinates). **Cached** -- see Caching Strategy below.
-6. **RenderContext assembly** -- Bundles dimensions, config, contour data, heightmap, and the `ThemePalette`. Each layer receives its own seeded RNG (`seed + '_' + layerName`) and its own `OffscreenCanvas` context for caching.
-7. **Layer rendering + caching** -- Each layer renders to its own cached `OffscreenCanvas`. Only layers whose cache key has changed are re-rendered. Toggle-gated layers are skipped entirely when their `show*` flag is false.
-8. **Compositing** -- All enabled layers' cached canvases are composited onto the main canvas via `drawImage` calls (pixel-to-pixel, ~1-2ms total).
+Everything else is plumbing. Full definitions in `src/core/project/types.ts`.
 
-## Render Layers (composition order)
+```ts
+BaseConfig                  // width, height, preset, seed — the shell owns these
+RenderContext<C, D>         // { ctx, width, height, config, data, rng } handed to each layer
+LayerDef<C, D>              // { name, enabled?, cacheKey?, draw }
+Pipeline<C, D>              // { fonts?, derive, baseKey, layers, disposeDerived? }
+```
 
-| # | Layer | File | Toggle | Description |
-|---|-------|------|--------|-------------|
-| 1 | **background** | `background.ts` | always | Solid fill using `palette.background` |
-| 2 | **grid** | `grid.ts` | `showGrid` | Major (1/8 width) and minor (1/32 width) grid lines with alphanumeric coordinate labels at intersections |
-| 3 | **scanLines** | `scanLines.ts` | `showScanLines` | 3-6 faint horizontal + 2-4 vertical lines at random positions, plus one dashed accent line |
-| 4 | **contourLines** | `contourLines.ts` | always | Draws all contour paths scaled from grid-space to canvas-space. Every 5th contour is an "index" contour (thicker). Color varies by `contourColorMode`. Optional glow via `contourGlow` intensity (Canvas `shadowBlur` in accent color) |
-| 5 | **zones** | `zones.ts` | `showZones` | 3-5 irregular angular territory polygons with diagonal crosshatch fill and border strokes. Generated via Voronoi tessellation with terrain-biased seed points, contour-aligned banding, and gradient-aware merging. Zones are isolated (no shared edges). 1-2 zones highlighted with accent border, each labeled from `EN_LABELS` |
-| 6 | **heroText** | `heroText.ts` | `showHeroText` | A single large word rendered as a very faint watermark (6% opacity) with shadow echo and accent underline. Uses the Endfield font |
-| 7 | **annotations** | `annotations.ts` | `showAnnotations` | 10-16 scattered text labels chosen from EN, JP (if CJK enabled), and data-format pools. Zone-based placement across a 4x3 grid prevents clustering |
-| 8 | **reticles** | `reticles.ts` | `showReticles` | 2-4 tactical targeting symbols (circle, diamond, or square variant) biased toward canvas corners |
-| 9 | **cornerData** | `cornerData.ts` | `showCornerData` | Top-left: environmental readouts. Top-right: lat/lon coordinates + grid reference. Bottom-left: classification ID stamp |
-| 10 | **frames** | `frames.ts` | `showFrames` | Inner border rectangle, L-shaped corner brackets, center crosshair with circle, and edge midpoint ticks |
-| 11 | **dataPanel** | `dataPanel.ts` | `showDataPanel` | Structured info panel in bottom-right: translucent background, accent-colored header bar, 5-7 key/value rows, optional CJK footer. Min width 140px; drawing is clipped to panel bounds to prevent text overflow on small canvases |
-| 12 | **accents** | `accents.ts` | `showAccents` | Yellow accent bars with chevron arrows and label text, hazard stripe patch, CMYK registration dots, diagonal hatching patches, small scattered crosshair (+) marks, diamond accent markers (solid and hatched) |
-| 13 | **logoOverlay** | `logoOverlay.ts` | `logoVariant` | SVG logo overlay (async). Fetches SVG text (cached per variant), injects fill color + opacity, renders via Blob URL → Image → `drawImage`. Centered on canvas, scaled by `logoScale`. Color and opacity configurable via `logoColor` and `logoOpacity` |
+A project bundles these into a `ProjectDefinition<C, D>` and passes it to `defineProject()`, which
+returns **`AnyProject`** — a type-erased facade. The shell holds `AnyProject` and never names a
+project's config type; it receives configs opaquely and hands them straight back, which is exactly when
+existential erasure is sound. Do **not** use `ProjectDefinition<any, any>` in the shell or registry.
 
-## Caching Strategy
+## Rendering pipeline
 
-`renderer.ts` implements a three-tier caching system to minimize redundant work. All caches are module-scoped and persist across render calls.
+`renderPipeline(pipeline, canvas, config, dpr, cache)` in `src/core/render/pipeline.ts`:
 
-### Tier 1: Terrain Data Cache
+1. Await `pipeline.fonts` via `loadFonts()`.
+2. Size the canvas buffer to `width * dpr`. All layer code then draws in **logical pixels** — the DPR
+   transform is applied to each layer's context, so layers never think about DPR.
+3. `await pipeline.derive(config, width, height)` — the project's shared precomputation.
+4. For each layer whose `enabled(config)` passes: build the cache key from width, height,
+   `baseKey(config)` and the layer's own `cacheKey(config, data)`, resolve it from the cache
+   (rendering on miss), and `drawImage` it onto the target.
 
-Two-level cache for the most expensive computations:
+Each layer gets its own deterministic RNG stream: `createRng(config.seed + '_' + layer.name)`. This is
+what lets one layer change without reshuffling the others — and it means **layer names are public
+API**: renaming one changes its output for every existing seed and permalink.
 
-- **Heightmap cache** -- Keyed on `seed|gridWidth|gridHeight|noiseScale|octaves|persistence|lacunarity`. Skipped for all visual-only changes (toggles, colors, theme, logo).
-- **Contour cache** -- Keyed on the heightmap key + `contourLevels`. Changing `contourLevels` reuses the cached heightmap and only re-runs contour extraction (much cheaper).
+The first layer must be opaque and cover every pixel; the pipeline never calls `clearRect`, which is
+what avoids a flash between frames.
 
-### Tier 2: Per-Layer OffscreenCanvas Cache
+### Caching
 
-Each of the 13 layers renders to its own cached `OffscreenCanvas`. A `Map<string, LayerEntry>` stores one canvas per layer name, keyed on the config fields that affect that layer's output.
+Two tiers, plus whatever the project memoises inside `derive`:
 
-**Base key** (shared by most layers): `width|height|seed|theme|accentColor|contourColor` — covers dimensions, RNG seed, and all palette inputs.
+- **Layer cache** (`createLayerCache()`) — one `OffscreenCanvas` per layer, keyed as above. An
+  *instance*, not a module singleton: two projects can both have a `background` layer, and a project's
+  canvases are freed when its route unmounts (`disposeCaches()`).
+- **Export passes `cache: null`** — one-shot renders allocate and free each layer canvas as they
+  composite. Caching a 4K export buys nothing and would evict every preview-sized entry.
+- **Derived data** is *not* cached by the pipeline. Memoise it yourself; see
+  `projects/endfield/derive.ts` for the two-level heightmap/contour memo.
 
-**Layer-specific keys:**
+**The cache contract:** any config field a layer reads must appear in `baseKey` or that layer's
+`cacheKey`. Otherwise the layer serves a stale canvas and its control silently does nothing.
 
-| Layer(s) | Cache key |
-|---|---|
-| Most layers (background, grid, scanLines, heroText, annotations, reticles, cornerData, frames, dataPanel, accents) | Base key only |
-| contourLines | Base + `contourColorMode`, `contourGlow`, `contourLevels`, terrain key |
-| zones | Base + terrain key |
-| logoOverlay | Base + `logoVariant`, `logoScale`, `logoOpacity`, `logoColor` |
+## State
 
-### Tier 3: Compositing
+`createProjectStore<C>()` returns `{ raw, actions, get, useConfig }`. Config is nested under a single
+`config` key — this is deliberate, and it's what removed ~120 lines of hand-maintained field
+enumeration (a 33-name destructure, a 33-name dep array, and a field-by-field `buildConfig()`).
 
-All enabled layers are composited onto the main canvas via `ctx.drawImage()` calls in order. The background layer is opaque and covers every pixel, so no `clearRect` is needed (this prevents flash-of-white between frames). Canvas dimensions are only changed when they actually differ from the current buffer size.
+- `actions` is a **stable plain object, not a hook**. Zustand v5 loops if a selector returns a
+  freshly-constructed object; don't convert it into `useActions()`.
+- Stores are **module-level inside each project's lazy chunk**, so they're created only when that
+  project's route is entered. That's what keeps `screen`/`devicePixelRatio` reads out of module-eval.
+- `createDefaults()` is a function for the same reason.
+- Presets are `Partial<Omit<C, 'width'|'height'|'preset'|'seed'>>` — a preset that omits a field leaves
+  the current value alone, and adding a config field never breaks existing presets.
 
-### What invalidates what
+Init priority: `?c=` route param, then `localStorage['fieldgrid:<id>:config']`, then `legacyStorageKey`,
+then `createDefaults()`.
 
-| User action | Terrain data | Layers re-rendered | Compositing |
-|---|---|---|---|
-| Toggle a layer | cached | none | re-composite only |
-| Change theme or accent color | cached | all | re-composite |
-| Change contour style/glow | cached | contourLines only | re-composite |
-| Change logo settings | cached | logoOverlay only | re-composite |
-| Change contourLevels | heightmap cached, contours regenerated | contourLines + zones | re-composite |
-| Change seed or noise params | regenerated | all | re-composite |
+## Routing and permalinks
 
-### Memory
+```
+#  or  #/           gallery
+#/endfield          project
+#/endfield?c=<b64>  project from a permalink
+#<b64>              legacy v1 link -> endfield, self-heals on first persist
+```
 
-Each `OffscreenCanvas` allocates a full RGBA buffer. At 2048px preview: ~130MB total for 13 layers. At ~1000px (mobile): ~40MB. Acceptable for modern devices.
+Hash routing (hand-rolled, ~60 lines on `useSyncExternalStore`) rather than a router library plus a
+404.html fallback: no deploy changes, deep links survive a refresh with no server cooperation, and
+Pages never returns a 404 status for a real route.
 
-## Contour Color Modes
+**Never parse the config payload with `URLSearchParams`.** `btoa` output contains `+`, `/` and `=`, and
+`URLSearchParams` decodes `+` as a space — which corrupts roughly half of all links into an `atob`
+throw. Parse with `indexOf('?c=')`; `#` can't appear in base64, so the split is unambiguous.
 
-Controlled by `config.contourColorMode` (`ContourColorMode` type):
+`usePersistConfig` writes through `replaceConfigParam(projectId, encoded)`, which rebuilds the whole
+hash from the project id rather than reading `location.hash`, so the debounced config write can't
+clobber the route. It uses `replaceState`, so dragging a slider doesn't fill the history stack.
 
-- **`mono`** (default) -- Uniform color. Index contours use `palette.contourIndex`, others use `palette.contourLine`. Full opacity.
-- **`elevation`** -- Contour color lerps from `config.contourColor` (low elevation) to `palette.accent` (high elevation) based on normalized threshold index. Hex-channel linear interpolation via `lerpColor()`.
-- **`fade`** -- Same colors as mono, but opacity scales from 15% (low elevation) to 100% (high elevation). Lower contours fade out, higher ones are prominent.
+## Code splitting
 
-### Contour Glow
+Each project's `meta.ts` is imported **eagerly** by the registry (so the gallery can list it) while its
+code sits behind `() => import('@projects/<id>')`. `meta.ts` must therefore import nothing heavy — one
+stray import collapses the lazy chunk into the main bundle.
 
-`config.contourGlow` (0-1 float) layers a Canvas `shadowBlur` glow effect on top of **any** color mode. When > 0, contour strokes emit light in the accent color. Index contours glow stronger (up to 12px blur) than regular contours (up to 6px). The glow intensity is purely visual and does not affect contour geometry.
+`loadProject(id)` returns a **stable promise** from an `inflight` Map. This is load-bearing: React 19's
+`use()` re-invokes on every render, and a fresh promise would suspend forever under StrictMode.
 
-### Contour Line Color
+## Theming
 
-`config.contourColor` (hex string, default `#888888`) controls the base color of contour lines independently from the theme. `getPalette()` in `color.ts` derives `palette.contourLine` and `palette.contourIndex` from this hex value using `hexToRgba()` with theme-appropriate alpha (dark: 0.25/0.45, light: 0.4/0.6).
+`styles/tokens.css` holds the neutral site palette (`--color-site-*`) plus the reset and scrollbar.
+Per-project styles live in `styles/project-<id>.css` with an `@theme` block and a `.theme-<id>` class
+that `ProjectRoute` applies via `meta.themeClass`.
 
-## Color Picker
+Token *values* are global; token *application* is scoped by class. Keep both files eagerly imported
+from `index.css`: Tailwind v4 generates utilities from the CSS dependency graph at build time, and an
+`@theme` block reachable only from a lazy chunk can land after first paint.
 
-`src/components/ui/ColorPicker.tsx` is a shared component used for both accent color and contour line color selection. It provides 8 preset color swatches (yellow, red, cyan, green, purple, white, gray, black) plus a custom color button (rainbow gradient) that opens the native `<input type="color">` picker.
+`meta.cardAccent` is exposed on the route root as the `--project-accent` CSS variable, so `@core/ui`
+primitives pick up the active project's accent automatically. `src/app` and `src/core` reference no
+project's tokens.
 
-## State Management
+Canvas fonts are loaded with `document.fonts.load("16px 'Family'")` against the CSS `@font-face`, not a
+JS-constructed `FontFace` — Firefox mobile doesn't reliably register those for canvas. This is also why
+`@font-face` must stay in the eager CSS graph.
 
-Zustand flat store in `src/hooks/useWallpaperConfig.ts`. The store type is `WallpaperStore extends WallpaperConfig` -- every config field is a top-level store property (no nesting).
+## Projects
 
-**Actions:**
-- `setConfig(partial)` -- Shallow merge any config fields
-- `setPreset(preset)` -- Switch resolution preset, updating width/height from `RESOLUTION_PRESETS` lookup
-- `randomize()` -- Rerolls seed, noise params, theme, accent/contour color (linked), contour mode, glow, and all layer toggles. Resolution is preserved.
-- `applyPreset(name)` -- Applies a named preset from `PRESETS` array (with fresh seed)
+### endfield
 
-**Initialization:** On load, `getInitialConfig()` uses a three-tier priority chain: URL hash (shared permalink) → `localStorage` (returning user) → `DEFAULTS`. The `DEFAULTS` in `src/data/defaults.ts` always default to `'device'` preset (hardware pixel dimensions via `screen.width * devicePixelRatio`), falling back to `1080p` if detection fails.
+Topographic terrain maps in the visual language of Arknights: Endfield — contour lines from
+simplex-noise heightmaps, industrial HUD overlays, mixed EN/JP labels, print-production marks.
 
-**Backwards compatibility:** New config fields (`contourGlow`, `contourColor`, `logoVariant`, `logoScale`, `logoOpacity`, `logoColor`) use `?? defaultValue` fallbacks in both the renderer and UI components, so old permalinks without these fields still work.
+- **Derived data**: `{ palette, heightmap, contourData, gridWidth, gridHeight, terrainKey }` — fractal
+  simplex noise (`terrain.ts`) fed through d3-contour marching squares (`contours.ts`), on a grid of
+  ~250 cells on the longer axis. Two-level memo so changing `contourLevels` reuses the heightmap.
+- **13 layers**, in order: background, grid, scanLines, contourLines, zones, heroText, annotations,
+  reticles, cornerData, frames, dataPanel, accents, logoOverlay (async).
+- **Contour colour modes**: `mono` | `elevation` | `fade`, plus an independent glow via `shadowBlur`.
+- **Fonts**: `EndfieldByButan.ttf` maps ASCII to decorative symbol glyphs. Text rendered in it looks
+  garbled — **that is intentional and desired**. `fonts.ts` routes between `endfield` / `standard` /
+  `auto` (CJK-detecting) stacks.
+- **8 presets** including Miku (teal accent, pink contours, `logoVariant: 'miku'`).
 
-## DPR / HiDPI Scaling
+**Known dead config field:** `showCjkText` is plumbed through config, presets, randomize and the panel,
+but **no layer reads it** — `annotations.ts` includes `JP_LABELS` unconditionally. The toggle currently
+does nothing. Wiring it up means gating the JP label pool in `annotations.ts` (and the CJK footer in
+`dataPanel.ts`) *and* adding a `cacheKey` on `showCjkText` to those layers, or they will render stale.
 
-The canvas buffer is scaled by `devicePixelRatio` for sharp rendering on HiDPI displays. All layer code draws in logical pixel coordinates -- the transform handles physical pixel mapping.
+### blank
 
-**Preview:** `useGenerateWallpaper` fits the configured aspect ratio into the container (letterboxed when the container doesn't match). The render resolution is capped at **2048px** on the longest axis for performance; CSS sizing matches the fitted dimensions exactly so there's no stretching. The preview shows the same content as the export, just scaled down. The three-tier caching system (terrain data, per-layer OffscreenCanvas, compositing) ensures most interactions only re-render the affected layer(s).
+The starter. Solid background, optional guides, four controls, `TData = void`. Copy it to begin a new
+project.
 
-**Export:** `exportWallpaper()` renders at full target resolution with `dpr=1` (no extra scaling), producing a pixel-exact PNG at the configured dimensions.
+## Build and deploy
 
-## Triple Font System
+```bash
+npm run dev
+npm run typecheck && npm run lint      # CI gates deploys on both
+npm run build && npm run preview       # exercises base:'/fieldgrid/'
+```
 
-`src/utils/fonts.ts` provides `fontForText(text, sizePx, bold?, style?)` returning a CSS font string for canvas:
+`.github/workflows/deploy.yml` runs typecheck, lint, build, then Pages on push to `main`.
 
-| Style | Font Stack | Usage |
-|-------|-----------|-------|
-| `'endfield'` | `'Endfield', 'Arial Black', 'Impact', sans-serif` | Custom decorative font. Used for hero text, accent bar labels, data panel header |
-| `'standard'` | `'Inter', 'Helvetica Neue', 'Arial', sans-serif` | Clean sans-serif for data readouts, coordinates, grid labels |
-| `'auto'` (default) | CJK regex detection -> CJK or standard | CJK text gets `'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif`. Non-CJK falls through to standard |
+**Never change `base: '/fieldgrid/'` in `vite.config.ts`.** Every shared permalink is
+`https://maddest-lad.github.io/fieldgrid/#...`; changing it 404s all of them. The repo name is
+independent of it.
 
-## Permalink System
+TypeScript runs with `strict`, `noUnusedLocals`, `noUnusedParameters`, `erasableSyntaxOnly` (no
+`enum` — use const objects and unions) and `verbatimModuleSyntax` (every type-only import needs
+`import type`).
 
-`src/utils/permalink.ts` implements shareable URLs and config persistence:
-
-- **Encode**: `encodeConfig(config)` -> `JSON.stringify` -> `btoa` -> base64 string
-- **Decode**: `decodeConfig(hash)` -> strip leading `#` -> `atob` -> `JSON.parse` -> validate
-- **URL update**: `updateUrlHash(config)` calls `history.replaceState` to set the hash without triggering navigation. Also saves the config to `localStorage` (key: `endfield-terrain-config`) for returning users.
-- **localStorage load**: `loadSavedConfig()` reads and validates from `localStorage`. Used as a fallback when no URL hash is present.
-- **Hydration**: Store calls `decodeConfig(window.location.hash)` → `loadSavedConfig()` → `DEFAULTS` during initialization (first match wins).
-
-## Important: Manual Config Field Propagation
-
-**Two files manually list every `WallpaperConfig` field and MUST be updated when adding new config fields:**
-
-1. **`src/hooks/useGenerateWallpaper.ts`** -- Destructures all fields from the store, rebuilds the config object, and lists every field in the `useCallback` dependency array. A missing field means config changes won't trigger re-render.
-2. **`src/components/controls/ActionButtons.tsx`** -- `buildConfig()` manually copies every field from the store into a `WallpaperConfig` object. A missing field means exports and permalink copies will have incomplete config.
-
-Both also need updating in the `PRESETS` array in `src/data/presets.ts` (each preset must specify every non-omitted config field).
+There is no test runner. Verification is manual — see the checklist in the `new-project` skill.

@@ -1,4 +1,5 @@
 import { use, useEffect } from 'react';
+import type React from 'react';
 import { loadProject } from './registry';
 import { AppShell } from './AppShell';
 
@@ -13,7 +14,8 @@ export function ProjectRoute({ id }: { id: string }) {
   return (
     <div
       data-project={id}
-      className={`${project.meta.themeClass ?? ''} flex h-full w-full overflow-hidden bg-ef-light`}
+      style={{ '--project-accent': project.meta.cardAccent } as React.CSSProperties}
+      className={`${project.meta.themeClass ?? ''} flex h-full w-full overflow-hidden bg-site-paper`}
     >
       <AppShell project={project} />
     </div>

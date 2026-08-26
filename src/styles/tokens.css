@@ -8,6 +8,11 @@
   --color-site-accent: #FFE600;
 }
 
+/* Accent of the active project; the route root overrides it per project. */
+:root {
+  --project-accent: #FFE600;
+}
+
 *,
 *::before,
 *::after {

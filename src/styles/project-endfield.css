@@ -25,3 +25,9 @@
 .theme-endfield {
   font-family: var(--font-endfield);
 }
+
+/* The shell renders its panel title with .project-title and no font of its own;
+   projects opt into a display face here. */
+.theme-endfield .project-title {
+  font-family: var(--font-endfield);
+}

@@ -6,6 +6,7 @@ const LOGO_FILES: Record<string, string> = {
   ja: 'endfield-logo-ja.svg',
   ko: 'endfield-logo-ko.svg',
   zh: 'endfield-logo-zh.svg',
+  miku: 'Hatsune_miku_logo_v3.svg',
 };
 
 const svgCache = new Map<string, string>();

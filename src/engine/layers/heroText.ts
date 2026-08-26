@@ -1,6 +1,6 @@
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomInRange, randomPick } from '../../utils/random';
+import { randomInRange, randomPick } from '@core/utils/random';
 
 const HERO_WORDS = [
   'ENDFIELD',
@@ -11,7 +11,7 @@ const HERO_WORDS = [
 ];
 
 export function drawHeroText(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, rng, data: { palette } } = rc;
 
   ctx.save();
 

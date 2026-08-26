@@ -38,7 +38,7 @@ function loadImage(svgText: string): Promise<HTMLImageElement> {
 }
 
 export async function drawLogoOverlay(rc: RenderContext): Promise<void> {
-  const { ctx, width, height, config, palette } = rc;
+  const { ctx, width, height, config, data: { palette } } = rc;
   const variant = config.logoVariant ?? 'none';
   if (variant === 'none') return;
 

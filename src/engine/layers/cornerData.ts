@@ -1,9 +1,9 @@
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomInt } from '../../utils/random';
+import { randomInt } from '@core/utils/random';
 
 export function drawCornerData(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, rng, data: { palette } } = rc;
 
   const fontSize = Math.max(7, Math.round(width / 220));
   const lineH = fontSize * 1.7;

@@ -1,7 +1,7 @@
 import type { RenderContext } from '../types';
 
 export function drawFrames(rc: RenderContext): void {
-  const { ctx, width, height, palette, config } = rc;
+  const { ctx, width, height, config, data: { palette } } = rc;
   const edgePad = (config.edgePadding ?? 0) * Math.min(width, height);
 
   ctx.save();

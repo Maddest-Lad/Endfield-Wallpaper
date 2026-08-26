@@ -1,6 +1,10 @@
+import type { RenderContext as CoreRenderContext } from '@core/project/types';
+import type { EndfieldData } from './derive';
+import type { ResolutionPreset } from '@core/output/resolutions';
+
 export type ThemeMode = 'light' | 'dark';
 
-export type ResolutionPreset = '1080p' | '1440p' | '4k' | 'ultrawide' | 'discord' | 'twitter' | 'linkedin' | 'youtube' | 'facebook' | 'twitch' | 'device' | 'custom';
+export type { ResolutionPreset } from '@core/output/resolutions';
 
 export type ContourColorMode = 'mono' | 'elevation' | 'fade';
 
@@ -66,15 +70,8 @@ export interface ThemePalette {
   frameLine: string;
 }
 
-export interface RenderContext {
-  ctx: CanvasRenderingContext2D;
-  width: number;
-  height: number;
-  config: WallpaperConfig;
-  contourData: ContourData[];
-  heightmap: Float64Array;
-  gridWidth: number;
-  gridHeight: number;
-  rng: () => number;
-  palette: ThemePalette;
-}
+/**
+ * Endfield's instantiation of the core render context. Derived terrain data and
+ * the palette live under `rc.data` (see EndfieldData in ./derive).
+ */
+export type RenderContext = CoreRenderContext<WallpaperConfig, EndfieldData>;

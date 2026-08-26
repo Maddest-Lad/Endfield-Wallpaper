@@ -1,7 +1,7 @@
 import type { RenderContext } from '../types';
 
 export function drawBackground(rc: RenderContext): void {
-  const { ctx, width, height, palette } = rc;
+  const { ctx, width, height, data: { palette } } = rc;
 
   // Solid fill
   ctx.fillStyle = palette.background;

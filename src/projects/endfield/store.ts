@@ -1,4 +1,5 @@
 import { createProjectStore } from '@core/store/createProjectStore';
+import { parseHash } from '@core/router/hashRoute';
 import type { WallpaperConfig } from './types';
 import { createDefaults } from './defaults';
 import { PRESETS } from './presets';
@@ -13,9 +14,9 @@ export const endfieldStore = createProjectStore<WallpaperConfig>({
   createDefaults,
   randomize: randomizeEndfield,
   presets: PRESETS,
-  // Pre-router: the whole hash is the base64 payload. Phase 6 replaces this with
-  // the ?c= param parsed out of the route.
-  initialConfigParam: window.location.hash.replace(/^#/, '') || null,
+  // Legacy bare-hash permalinks parse to this same field, so old shared links
+  // keep working and self-heal to #/endfield?c=... on the first persist.
+  initialConfigParam: parseHash(window.location.hash).configParam,
   // Read once so users who saved a config before namespacing don't lose it.
   legacyStorageKey: 'endfield-terrain-config',
 });

@@ -11,7 +11,7 @@ export const endfieldMeta: ProjectMeta = {
   title: 'Endfield',
   tagline: 'Terrain Generator',
   version: 'v1.0',
-  thumb: 'thumbs/endfield.png',
+  thumb: 'thumbs/endfield.svg',
   cardAccent: '#FFE600',
   themeClass: 'theme-endfield',
 };

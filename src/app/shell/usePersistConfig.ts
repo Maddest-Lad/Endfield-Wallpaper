@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { BaseConfig } from '@core/project/types';
 import { encodeConfig, saveConfig } from '@core/router/permalink';
+import { replaceConfigParam } from '@core/router/hashRoute';
 
 /**
  * Mirror the config into the URL hash and localStorage.
@@ -14,7 +15,7 @@ export function usePersistConfig<C extends BaseConfig>(projectId: string, config
     const id = setTimeout(() => {
       const encoded = encodeConfig(config);
       if (!encoded) return;
-      window.history.replaceState(null, '', `#${encoded}`);
+      replaceConfigParam(projectId, encoded);
       saveConfig(projectId, config);
     }, 150);
     return () => clearTimeout(id);

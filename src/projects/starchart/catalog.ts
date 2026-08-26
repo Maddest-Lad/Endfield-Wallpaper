@@ -131,6 +131,68 @@ function lastWithin(mag: Uint8Array, limit: number): number {
 /** The magnitude of the brightest star in the catalogue — Sirius. */
 export const BRIGHTEST_MAG = -1.44;
 
+// --- unprojected access ------------------------------------------------------
+//
+// `buildCatalog` below is the plate's path: it projects onto a view. The search
+// bar and the pointing globe need the catalogue WITHOUT a plate — one star by
+// index, or every bright star as raw sky coordinates — so those go through here.
+
+/** A catalogue entry in sky coordinates, before any projection. */
+export interface StarPoint {
+  idx: number;
+  ra: number;
+  dec: number;
+  mag: number;
+  /** Colour temperature in -1..1 from B-V; see `Star.temp`. */
+  temp: number;
+}
+
+function pointAt(
+  packed: PackedCatalog,
+  i: number,
+): StarPoint {
+  const bvVal = BV_MIN + (packed.bv[i] / 255) * (BV_MAX - BV_MIN);
+  return {
+    idx: i,
+    ra: (packed.ra[i] / 65535) * 360,
+    dec: (packed.dec[i] / 65535) * 180 - 90,
+    mag: unMag(packed.mag[i]),
+    temp: Math.max(-1, Math.min(1, bvVal / 1.4)),
+  };
+}
+
+/** One star by catalogue index. */
+export function starPoint(idx: number): StarPoint | null {
+  const packed = decode();
+  if (!Number.isInteger(idx) || idx < 0 || idx >= STAR_COUNT) return null;
+  return pointAt(packed, idx);
+}
+
+const brightCache = new Map<number, StarPoint[]>();
+
+/**
+ * Every star at or brighter than `limitMag`, brightest first.
+ *
+ * Memoised per limit because the globe asks for the same slice on every frame
+ * of a drag. The catalogue is sorted by magnitude, so this is a prefix walk.
+ */
+export function brightStars(limitMag: number): StarPoint[] {
+  const hit = brightCache.get(limitMag);
+  if (hit) return hit;
+
+  const packed = decode();
+  const last = lastWithin(packed.mag, limitMag);
+  const out: StarPoint[] = [];
+  for (let i = 0; i <= last; i++) out.push(pointAt(packed, i));
+  brightCache.set(limitMag, out);
+  return out;
+}
+
+/** Catalogue indices of the stars that carry a designation. */
+export function namedStarIndices(): number[] {
+  return [...names().keys()];
+}
+
 // --- build -------------------------------------------------------------------
 
 export interface Catalog {

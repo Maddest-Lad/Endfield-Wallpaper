@@ -8,6 +8,8 @@ import { PRESETS } from './presets';
 import { THEME_OPTIONS, type ThemeName } from './palette';
 import { PROJECTION_OPTIONS, formatRa, formatDec, type ProjectionName } from './sky';
 import { SKY_REGIONS } from './regions';
+import { StarSearch } from './StarSearch';
+import { SkyGlobe } from './SkyGlobe';
 
 const ACCENT_SWATCHES = [
   '#6FD3FF',
@@ -62,6 +64,8 @@ export function Controls() {
             </button>
           ))}
         </div>
+        <StarSearch />
+        <SkyGlobe />
         <Slider
           label="Right Ascension"
           value={c.raCenter}

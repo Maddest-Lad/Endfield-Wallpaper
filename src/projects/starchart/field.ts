@@ -64,6 +64,17 @@ function sample(m: Uint8Array, ra: number, dec: number): number {
   return (top * (1 - ty) + bot * ty) / 255;
 }
 
+/**
+ * Milky Way brightness at a sky coordinate, in [0, 1].
+ *
+ * The plate reads the band through a `HazeField`, which needs a projection to
+ * invert. The pointing globe has its own projection and no use for the noise
+ * modulation, so it comes in here instead.
+ */
+export function sampleMilkyWay(ra: number, dec: number): number {
+  return sample(decode(), ra, dec);
+}
+
 export function createHazeField(seed: string, view: SkyView): HazeField {
   const m = decode();
   const noise = createNoise2D(alea(`${seed}_clouds`));

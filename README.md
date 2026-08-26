@@ -81,6 +81,14 @@ that exist — that split is the whole point of the project.
 
 Controls:
 
+- **Find** — search by name and the plate points there. Proper names (`Betelgeuse`), Bayer
+  designations typed however you like (`α Ori`, `alpha ori`), Flamsteed numbers, HD numbers
+  (`hd 39801`), all 89 constellations, and the named regions. Picking a constellation frames it
+  using the figure's real angular extent; picking a single star re-points without touching your
+  field of view.
+- **Orientation** — a celestial globe showing the Milky Way, the bright stars and the constellation
+  figures, with the current field outlined on it. Drag it to aim, drag the outer ring to roll, and
+  scroll to zoom.
 - **Pointing** — right ascension, declination, roll, and field of view from 6° to 130°, plus one-tap
   buttons for sixteen regions worth looking at (Orion, the galactic core, the Cygnus rift, Crux,
   the Pleiades, the Magellanic Clouds…)

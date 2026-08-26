@@ -215,6 +215,20 @@ the point of the project.
   same sky at 2.6–4.4× and one magnitude deeper, not a crop of the pixels above them.
 - **`catalogKey` deliberately excludes the seed.** The sky is real, so rerolling the seed
   must not reshuffle it — it only rerolls the plate furniture and the trade lanes.
+- **`search.ts` + `StarSearch.tsx` + `SkyGlobe.tsx`** are the pointing controls. They are pure
+  config writers — `raCenter`/`decCenter`/`roll`/`fieldOfView` are already in `catalogKey`, so
+  they need no pipeline or cache-key changes. `catalog.ts` exposes `starPoint`, `brightStars`
+  and `namedStarIndices` for them; `field.ts` exposes `sampleMilkyWay`.
+
+**Two React-timing traps in `SkyGlobe`, both already hit once.** Pointermove and wheel events
+arrive in bursts well inside a single React commit, so a handler that reads its base value from
+the store gets the *same stale value* for every event in the burst and each one overwrites the
+last — a 40-pixel drag applied one move's worth of rotation, and a 40-notch scroll applied one
+notch. Both handlers therefore keep their own accumulator (`dragRef.ra/dec`, `fovRef`) seeded at
+gesture start and resynced from config in an effect. Also: the drag's degrees-per-pixel is
+*measured* from the projection by probing a one-degree step, not computed as `fov / size` —
+orthographic maps angle through a sine and `createSkyView` clamps the half-angle, so the naive
+figure is 1.65x too fast.
 
 **The density ceiling is magnitude 8.** A narrow field is genuinely sparse: about 1,000
 stars in a 48° Orion plate at mag 7.4, ~150 in a 16° one. Going deeper means a catalogue

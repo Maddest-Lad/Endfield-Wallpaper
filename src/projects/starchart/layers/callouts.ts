@@ -4,23 +4,25 @@ import type { StarchartConfig } from '../config';
 import type { StarchartData } from '../derive';
 import { rgba } from '../palette';
 import { MONO, arrowHead, detailScale, placeLabel, plateRegions } from '../layout';
-import { distanceText } from '../textContent';
-
-interface Pt {
-  x: number;
-  y: number;
-}
+import { angularSeparation, formatAngle } from '../sky';
 
 /**
- * Engineering-drawing dimension callouts between notable points: extension lines,
- * an offset dimension line with arrowheads at both ends, and a distance in
- * parsecs or light years knocked out of the middle.
+ * Engineering-drawing dimension callouts between real stars: extension lines, an
+ * offset dimension line with arrowheads at both ends, and the measurement
+ * knocked out of the middle.
+ *
+ * The measurement is the real great-circle separation of the two stars, in
+ * degrees or arcminutes. That is the one number on the plate that could be
+ * checked against the sky and come out right, which is why it is worth the
+ * haversine rather than reading the distance off the pixels.
  */
 export function drawCallouts(rc: RenderContext<StarchartConfig, StarchartData>): void {
   const { ctx, width, height, config, data, rng } = rc;
   const { palette, beacons, routeNodes } = data;
 
-  const pool: Pt[] = routeNodes.length >= 4 ? routeNodes : beacons;
+  // Route nodes are already pinned to real stars, so either pool carries the sky
+  // coordinates the measurement needs.
+  const pool = routeNodes.length >= 4 ? routeNodes.map((n) => n.star) : beacons;
   if (pool.length < 4) return;
 
   const s = detailScale(width, height);
@@ -69,7 +71,7 @@ export function drawCallouts(rc: RenderContext<StarchartConfig, StarchartData>):
       continue;
     }
 
-    const text = distanceText(rng);
+    const text = formatAngle(angularSeparation(a.ra, a.dec, b.ra, b.dec));
     const mid = { x: (a2.x + b2.x) / 2, y: (a2.y + b2.y) / 2 };
     const placed = placeLabel(ctx, text, mid.x, mid.y, 'center', bounds, fontSize * 1.4);
     if (!placed) continue;

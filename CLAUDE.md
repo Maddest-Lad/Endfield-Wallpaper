@@ -37,10 +37,16 @@ src/
 
   projects/
     endfield/        Arknights: Endfield-styled topographic terrain maps
+    starchart/       real star charts of a chosen piece of sky
+      data/          GENERATED sky data — see scripts/build-sky-data.mjs
     blank/           minimal starter — copy this to begin a new project
 
   styles/            tokens.css (neutral site), project-endfield.css
 ```
+
+Outside `src/`, `scripts/build-sky-data.mjs` regenerates `src/projects/starchart/data/`.
+It is not part of `npm run build` — its output is committed — and it sits outside both
+`tsconfig.app.json`'s `include` and eslint's glob on purpose.
 
 Path aliases: `@core/*`, `@app/*`, `@projects/*`.
 
@@ -181,6 +187,44 @@ simplex-noise heightmaps, industrial HUD overlays, mixed EN/JP labels, print-pro
 but **no layer reads it** — `annotations.ts` includes `JP_LABELS` unconditionally. The toggle currently
 does nothing. Wiring it up means gating the JP label pool in `annotations.ts` (and the CJK footer in
 `dataPanel.ts`) *and* adding a `cacheKey` on `showCjkText` to those layers, or they will render stale.
+
+### starchart
+
+Survey plates of a real piece of sky. The stars, their positions, magnitudes and
+colours, the constellation figures, the star names and the Milky Way are all real; the
+trade-lane network, the survey name and the plate notes are invented, and that split is
+the point of the project.
+
+- **Data** lives in `starchart/data/*.gen.ts`, reduced from
+  [ofrohn/d3-celestial](https://github.com/ofrohn/d3-celestial) (BSD-3-Clause, itself from
+  Hipparcos/Tycho and the IAU figures) by `scripts/build-sky-data.mjs`. **Regenerate with
+  the script, never edit by hand.** 41,411 stars to magnitude 8 packed at 6 bytes each
+  (RA u16 | Dec u16 | mag u8 | B−V u8), column-major and sorted brightest-first — which is
+  what makes the limiting-magnitude cut a binary search plus a prefix walk. Positions are
+  J2000, accurate to the ~7 arcsec quantisation floor. Proper motion is not applied.
+- **`sky.ts`** owns the projection (`d3-geo`, five real azimuthal projections), RA/Dec ↔
+  plate pixels, angular separation, sexagesimal formatting and galactic coordinates. It is
+  the only place that shifts RA into d3's longitude convention, and the only place that
+  applies the horizontal flip every star chart has — the sky is drawn from inside the
+  sphere.
+- **`derive`** projects the catalogue, clips the IAU figures, and builds a grid index so
+  figure line-work can find the star at each endpoint. Two-level memo: the projection pass
+  is keyed on pointing, and only the (invented) route graph re-runs when the seed changes.
+- **12 layers**: plate, haze, graticule, starfield, beacons, constellations, routes,
+  insets, labels, callouts, frame, titleBlock. The insets are a *second* projection of the
+  same sky at 2.6–4.4× and one magnitude deeper, not a crop of the pixels above them.
+- **`catalogKey` deliberately excludes the seed.** The sky is real, so rerolling the seed
+  must not reshuffle it — it only rerolls the plate furniture and the trade lanes.
+
+**The density ceiling is magnitude 8.** A narrow field is genuinely sparse: about 1,000
+stars in a 48° Orion plate at mag 7.4, ~150 in a 16° one. Going deeper means a catalogue
+an order of magnitude larger, so *widen the field* rather than expecting a small one to
+fill in.
+
+`data/*.gen.ts` is excluded from eslint in `eslint.config.js`: it is machine-written, and
+the base64 in `stars.gen.ts` overflows the TypeScript parser's stack before any rule runs.
+Emit those blobs as template literals — a `+` chain of string literals builds a binary
+expression tree deep enough to trigger the same overflow.
 
 ### blank
 

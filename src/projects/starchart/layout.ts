@@ -151,7 +151,10 @@ export function plateRegions(
   // Sized around legible type rather than the other way round: an 8px label
   // block at 100% is noise, not information.
   const titleW = clamp(Math.min(width, height) * 0.33, 250 * s, 390 * s);
-  const titleH = 122 * s;
+  // Eight rows of real plate data plus the designation and its rule. Sized to
+  // the content: a row that does not fit is dropped, so an undersized block
+  // silently loses the limiting magnitude and the object count.
+  const titleH = 168 * s;
   const title: Rect = {
     x: b.right - pad - titleW,
     y: b.bottom - pad - titleH,

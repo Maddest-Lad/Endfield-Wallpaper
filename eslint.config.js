@@ -6,7 +6,9 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // Generated sky data. It is machine-written, and the megabyte of base64 in
+  // stars.gen.ts overflows the TypeScript parser's stack before any rule runs.
+  globalIgnores(['dist', 'src/projects/*/data/*.gen.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

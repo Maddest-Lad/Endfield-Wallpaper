@@ -1,110 +1,215 @@
-import { createRng, randomInRange } from '@core/utils/random';
-import type { HazeField } from './field';
+import {
+  STAR_COUNT,
+  STAR_DATA_B64,
+  MAG_MIN,
+  MAG_MAX,
+  BV_MIN,
+  BV_MAX,
+} from './data/stars.gen';
+import { STAR_NAMES } from './data/starNames.gen';
+import type { SkyView } from './sky';
 import { detailScale } from './layout';
 
-/** Spectral tint slot. 0 = white, 1 = warm, 2 = cool. */
-export type Tint = 0 | 1 | 2;
+/**
+ * The real catalogue: 41,411 stars to magnitude 8, J2000.
+ *
+ * `data/stars.gen.ts` stores them column-major and sorted brightest-first, which
+ * is what makes both hot paths cheap here — the limiting-magnitude cut is a
+ * binary search over a monotonic column followed by a prefix walk, and no star
+ * fainter than the cut is ever touched.
+ */
 
 export interface Star {
+  /** Index into the packed catalogue, and the key into the name table. */
+  idx: number;
+  /** Logical pixels on the plate. */
   x: number;
   y: number;
-  /** Radius in logical pixels, already multiplied by the detail scale. */
-  r: number;
-  /** Magnitude class: 0 is a bright anchor, 4 is a sub-pixel speck. */
+  ra: number;
+  dec: number;
+  /** Apparent visual magnitude. Lower is brighter; Sirius is -1.44. */
   mag: number;
+  /** Drawn radius in logical pixels, already scaled for the plate size. */
+  r: number;
   alpha: number;
-  tint: Tint;
+  /**
+   * Colour temperature in -1..1 from the B-V index: -1 is a hot blue O/B star,
+   * +1 a cool red M. Around 0 is roughly solar.
+   */
+  temp: number;
 }
 
-/**
- * One catalogue entry per class. `weight` is the share of the total count, so
- * anchors stay rare no matter how the density dial moves.
- */
-const MAG_CLASSES = [
-  { weight: 0.008, rMin: 2.3, rMax: 4.0, aMin: 0.85, aMax: 1.0 },
-  { weight: 0.032, rMin: 1.45, rMax: 2.25, aMin: 0.68, aMax: 0.94 },
-  { weight: 0.08, rMin: 0.95, rMax: 1.45, aMin: 0.48, aMax: 0.76 },
-  { weight: 0.18, rMin: 0.62, rMax: 0.95, aMin: 0.3, aMax: 0.56 },
-  { weight: 0.7, rMin: 0.3, rMax: 0.6, aMin: 0.12, aMax: 0.38 },
-];
+export interface StarName {
+  /** Proper name, e.g. `Betelgeuse`. Empty for most stars. */
+  proper: string;
+  /** Bayer letter, e.g. `α`. */
+  bayer: string;
+  /** Flamsteed number. */
+  flam: string;
+  /** Three-letter constellation abbreviation, e.g. `Ori`. */
+  con: string;
+  /** Henry Draper number, digits only. */
+  hd: string;
+}
 
-/** Logical px² of plate per star at density 1.0, measured at the 1080p reference. */
-const AREA_PER_STAR = 880;
+// --- decode ------------------------------------------------------------------
+
+interface PackedCatalog {
+  ra: Uint16Array;
+  dec: Uint16Array;
+  mag: Uint8Array;
+  bv: Uint8Array;
+}
+
+let packed: PackedCatalog | null = null;
+
+function decode(): PackedCatalog {
+  if (packed) return packed;
+
+  // The generated blob is newline-wrapped; atob is specified to strip ASCII
+  // whitespace, but stripping it here means not depending on that.
+  const bin = atob(STAR_DATA_B64.replace(/\s+/g, ''));
+  const n = STAR_COUNT;
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+  // The u16 columns are copied rather than viewed: `bytes.buffer` carries no
+  // alignment guarantee for a 2-byte view once an offset is involved.
+  const ra = new Uint16Array(n);
+  const dec = new Uint16Array(n);
+  for (let i = 0; i < n; i++) {
+    ra[i] = bytes[i * 2] | (bytes[i * 2 + 1] << 8);
+    dec[i] = bytes[n * 2 + i * 2] | (bytes[n * 2 + i * 2 + 1] << 8);
+  }
+
+  packed = {
+    ra,
+    dec,
+    mag: bytes.subarray(n * 4, n * 5),
+    bv: bytes.subarray(n * 5, n * 6),
+  };
+  return packed;
+}
+
+let nameTable: Map<number, StarName> | null = null;
+
+function names(): Map<number, StarName> {
+  if (nameTable) return nameTable;
+  const m = new Map<number, StarName>();
+  for (const line of STAR_NAMES.split('\n')) {
+    if (!line) continue;
+    const [idx, proper, bayer, flam, con, hd] = line.split('|');
+    m.set(Number(idx), { proper, bayer, flam, con, hd });
+  }
+  nameTable = m;
+  return m;
+}
+
+export function starName(idx: number): StarName | undefined {
+  return names().get(idx);
+}
+
+const unMag = (q: number) => MAG_MIN + (q / 255) * (MAG_MAX - MAG_MIN);
+
+/** Largest index whose magnitude is still within the limit. -1 if none. */
+function lastWithin(mag: Uint8Array, limit: number): number {
+  let lo = 0;
+  let hi = mag.length - 1;
+  let ans = -1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (unMag(mag[mid]) <= limit) {
+      ans = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  return ans;
+}
+
+/** The magnitude of the brightest star in the catalogue — Sirius. */
+export const BRIGHTEST_MAG = -1.44;
+
+// --- build -------------------------------------------------------------------
 
 export interface Catalog {
+  /** Everything projected inside the plate, brightest first. */
   stars: Star[];
-  /** Magnitude-0 entries, kept separately: they carry the bloom and anchor the graph. */
+  /** The handful bright enough to carry a bloom. A subset of `stars`. */
   beacons: Star[];
+  /** How many catalogue entries passed the magnitude cut, in or out of frame. */
+  surveyed: number;
 }
 
 /**
- * Seeded star catalogue.
+ * Project the catalogue onto the plate.
  *
- * Count is driven by AREA divided by the squared detail scale, not by a fixed
- * number — that keeps a 3440x1440 ultrawide from reading sparse and a 1080x1920
- * portrait from reading crowded, while a 4K render is the 1080p plate drawn twice
- * as large rather than four times as busy.
+ * Star size is driven by magnitude the way a printed chart does it, not by a
+ * random draw: the radius runs off a power of the magnitude below the limit, so
+ * lowering the limiting magnitude does not merely delete faint stars, it also
+ * rescales what is left — which is exactly how a shallower plate looks.
  */
 export function buildCatalog(
-  seed: string,
+  view: SkyView,
+  limitingMag: number,
   width: number,
   height: number,
-  density: number,
-  spectralTint: number,
-  haze: HazeField,
 ): Catalog {
-  const rng = createRng(`${seed}_catalog`);
+  const { ra, dec, mag, bv } = decode();
   const s = detailScale(width, height);
-  const total = Math.round(((width * height) / (s * s) / AREA_PER_STAR) * density);
+  const last = lastWithin(mag, limitingMag);
+  if (last < 0) return { stars: [], beacons: [], surveyed: 0 };
 
-  const cum: number[] = [];
-  let acc = 0;
-  for (const c of MAG_CLASSES) {
-    acc += c.weight;
-    cum.push(acc);
-  }
+  const span = Math.max(0.5, limitingMag - BRIGHTEST_MAG);
+  // Off-plate stars still have to be projected, but they must not be kept; the
+  // margin lets a bloom or a label leader originate just outside the frame.
+  const pad = Math.max(width, height) * 0.06;
 
   const stars: Star[] = [];
-  const beacons: Star[] = [];
-  const tintChance = spectralTint * 0.4;
 
-  // Rejection sampling against the haze field clusters the field along the
-  // galactic plane while leaving a thin scatter everywhere else.
-  let attempts = 0;
-  const maxAttempts = total * 12;
-  while (stars.length < total && attempts < maxAttempts) {
-    attempts++;
-    const x = rng() * width;
-    const y = rng() * height;
-    const f = haze.at(x, y);
-    // The floor matters more than the slope: at 0.22 the off-band field went
-    // visibly dead in the mid-plate, which reads as a hole rather than as depth.
-    if (rng() > 0.45 + 0.55 * Math.pow(f, 1.1)) continue;
+  for (let i = 0; i <= last; i++) {
+    const raDeg = (ra[i] / 65535) * 360;
+    const decDeg = (dec[i] / 65535) * 180 - 90;
+    const q = view.project(raDeg, decDeg);
+    if (!q) continue;
+    const [x, y] = q;
+    if (x < -pad || x > width + pad || y < -pad || y > height + pad) continue;
 
-    const roll = rng() * acc;
-    let mag = MAG_CLASSES.length - 1;
-    for (let i = 0; i < cum.length; i++) {
-      if (roll <= cum[i]) {
-        mag = i;
-        break;
-      }
-    }
-    const cls = MAG_CLASSES[mag];
+    const m = unMag(mag[i]);
+    // 0 at the limit, 1 at the brightest star in the sky.
+    const rel = Math.min(1, Math.max(0, (limitingMag - m) / span));
 
-    let tint: Tint = 0;
-    if (rng() < tintChance) tint = rng() < 0.55 ? 1 : 2;
+    const bvVal = BV_MIN + (bv[i] / 255) * (BV_MAX - BV_MIN);
+    // 0.0 (A0) sits at the neutral point and 1.4 (early M) at fully warm, which
+    // is roughly where the eye stops reading a star as white.
+    const temp = Math.max(-1, Math.min(1, bvVal / 1.4));
 
-    const star: Star = {
+    stars.push({
+      idx: i,
       x,
       y,
-      r: randomInRange(rng, cls.rMin, cls.rMax) * s,
-      mag,
-      alpha: randomInRange(rng, cls.aMin, cls.aMax),
-      tint,
-    };
-    stars.push(star);
-    if (mag === 0) beacons.push(star);
+      ra: raDeg,
+      dec: decDeg,
+      mag: m,
+      // Both curves are deliberately shallow. A plate normalised hard against
+      // Sirius pushes everything in an ordinary field down into the noise, and
+      // the result reads as an empty sky rather than a deep one — real charts
+      // plot a seventh-magnitude star as a small dot, not as nothing.
+      r: (0.36 + 4.0 * Math.pow(rel, 1.5)) * s,
+      alpha: 0.2 + 0.8 * Math.pow(rel, 0.8),
+      temp,
+    });
   }
 
-  return { stars, beacons };
+  // Bright enough to be an anchor, and rare enough to stay one. A field with no
+  // naked-eye star still gets its brightest few, or the plate has no focus.
+  const beacons: Star[] = [];
+  for (const st of stars) {
+    if (beacons.length >= 14) break;
+    if (st.mag > 4.2 && beacons.length >= 3) break;
+    beacons.push(st);
+  }
+
+  return { stars, beacons, surveyed: last + 1 };
 }

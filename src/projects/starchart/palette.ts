@@ -113,3 +113,37 @@ export function rgba(hex: string, alpha: number): string {
 export function rgbTriplet(hex: string): [number, number, number] {
   return hexToRgb(hex);
 }
+
+function toHex(rgb: [number, number, number]): string {
+  return (
+    '#' +
+    rgb
+      .map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0'))
+      .join('')
+  );
+}
+
+/**
+ * A star's colour, from its real B-V index.
+ *
+ * `temp` runs -1 (hot blue) to +1 (cool red). The plate's own `star` ink is the
+ * neutral point and the theme's warm/cool inks are the extremes, so a stylised
+ * stock like the amber phosphor stays inside its own palette while still
+ * ordering its stars correctly by colour. `strength` is the config dial: at 0
+ * every star is plate ink, at 1 the real colour index reaches full throw.
+ *
+ * Returns a hex string rather than rgba, because every caller then fades it by
+ * its own alpha.
+ */
+export function starTint(palette: Palette, temp: number, strength: number): string {
+  const t = Math.max(-1, Math.min(1, temp)) * strength;
+  if (Math.abs(t) < 0.002) return palette.star;
+  const base = hexToRgb(palette.star);
+  const target = hexToRgb(t > 0 ? palette.warm : palette.cool);
+  const k = Math.abs(t);
+  return toHex([
+    base[0] + (target[0] - base[0]) * k,
+    base[1] + (target[1] - base[1]) * k,
+    base[2] + (target[2] - base[2]) * k,
+  ]);
+}

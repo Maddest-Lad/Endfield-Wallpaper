@@ -1,5 +1,5 @@
 import type { RenderContext } from '@core/project/types';
-import { randomInRange, shuffle } from '@core/utils/random';
+import { randomInRange } from '@core/utils/random';
 import type { StarchartConfig } from '../config';
 import type { StarchartData } from '../derive';
 import type { Star } from '../catalog';
@@ -12,18 +12,22 @@ import {
   rectsOverlap,
   type Rect,
 } from '../layout';
-import { designator, sectorLabel } from '../textContent';
+import { starDesignation, magText } from '../textContent';
 
 /**
- * Catalogue designators beside notable stars, some on leader lines, plus sector
- * labels dropped into the graticule cells.
+ * Real designations beside the stars that carry one, some on leader lines.
+ *
+ * Candidates are taken brightest-first and only from stars that actually have a
+ * designation, which is how a printed chart chooses too — roughly 4,800 of the
+ * catalogue's 41,411 entries have one, and they are overwhelmingly the bright
+ * ones. Fainter stars stay anonymous rather than being given an invented number.
  *
  * Counts scale with plate AREA over the squared detail scale, so an ultrawide
  * gets proportionally more labels rather than the same handful stretched out.
  */
 export function drawLabels(rc: RenderContext<StarchartConfig, StarchartData>): void {
   const { ctx, width, height, config, data, rng } = rc;
-  const { palette, beacons, stars } = data;
+  const { palette, stars, figures } = data;
 
   const s = detailScale(width, height);
   const { bounds, title, legend } = plateRegions(width, height, config.margin);
@@ -31,11 +35,21 @@ export function drawLabels(rc: RenderContext<StarchartConfig, StarchartData>): v
   const fontSize = Math.round(9.5 * s);
   const lineH = fontSize * 1.2;
 
-  const targets: Star[] = [
-    ...shuffle(rng, beacons),
-    ...shuffle(rng, stars.filter((st) => st.mag === 1)),
-  ];
-  const wanted = Math.max(2, Math.round((5 + config.labelDensity * 28) * areaFactor));
+  // Latin genitives, so a Bayer letter reads `α Orionis` and not `α Ori`.
+  const genitive = new Map(figures.map((f) => [f.id, f.gen]));
+
+  interface Candidate {
+    star: Star;
+    text: string;
+  }
+  const targets: Candidate[] = [];
+  for (const st of stars) {
+    if (targets.length >= 200) break;
+    const text = starDesignation(st, genitive);
+    if (text) targets.push({ star: st, text });
+  }
+
+  const wanted = Math.max(2, Math.round((5 + config.labelDensity * 26) * areaFactor));
 
   ctx.save();
   ctx.font = `${fontSize}px ${MONO}`;
@@ -45,7 +59,7 @@ export function drawLabels(rc: RenderContext<StarchartConfig, StarchartData>): v
   const taken: Rect[] = config.showTitleBlock ? [title, legend] : [];
   let drawn = 0;
 
-  for (const st of targets) {
+  for (const { star: st, text } of targets) {
     if (drawn >= wanted) break;
 
     const useLeader = rng() < 0.32;
@@ -68,7 +82,6 @@ export function drawLabels(rc: RenderContext<StarchartConfig, StarchartData>): v
       ty = st.y + (rng() < 0.5 ? -1 : 1) * 1.5 * s;
     }
 
-    const text = designator(rng);
     const align = dirX > 0 ? 'left' : 'right';
     const placed = placeLabel(ctx, text, tx, ty, align, bounds, lineH);
     if (!placed) continue;
@@ -100,25 +113,28 @@ export function drawLabels(rc: RenderContext<StarchartConfig, StarchartData>): v
     ctx.fillStyle = rgba(palette.ink, palette.invert ? 0.82 : 0.66);
     ctx.textAlign = placed.align;
     ctx.fillText(text, placed.x, placed.y);
-    drawn++;
-  }
 
-  // Sector labels: sparse, faint, sitting in the empty graticule cells.
-  const sectors = Math.max(2, Math.round((3 + config.labelDensity * 5) * areaFactor));
-  ctx.font = `${Math.round(10 * s)}px ${MONO}`;
-  ctx.fillStyle = rgba(palette.dim, palette.invert ? 0.6 : 0.38);
-  for (let i = 0; i < sectors; i++) {
-    const x = randomInRange(rng, bounds.left + 40 * s, bounds.right - 40 * s);
-    const y = randomInRange(rng, bounds.top + 20 * s, bounds.bottom - 20 * s);
-    const text = sectorLabel(rng);
-    const placed = placeLabel(ctx, text, x, y, 'center', bounds, 12 * s);
-    if (!placed) continue;
-    const w = ctx.measureText(text).width;
-    const box: Rect = { x: placed.x - w / 2, y: placed.y - 6 * s, w, h: 12 * s };
-    if (taken.some((t) => rectsOverlap(box, t, 4 * s))) continue;
-    taken.push(box);
-    ctx.textAlign = 'center';
-    ctx.fillText(text, placed.x, placed.y);
+    // The brightest few also get their magnitude, set smaller underneath — the
+    // detail that makes the plate read as a measurement rather than a picture.
+    if (st.mag < 3.2 && rng() < 0.75) {
+      const sub = magText(st.mag);
+      ctx.font = `${Math.round(8 * s)}px ${MONO}`;
+      const subPlaced = placeLabel(ctx, sub, placed.x, placed.y + lineH * 0.85, placed.align, bounds, lineH);
+      if (subPlaced) {
+        ctx.fillStyle = rgba(palette.dim, palette.invert ? 0.7 : 0.5);
+        ctx.fillText(sub, subPlaced.x, subPlaced.y);
+        const sw = ctx.measureText(sub).width;
+        taken.push({
+          x: subPlaced.align === 'left' ? subPlaced.x : subPlaced.x - sw,
+          y: subPlaced.y - lineH / 2,
+          w: sw,
+          h: lineH,
+        });
+      }
+      ctx.font = `${fontSize}px ${MONO}`;
+    }
+
+    drawn++;
   }
 
   ctx.restore();

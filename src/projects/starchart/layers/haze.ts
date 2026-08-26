@@ -5,10 +5,13 @@ import { rgbTriplet } from '../palette';
 import { detailScale } from '../layout';
 
 /**
- * The milky way: the haze field painted at one twelfth resolution and scaled up
- * with smoothing. It is a low-frequency wash, so sampling it per pixel buys
- * nothing but time — and the browser's bilinear upscale is exactly the blur the
- * effect wants.
+ * The Milky Way, painted at one twelfth resolution and scaled up with smoothing.
+ * It is a low-frequency wash, so sampling it per pixel buys nothing but time —
+ * and the browser's bilinear upscale is exactly the blur the effect wants.
+ *
+ * Each sample inverts the projection to a sky coordinate before reading the
+ * real brightness map, so the band arrives correctly warped for whatever
+ * projection and pointing the plate is using.
  */
 export function drawHaze(rc: RenderContext<StarchartConfig, StarchartData>): void {
   const { ctx, width, height, config, data } = rc;
@@ -29,7 +32,11 @@ export function drawHaze(rc: RenderContext<StarchartConfig, StarchartData>): voi
 
   for (let y = 0; y < gh; y++) {
     for (let x = 0; x < gw; x++) {
-      const f = haze.at((x + 0.5) * step, (y + 0.5) * step);
+      // Gamma before gain. Pointed at the galactic centre the whole plate sits
+      // inside the band, so a linear ramp washes it into one flat grey; the
+      // curve holds the rifts and the fainter outskirts back and lets the core
+      // be the only thing that reaches full strength.
+      const f = Math.pow(haze.at((x + 0.5) * step, (y + 0.5) * step), 1.7);
       const i = (y * gw + x) * 4;
       img.data[i] = r;
       img.data[i + 1] = g;

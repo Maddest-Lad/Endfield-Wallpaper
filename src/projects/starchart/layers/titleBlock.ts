@@ -3,22 +3,38 @@ import type { StarchartConfig } from '../config';
 import type { StarchartData } from '../derive';
 import { rgba } from '../palette';
 import { MONO, detailScale, plateRegions } from '../layout';
-import { plateIdentity } from '../textContent';
+import { plateIdentity, plateDesignation } from '../textContent';
+import { formatRa, formatDec, PROJECTION_LABELS } from '../sky';
+import { nearestRegion } from '../regions';
 
 /**
- * The document furniture: a title block naming the plate, its projection, epoch
- * and scale, plus a legend keying the three mark types.
+ * The document furniture: a title block naming the plate, where it points, how
+ * it was projected and how deep it goes, plus a legend keying the mark types.
+ *
+ * Every row except SURVEY is now a real property of the plate rather than a
+ * plausible-looking number — the centre coordinates are the actual J2000
+ * pointing, FIELD is the real angular width, and LIM MAG is the cut that
+ * produced the star count beside it.
  *
  * Drawn last and over an opaque ground fill, so it always wins against whatever
  * the field put underneath it.
  */
 export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>): void {
   const { ctx, width, height, config, data, rng } = rc;
-  const { palette, stars, routeNodes, constellations } = data;
+  const { palette, stars, routeNodes, figures } = data;
 
   const s = detailScale(width, height);
   const { title, legend } = plateRegions(width, height, config.margin);
   const id = plateIdentity(rng);
+  // Name the plate for the constellation that dominates it, falling back to the
+  // named region and then to nothing.
+  const dominant = figures.find((f) => f.coverage > 0.5);
+  const region = nearestRegion(config.raCenter, config.decCenter);
+  const designation = plateDesignation(
+    dominant?.id ?? region?.name.slice(0, 3) ?? null,
+    config.raCenter,
+    config.decCenter,
+  );
 
   ctx.save();
   ctx.lineCap = 'butt';
@@ -39,7 +55,7 @@ export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>
 
   ctx.font = `${Math.round(15 * s)}px ${MONO}`;
   ctx.fillStyle = rgba(palette.ink, palette.invert ? 0.95 : 0.9);
-  ctx.fillText(id.designation, title.x + pad, y);
+  ctx.fillText(designation, title.x + pad, y);
   y += rowH * 1.35;
 
   ctx.strokeStyle = rgba(palette.accent, 0.8);
@@ -50,10 +66,13 @@ export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>
   ctx.stroke();
 
   const rows: [string, string][] = [
-    ['SURVEY', id.survey],
-    ['PROJ', id.projection],
-    ['EPOCH', id.epoch],
-    ['SCALE', id.scale],
+    ['SURVEY', region ? region.name.toUpperCase() : id.survey],
+    ['R.A.', formatRa(config.raCenter)],
+    ['DEC.', formatDec(config.decCenter)],
+    ['PROJ', PROJECTION_LABELS[config.projection]],
+    ['FIELD', `${config.fieldOfView.toFixed(0)}° × ${((config.fieldOfView * Math.min(width, height)) / Math.max(width, height)).toFixed(0)}°`],
+    ['EPOCH', 'J2000.0'],
+    ['LIM MAG', `${config.limitingMag.toFixed(1)}`],
     ['OBJ', `${stars.length}`],
   ];
 
@@ -104,7 +123,7 @@ export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>
     ctx.fill();
   }
   ctx.fillStyle = rgba(palette.ink, palette.invert ? 0.88 : 0.72);
-  ctx.fillText('MAG 0-4', textX, ly);
+  ctx.fillText(`MAG ≤ ${config.limitingMag.toFixed(1)}`, textX, ly);
   ly += rowH;
 
   ctx.strokeStyle = rgba(palette.ink, palette.invert ? 0.6 : 0.4);
@@ -113,7 +132,7 @@ export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>
   ctx.moveTo(markX, ly);
   ctx.lineTo(markX + 24 * s, ly);
   ctx.stroke();
-  ctx.fillText(`FIGURES ${constellations.length}`, textX, ly);
+  ctx.fillText(`FIGURES ${figures.filter((f) => f.coverage > 0.15).length}`, textX, ly);
   ly += rowH;
 
   ctx.strokeStyle = rgba(palette.accent, 0.85);

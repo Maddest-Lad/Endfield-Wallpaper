@@ -24,6 +24,10 @@ export type StarchartLayer = LayerDef<StarchartConfig, StarchartData>;
  * Every config field a layer reads appears either in `baseKey` below or in that
  * layer's own `cacheKey` — otherwise the layer serves a stale canvas and its
  * control silently does nothing.
+ *
+ * `data.catalogKey` covers the whole pointing: projection, centre, roll, field
+ * of view, limiting magnitude and spectral tint. Any layer that reads projected
+ * sky therefore only needs that one key, not the six fields behind it.
  */
 const LAYERS: StarchartLayer[] = [
   { name: 'plate', cacheKey: (c) => `${c.grain}`, draw: drawPlate },
@@ -31,7 +35,8 @@ const LAYERS: StarchartLayer[] = [
   {
     name: 'graticule',
     enabled: (c) => c.showGraticule,
-    cacheKey: (c) => `${c.graticuleOpacity}|${c.secondaryProjection}`,
+    cacheKey: (c, d) =>
+      `${d.catalogKey}|${c.graticuleOpacity}|${c.galacticGrid}|${c.margin}`,
     draw: drawGraticule,
   },
   { name: 'starfield', cacheKey: (_c, d) => d.catalogKey, draw: drawStarfield },
@@ -43,19 +48,21 @@ const LAYERS: StarchartLayer[] = [
   {
     name: 'constellations',
     enabled: (c) => c.showConstellations,
-    cacheKey: (_c, d) => d.graphKey,
+    cacheKey: (c, d) => `${d.catalogKey}|${c.constellationLabels}|${c.margin}`,
     draw: drawConstellations,
   },
   {
     name: 'routes',
     enabled: (c) => c.showRoutes,
-    cacheKey: (_c, d) => d.graphKey,
+    cacheKey: (c, d) => `${d.graphKey}|${c.margin}`,
     draw: drawRoutes,
   },
   {
     name: 'insets',
+    // Insets re-project the sky inside each box, so they depend on the pointing
+    // and on the limiting magnitude they deepen from.
     enabled: (c) => c.showInsets,
-    cacheKey: (c) => `${c.showTitleBlock}`,
+    cacheKey: (c, d) => `${d.catalogKey}|${c.showTitleBlock}`,
     draw: drawInsets,
   },
   {

@@ -2,7 +2,8 @@ import type { RenderContext } from '@core/project/types';
 import type { StarchartConfig } from '../config';
 import type { StarchartData } from '../derive';
 import { rgba } from '../palette';
-import { detailScale } from '../layout';
+import { MONO, detailScale, drawLabel, plateRegions } from '../layout';
+import { nodeTag } from '../textContent';
 
 /**
  * Trade lanes: the inhabited-space layer. Deliberately unlike the constellation
@@ -10,11 +11,12 @@ import { detailScale } from '../layout';
  * so the two networks never read as one.
  */
 export function drawRoutes(rc: RenderContext<StarchartConfig, StarchartData>): void {
-  const { ctx, width, height, data } = rc;
+  const { ctx, width, height, config, data, rng } = rc;
   const { palette, routeNodes, routeEdges } = data;
   if (routeNodes.length === 0) return;
 
   const s = detailScale(width, height);
+  const { bounds } = plateRegions(width, height, config.margin);
   const accent = palette.accent;
 
   ctx.save();
@@ -58,6 +60,16 @@ export function drawRoutes(rc: RenderContext<StarchartConfig, StarchartData>): v
       ctx.fillStyle = rgba(accent, 0.55);
       ctx.fillRect(n.x - r * 0.4, n.y - r * 0.4, r * 0.8, r * 0.8);
     }
+  }
+
+  // Hubs carry a tag. The stars underneath them are real and already labelled in
+  // ink by the annotation layer; this is the invented network naming its own
+  // stops, so it stays in the accent and stays terse.
+  ctx.font = `${Math.round(8.5 * s)}px ${MONO}`;
+  ctx.fillStyle = rgba(accent, 0.72);
+  for (const n of routeNodes) {
+    if (!n.hub) continue;
+    drawLabel(ctx, nodeTag(rng), n.x + 9 * s, n.y - 8 * s, 'left', bounds, 10 * s);
   }
 
   ctx.restore();

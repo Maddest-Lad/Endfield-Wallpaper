@@ -2,13 +2,15 @@ import type { RenderContext } from '@core/project/types';
 import { randomInRange } from '@core/utils/random';
 import type { StarchartConfig } from '../config';
 import type { StarchartData } from '../derive';
-import { rgba } from '../palette';
+import { rgba, starTint } from '../palette';
 import { detailScale } from '../layout';
 
 /**
- * Magnitude-0 anchors: soft radial bloom, a subtle four-point diffraction cross,
- * and a hard core. This is the only place in the plate that gets to be bright, so
- * the count is deliberately tiny.
+ * The brightest real stars in the field: soft radial bloom, a subtle four-point
+ * diffraction cross, and a hard core. This is the only place in the plate that
+ * gets to be bright, so the count is deliberately tiny — and because the stars
+ * are real, the anchors land on Rigel and Betelgeuse rather than wherever a
+ * random draw put them.
  */
 export function drawBeacons(rc: RenderContext<StarchartConfig, StarchartData>): void {
   const { ctx, width, height, config, data, rng } = rc;
@@ -17,13 +19,12 @@ export function drawBeacons(rc: RenderContext<StarchartConfig, StarchartData>): 
   if (beacons.length === 0) return;
 
   const s = detailScale(width, height);
-  const tints = [palette.star, palette.warm, palette.cool];
 
   ctx.save();
   if (!palette.invert) ctx.globalCompositeOperation = 'lighter';
 
   for (const st of beacons) {
-    const tint = tints[st.tint];
+    const tint = starTint(palette, st.temp, config.spectralTint);
     const spread = st.r * (3.2 + bloom * 16);
 
     if (bloom > 0.02) {

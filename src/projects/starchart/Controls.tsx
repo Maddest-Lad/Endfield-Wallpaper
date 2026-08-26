@@ -6,6 +6,8 @@ import { ColorPicker } from '@core/ui/ColorPicker';
 import { starchartStore } from './store';
 import { PRESETS } from './presets';
 import { THEME_OPTIONS, type ThemeName } from './palette';
+import { PROJECTION_OPTIONS, formatRa, formatDec, type ProjectionName } from './sky';
+import { SKY_REGIONS } from './regions';
 
 const ACCENT_SWATCHES = [
   '#6FD3FF',
@@ -42,6 +44,78 @@ export function Controls() {
       </div>
 
       <Divider />
+      <SectionHeader>Pointing</SectionHeader>
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-1.5">
+          {SKY_REGIONS.map((r) => (
+            <button
+              key={r.name}
+              onClick={() =>
+                setConfig({ raCenter: r.ra, decCenter: r.dec, fieldOfView: r.fov })
+              }
+              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5
+                border border-site-line text-site-dim bg-transparent
+                hover:border-[var(--project-accent)] hover:text-site-ink
+                cursor-pointer transition-all"
+            >
+              {r.name}
+            </button>
+          ))}
+        </div>
+        <Slider
+          label="Right Ascension"
+          value={c.raCenter}
+          min={0}
+          max={360}
+          step={0.5}
+          onChange={(v) => setConfig({ raCenter: v })}
+          displayValue={formatRa(c.raCenter)}
+        />
+        <Slider
+          label="Declination"
+          value={c.decCenter}
+          min={-89}
+          max={89}
+          step={0.5}
+          onChange={(v) => setConfig({ decCenter: v })}
+          displayValue={formatDec(c.decCenter)}
+        />
+        <Slider
+          label="Field of View"
+          value={c.fieldOfView}
+          min={6}
+          max={130}
+          step={1}
+          onChange={(v) => setConfig({ fieldOfView: v })}
+          displayValue={`${c.fieldOfView}°`}
+        />
+        <Slider
+          label="Roll"
+          value={c.roll}
+          min={-180}
+          max={180}
+          step={1}
+          onChange={(v) => setConfig({ roll: v })}
+          displayValue={`${c.roll}°`}
+        />
+        <Select
+          label="Projection"
+          value={c.projection}
+          options={PROJECTION_OPTIONS}
+          onChange={(v) => setConfig({ projection: v as ProjectionName })}
+        />
+        <Slider
+          label="Limiting Mag"
+          value={c.limitingMag}
+          min={2}
+          max={8}
+          step={0.1}
+          onChange={(v) => setConfig({ limitingMag: v })}
+          displayValue={c.limitingMag.toFixed(1)}
+        />
+      </div>
+
+      <Divider />
       <SectionHeader>Field</SectionHeader>
       <div className="flex flex-col gap-3">
         <Select
@@ -55,15 +129,6 @@ export function Controls() {
           value={c.accentColor}
           swatches={ACCENT_SWATCHES}
           onChange={(v) => setConfig({ accentColor: v })}
-        />
-        <Slider
-          label="Star Density"
-          value={c.starDensity}
-          min={0.2}
-          max={2.5}
-          step={0.05}
-          onChange={(v) => setConfig({ starDensity: v })}
-          displayValue={`${c.starDensity.toFixed(2)}x`}
         />
         <Slider
           label="Bloom"
@@ -84,22 +149,13 @@ export function Controls() {
           displayValue={pct(c.spectralTint)}
         />
         <Slider
-          label="Haze"
+          label="Milky Way"
           value={c.hazeStrength}
           min={0}
           max={1}
           step={0.02}
           onChange={(v) => setConfig({ hazeStrength: v })}
           displayValue={pct(c.hazeStrength)}
-        />
-        <Slider
-          label="Plane Curve"
-          value={c.hazeCurve}
-          min={-1}
-          max={1}
-          step={0.05}
-          onChange={(v) => setConfig({ hazeCurve: v })}
-          displayValue={c.hazeCurve.toFixed(2)}
         />
         <Slider
           label="Grain"
@@ -130,22 +186,19 @@ export function Controls() {
           displayValue={pct(c.graticuleOpacity)}
         />
         <Toggle
-          label="2nd Projection"
-          checked={c.secondaryProjection}
-          onChange={(v) => setConfig({ secondaryProjection: v })}
+          label="Galactic Grid"
+          checked={c.galacticGrid}
+          onChange={(v) => setConfig({ galacticGrid: v })}
         />
         <Toggle
           label="Constellations"
           checked={c.showConstellations}
           onChange={(v) => setConfig({ showConstellations: v })}
         />
-        <Slider
-          label="Figures"
-          value={c.constellationCount}
-          min={0}
-          max={36}
-          step={1}
-          onChange={(v) => setConfig({ constellationCount: v })}
+        <Toggle
+          label="Figure Names"
+          checked={c.constellationLabels}
+          onChange={(v) => setConfig({ constellationLabels: v })}
         />
       </div>
 

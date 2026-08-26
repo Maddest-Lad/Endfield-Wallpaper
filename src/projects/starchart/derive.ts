@@ -16,8 +16,19 @@ export interface Figure {
   paths: [number, number][][];
   /** Label anchor in plate pixels, or null when it fell off the plate. */
   label: [number, number] | null;
-  /** How much of the figure is actually on the plate, 0..1. */
+  /**
+   * How much of the figure is on the plate, 0..1. Answers "is enough of this
+   * figure showing to be worth naming?".
+   */
   coverage: number;
+  /**
+   * How many of the figure's vertices are on the plate.
+   *
+   * Distinct from `coverage` on purpose: coverage is a fraction, so a two-star
+   * figure fully in frame scores 1.0 and beats a partly-clipped Orion. Anything
+   * asking "which constellation IS this plate?" wants the absolute count.
+   */
+  onPlate: number;
 }
 
 export interface RouteNode {
@@ -170,6 +181,7 @@ function buildFigures(view: SkyView, width: number, height: number): Figure[] {
       paths,
       label,
       coverage: total > 0 ? onPlate / total : 0,
+      onPlate,
     });
   }
 

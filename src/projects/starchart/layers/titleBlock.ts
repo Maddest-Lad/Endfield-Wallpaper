@@ -28,7 +28,16 @@ export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>
   const id = plateIdentity(rng);
   // Name the plate for the constellation that dominates it, falling back to the
   // named region and then to nothing.
-  const dominant = figures.find((f) => f.coverage > 0.5);
+  //
+  // Ranked by how much line-work is actually in frame, NOT by the fraction of
+  // each figure that made it. `figures` is sorted by that fraction, so taking
+  // the first one over a threshold named a plate centred on Betelgeuse after
+  // Canis Minor — a two-star figure fully in frame scores 1.0, while Orion
+  // filling the plate but running off two edges scores less.
+  let dominant: (typeof figures)[number] | undefined;
+  for (const f of figures) {
+    if (f.onPlate >= 4 && (!dominant || f.onPlate > dominant.onPlate)) dominant = f;
+  }
   const region = nearestRegion(config.raCenter, config.decCenter);
   const designation = plateDesignation(
     dominant?.id ?? region?.name.slice(0, 3) ?? null,

@@ -1,9 +1,9 @@
 import type { RenderContext } from '../types';
-import { randomInRange, randomInt } from '../../utils/random';
+import { randomInRange, randomInt } from '@core/utils/random';
 import { fontForText } from '../../utils/fonts';
 
 export function drawScanLines(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, rng, data: { palette } } = rc;
 
   ctx.save();
 

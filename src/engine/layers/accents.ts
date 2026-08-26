@@ -1,6 +1,6 @@
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomInRange } from '../../utils/random';
+import { randomInRange } from '@core/utils/random';
 
 export function drawAccents(rc: RenderContext): void {
   rc.ctx.save();
@@ -14,7 +14,7 @@ export function drawAccents(rc: RenderContext): void {
 }
 
 function drawYellowBars(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng, config } = rc;
+  const { ctx, width, height, rng, config, data: { palette } } = rc;
   const edgePad = (config.edgePadding ?? 0) * Math.min(width, height);
 
   const barHeight = Math.round(height * 0.012);
@@ -67,7 +67,7 @@ function drawYellowBars(rc: RenderContext): void {
 }
 
 function drawHazardStripes(rc: RenderContext): void {
-  const { ctx, width, height, palette, config } = rc;
+  const { ctx, width, height, config, data: { palette } } = rc;
   const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
 
   const patchW = Math.round(width * 0.06);
@@ -123,7 +123,7 @@ function drawCmykDots(rc: RenderContext): void {
 }
 
 function drawHatchingPatches(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng, config } = rc;
+  const { ctx, width, height, rng, config, data: { palette } } = rc;
   const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
   const ix = (f: number) => edgePad + f * (width - edgePad * 2);
   const iy = (f: number) => edgePad + f * (height - edgePad * 2);
@@ -174,7 +174,7 @@ function drawHatchingPatches(rc: RenderContext): void {
 }
 
 function drawScatteredCrosshairs(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng, config } = rc;
+  const { ctx, width, height, rng, config, data: { palette } } = rc;
   const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
   const ix = (f: number) => edgePad + f * (width - edgePad * 2);
   const iy = (f: number) => edgePad + f * (height - edgePad * 2);
@@ -213,7 +213,7 @@ function drawScatteredCrosshairs(rc: RenderContext): void {
 }
 
 function drawSmallAccentMarks(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng, config } = rc;
+  const { ctx, width, height, rng, config, data: { palette } } = rc;
   const edgePad = Math.round((config.edgePadding ?? 0) * Math.min(width, height));
   const ix = (f: number) => edgePad + f * (width - edgePad * 2);
   const iy = (f: number) => edgePad + f * (height - edgePad * 2);

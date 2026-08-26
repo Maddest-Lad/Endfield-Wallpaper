@@ -1,5 +1,5 @@
 import type { WallpaperConfig } from './types';
-import { renderWallpaper } from './renderer';
+import { renderWallpaperOnce } from './renderer';
 
 export async function exportWallpaper(config: WallpaperConfig): Promise<void> {
   // Create a full-resolution canvas for export
@@ -11,7 +11,7 @@ export async function exportWallpaper(config: WallpaperConfig): Promise<void> {
     canvas = document.createElement('canvas');
   }
 
-  await renderWallpaper(canvas, config);
+  await renderWallpaperOnce(canvas, config);
 
   // Convert to blob and download
   let blob: Blob;

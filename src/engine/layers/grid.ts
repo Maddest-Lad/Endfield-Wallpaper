@@ -2,7 +2,7 @@ import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
 
 export function drawGrid(rc: RenderContext): void {
-  const { ctx, width, height, palette } = rc;
+  const { ctx, width, height, data: { palette } } = rc;
 
   ctx.save();
 

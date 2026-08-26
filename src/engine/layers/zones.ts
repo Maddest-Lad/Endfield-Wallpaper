@@ -1,7 +1,7 @@
 import { Delaunay } from 'd3-delaunay';
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomInRange, randomInt, shuffle } from '../../utils/random';
+import { randomInRange, randomInt, shuffle } from '@core/utils/random';
 import { EN_LABELS } from '../../data/textContent';
 
 /** Union-Find for merging Voronoi cells into territory regions. */
@@ -148,7 +148,7 @@ function heightmapGradient(
 }
 
 export function drawZones(rc: RenderContext): void {
-  const { ctx, width, height, rng, palette, heightmap, gridWidth, gridHeight, contourData } = rc;
+  const { ctx, width, height, rng, data: { palette, heightmap, gridWidth, gridHeight, contourData } } = rc;
 
   // --- Step 1: Terrain-biased seed point placement ---
   const totalPoints = randomInt(rng, 25, 40);

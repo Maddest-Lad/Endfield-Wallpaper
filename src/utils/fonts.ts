@@ -1,19 +1,3 @@
-let fontLoaded = false;
-
-export async function loadCanvasFont(): Promise<void> {
-  if (fontLoaded) return;
-
-  try {
-    // Use the CSS @font-face declaration rather than creating a separate
-    // FontFace object — Firefox mobile doesn't reliably register JS-created
-    // FontFace instances for canvas drawing.
-    await document.fonts.load("16px 'Endfield'");
-    fontLoaded = true;
-  } catch (e) {
-    console.warn('Failed to load Endfield font for canvas, using fallback:', e);
-  }
-}
-
 export type FontStyle = 'endfield' | 'standard' | 'auto';
 
 const CJK_REGEX = /[\u3000-\u9FFF\uF900-\uFAFF]/;

@@ -1,5 +1,5 @@
 import type { WallpaperConfig, ResolutionPreset } from '../engine/types';
-import { randomSeed } from '../utils/random';
+import { randomSeed } from '@core/utils/random';
 
 function getDefaultResolution(): { width: number; height: number; preset: ResolutionPreset } {
   const dpr = window.devicePixelRatio || 1;

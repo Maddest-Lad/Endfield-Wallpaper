@@ -1,7 +1,7 @@
 import type { RenderContext, ContourData } from '../types';
 
 export function drawContourLines(rc: RenderContext): void {
-  const { ctx, width, height, contourData, gridWidth, gridHeight, palette, config } = rc;
+  const { ctx, width, height, config, data: { contourData, gridWidth, gridHeight, palette } } = rc;
 
   ctx.save();
 

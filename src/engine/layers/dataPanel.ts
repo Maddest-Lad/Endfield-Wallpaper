@@ -1,6 +1,6 @@
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomPick, randomInt, shuffle } from '../../utils/random';
+import { randomPick, randomInt, shuffle } from '@core/utils/random';
 
 const PANEL_LINES_EN = [
   ['OPERATION ZONE', 'SECTOR {S}'],
@@ -22,7 +22,7 @@ const PANEL_LINES_JP = [
 ];
 
 export function drawDataPanel(rc: RenderContext): void {
-  const { ctx, width, height, palette, rng } = rc;
+  const { ctx, width, height, rng, data: { palette } } = rc;
 
   const panelW = Math.max(140, Math.round(width * 0.18));
   const lineH = Math.max(14, Math.round(height * 0.022));

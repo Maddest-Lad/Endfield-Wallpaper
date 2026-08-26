@@ -1,6 +1,6 @@
 import type { RenderContext } from '../types';
 import { fontForText } from '../../utils/fonts';
-import { randomInRange, randomInt, shuffle } from '../../utils/random';
+import { randomInRange, randomInt, shuffle } from '@core/utils/random';
 import { JP_LABELS, EN_LABELS, DATA_LABELS, ENDFIELD_LABELS } from '../../data/textContent';
 
 type FontStyle = 'standard' | 'endfield' | 'cjk';
@@ -16,7 +16,7 @@ interface Annotation {
 }
 
 export function drawAnnotations(rc: RenderContext): void {
-  const { ctx, palette } = rc;
+  const { ctx, data: { palette } } = rc;
 
   const annotations = generateAnnotationLayout(rc);
 

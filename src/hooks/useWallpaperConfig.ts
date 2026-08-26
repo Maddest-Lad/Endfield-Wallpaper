@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { WallpaperConfig, ResolutionPreset, ContourColorMode } from '../engine/types';
-import { randomSeed } from '../utils/random';
+import { randomSeed } from '@core/utils/random';
 import { PRESETS } from '../data/presets';
 import { DEFAULTS } from '../data/defaults';
 import { ACCENT_COLORS } from '../data/colors';

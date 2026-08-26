@@ -244,4 +244,39 @@ export const PRESETS: Preset[] = [
       edgePadding: 0,
     },
   },
+  {
+    // Vocaloid detour — Miku's teal accent over hot-pink contours on dark.
+    // Deliberately uncluttered so the centred logo reads clearly: moderate
+    // contour density, full glow, and only the structural overlays kept.
+    name: 'Miku',
+    config: {
+      theme: 'dark',
+      accentColor: '#39C5BB',
+      noiseScale: 0.005,
+      octaves: 4,
+      persistence: 0.5,
+      lacunarity: 2.0,
+      contourLevels: 22,
+      contourColorMode: 'elevation',
+      contourGlow: 0.8,
+      contourColor: '#E12885',
+      showGrid: false,
+      showAnnotations: false,
+      showCjkText: false,
+      showFrames: true,
+      showAccents: true,
+      showScanLines: true,
+      showDataPanel: false,
+      showReticles: false,
+      showCornerData: true,
+      showZones: false,
+      showHeroText: false,
+      logoVariant: 'miku',
+      logoScale: 0.4,
+      logoOpacity: 0.9,
+      // The Miku SVG carries its own per-path fills, so logoColor is inert here.
+      logoColor: '',
+      edgePadding: 0,
+    },
+  },
 ];

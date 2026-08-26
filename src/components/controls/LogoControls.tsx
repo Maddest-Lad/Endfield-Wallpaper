@@ -10,6 +10,7 @@ const LOGO_OPTIONS = [
   { value: 'ja', label: 'Japanese' },
   { value: 'ko', label: 'Korean' },
   { value: 'zh', label: 'Chinese' },
+  { value: 'miku', label: 'Miku' },
 ];
 
 export function LogoControls() {

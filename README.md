@@ -1,11 +1,20 @@
-# Endfield Terrain Generator
+# Fieldgrid
 
-A browser-based wallpaper and map generator inspired by the visual style of Arknights: Endfield. It creates topographic terrain maps layered with industrial HUD graphics, mixed Japanese and English labels, and print-style markings.
+A browser-based platform for generative art experiments. Each experiment is a self-contained project
+with its own controls, presets, and PNG export; a gallery home page lists them, and each has its own
+shareable route.
+
+Live at **https://maddest-lad.github.io/fieldgrid/**
 
 ![Example Generation](example.png)
 
+## Projects
 
-## Features
+### Endfield
+
+A wallpaper and map generator inspired by the visual style of Arknights: Endfield. It creates
+topographic terrain maps layered with industrial HUD graphics, mixed Japanese and English labels, and
+print-style markings.
 
 - Procedural terrain using simplex noise with multiple color and glow options
 - Scattered Japanese and English technical-style labels
@@ -13,10 +22,20 @@ A browser-based wallpaper and map generator inspired by the visual style of Arkn
 - Voronoi-based territory zones aligned to terrain features
 - HUD-style elements including grids, scan lines, reticles, and data blocks
 - Large faint background text using the Endfield display font
-- Seven built-in presets
-- Adjustable theme, colors, noise settings, and per-layer toggles
-- High-resolution PNG export up to 4K
+- Eight built-in presets
+
+### Blank Canvas
+
+A minimal starter — solid background, optional guides, a handful of controls. It exists to be copied
+when starting a new experiment.
+
+## Platform features
+
+- Shared render core: cached, composited canvas layers with deterministic per-layer seeding
+- High-resolution PNG export up to 4K, plus device-resolution and social presets
 - Shareable links that preserve the full configuration
+- Per-project lazy loading, so the gallery stays small no matter how many experiments accumulate
+- Responsive layout with a slide-out control drawer on mobile
 
 ## Tech Stack
 
@@ -37,26 +56,31 @@ npm run preview
 ```
 ## Usage
 
-1. Open the app in your browser
-2. Use the control panel on the right to adjust presets, colors, terrain settings, and visible layers
+1. Open the app and pick a project from the gallery
+2. Use the control panel to adjust presets, colors, and settings
 3. Use Randomize to generate a new layout
 4. Export a PNG or copy a link to share the exact result
 
-Project Structure
+## Project structure
+
 ```
 src/
-  engine/              # Rendering and generation logic
-    types.ts
-    terrain.ts
-    contours.ts
-    renderer.ts
-    export.ts
-    layers/
-  hooks/               # React hooks and state wiring
-  utils/               # Color helpers, fonts, RNG, permalinks
-  components/          # UI components
-  data/                # Presets and text pools
+  core/       Art-agnostic: render pipeline, layer cache, store factory, router, UI primitives
+  app/        Site chrome: gallery, routing, canvas stage, control panel shell
+  projects/   One directory per experiment
+    endfield/
+    blank/    Minimal starter — copy this to begin a new project
+  styles/     Neutral site tokens plus per-project themes
 ```
+
+## Adding a project
+
+A project is a directory under `src/projects/<id>/` plus one line in `src/app/registry.ts`. Copy
+`src/projects/blank/`, fill in the config, pipeline and controls, and register it.
+
+See [CLAUDE.md](CLAUDE.md) for the architecture, and `.claude/skills/new-project/` for a step-by-step
+checklist including the non-obvious rules (draw in logical pixels, use the seeded RNG, declare cache
+keys).
 ## Disclaimer
 
 This is an unofficial fan project derived from Arknights: Endfield. It is not affiliated with, endorsed by, or associated with Yostar, HyperGryphon, or miHoYo (HoYoverse) in any way.

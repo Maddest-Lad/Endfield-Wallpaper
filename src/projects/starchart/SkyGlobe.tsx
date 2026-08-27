@@ -402,13 +402,13 @@ export function SkyGlobe() {
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] text-site-mid uppercase tracking-widest">Orientation</span>
+      <span className="text-[11px] text-[var(--panel-mid)] uppercase tracking-widest">Orientation</span>
       <canvas
         ref={canvasRef}
         style={{ width: SIZE, height: SIZE, touchAction: 'none' }}
         className="self-center cursor-grab active:cursor-grabbing select-none"
       />
-      <span className="text-[9px] text-site-mid/70 text-center leading-tight">
+      <span className="text-[9px] text-[var(--panel-mid)]/70 text-center leading-tight">
         drag to aim · ring to roll · scroll to zoom
       </span>
     </div>

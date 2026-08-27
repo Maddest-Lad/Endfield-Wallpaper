@@ -12,6 +12,13 @@ export interface ProjectPreset<C extends BaseConfig> {
    * alone, and adding a config field never breaks existing presets.
    */
   config: Partial<Omit<C, 'width' | 'height' | 'preset' | 'seed'>>;
+  /**
+   * Roll a new seed on apply. Defaults to true, which is every existing preset's
+   * behaviour. A project whose presets are pure style — no pointing, no layout —
+   * sets this false so applying one doesn't reshuffle everything else about the
+   * piece.
+   */
+  reseed?: boolean;
 }
 
 export interface ProjectActions<C extends BaseConfig> {
@@ -79,7 +86,11 @@ export function createProjectStore<C extends BaseConfig>(
     randomize: () => patch(opts.randomize(raw.getState().config)),
     applyPreset: (name) => {
       const preset = opts.presets.find((p) => p.name === name);
-      if (preset) patch({ ...preset.config, seed: randomSeed() } as Partial<C>);
+      if (!preset) return;
+      patch({
+        ...preset.config,
+        ...(preset.reseed === false ? {} : { seed: randomSeed() }),
+      } as Partial<C>);
     },
     reset: () => raw.setState({ config: opts.createDefaults() }),
   };

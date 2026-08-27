@@ -149,17 +149,36 @@ stray import collapses the lazy chunk into the main bundle.
 
 ## Theming
 
-`styles/tokens.css` holds the neutral site palette (`--color-site-*`) plus the reset and scrollbar.
-Per-project styles live in `styles/project-<id>.css` with an `@theme` block and a `.theme-<id>` class
-that `ProjectRoute` applies via `meta.themeClass`.
+Two separate mechanisms, at two different scopes.
 
+**Canvas-adjacent, per-project, class-scoped.** `styles/tokens.css` holds the neutral site palette
+(`--color-site-*`) plus the reset and scrollbar. Per-project styles live in `styles/project-<id>.css`
+with an `@theme` block and a `.theme-<id>` class that `ProjectRoute` applies via `meta.themeClass`.
 Token *values* are global; token *application* is scoped by class. Keep both files eagerly imported
 from `index.css`: Tailwind v4 generates utilities from the CSS dependency graph at build time, and an
 `@theme` block reachable only from a lazy chunk can land after first paint.
 
-`meta.cardAccent` is exposed on the route root as the `--project-accent` CSS variable, so `@core/ui`
-primitives pick up the active project's accent automatically. `src/app` and `src/core` reference no
-project's tokens.
+**Control panel, per-config, live.** `ProjectDefinition.themeVars?: (config: C) => Record<string,
+string>` (`core/project/defineProject.ts`) lets a project drive the panel's own colours from its
+*live* config, not a static value. `ProjectRoute` calls `project.getThemeVars(config)` inside a
+`useMemo` keyed on `[project, config]` and applies the result as inline style on the route root,
+merged over `{ '--project-accent': meta.cardAccent }` as the pre-store-hydration fallback. A project
+with no `themeVars` renders exactly as before this existed — `tokens.css` declares six defaults
+(`--project-accent` plus `--panel-surface/raised/ink/mid/line`) that alias the neutral site palette,
+and `core/ui` + `app/shell` reference only those six, never a project's own tokens directly.
+
+**The Zustand v5 trap this exists to avoid repeating:** never write `useConfig(c => project
+.getThemeVars(c))`. A selector that constructs a fresh object on every call never compares equal to
+its own last result, and `useSyncExternalStore` reads that as "the store keeps changing" — an
+infinite render loop, not merely wasted work. Subscribe to the whole config with the no-selector
+overload (its reference only changes when the store actually updates) and derive inside `useMemo`.
+See `themeVarsFor` in `projects/starchart/palette.ts` for a real implementation, including why
+`--panel-raised` is `invert ? ink : ground` rather than always `ground` — the panel header carries a
+hardcoded white title, so it needs whichever of the two is actually the dark one.
+
+Canvas fonts are loaded with `document.fonts.load("16px 'Family'")` against the CSS `@font-face`, not a
+JS-constructed `FontFace` — Firefox mobile doesn't reliably register those for canvas. This is also why
+`@font-face` must stay in the eager CSS graph.
 
 Canvas fonts are loaded with `document.fonts.load("16px 'Family'")` against the CSS `@font-face`, not a
 JS-constructed `FontFace` — Firefox mobile doesn't reliably register those for canvas. This is also why
@@ -210,8 +229,8 @@ the point of the project.
 - **`derive`** projects the catalogue, clips the IAU figures, and builds a grid index so
   figure line-work can find the star at each endpoint. Two-level memo: the projection pass
   is keyed on pointing, and only the (invented) route graph re-runs when the seed changes.
-- **12 layers**: plate, haze, graticule, starfield, beacons, constellations, routes,
-  insets, labels, callouts, frame, titleBlock. The insets are a *second* projection of the
+- **13 layers**: plate, haze, graticule, starfield, beacons, constellations, routes,
+  insets, labels, callouts, frame, cornerData, titleBlock. The insets are a *second* projection of the
   same sky at 2.6–4.4× and one magnitude deeper, not a crop of the pixels above them.
 - **`catalogKey` deliberately excludes the seed.** The sky is real, so rerolling the seed
   must not reshuffle it — it only rerolls the plate furniture and the trade lanes.
@@ -219,6 +238,35 @@ the point of the project.
   config writers — `raCenter`/`decCenter`/`roll`/`fieldOfView` are already in `catalogKey`, so
   they need no pipeline or cache-key changes. `catalog.ts` exposes `starPoint`, `brightStars`
   and `namedStarIndices` for them; `field.ts` exposes `sampleMilkyWay`.
+- **`frame.ts`'s border ticks are real coordinate graduations**, not an even spacing: `walkEdge`
+  samples each edge in plate space and inverts through `data.view`, ticking wherever the sky
+  crosses a whole hour of RA or a whole degree of Dec. Every edge is checked for both — `roll`
+  can turn the plate to any angle, so a rolled edge is not reliably "the RA one" or "the Dec
+  one". This is why `frame` needs a `cacheKey` (`d.catalogKey`) it didn't used to: the ticks now
+  depend on pointing, where the border rectangle itself never did.
+- **`cornerData.ts`** is the two top-corner readouts: galactic l/b of the centre
+  (`equatorialToGalactic` in `sky.ts`, the verified inverse of `galacticToEquatorial`), how many
+  constellations the field spans, plate scale in arcsec/px, and centre-vs-edge distortion via
+  `localScale` — exact for these projections because they are all azimuthal, so scale depends
+  only on angular distance from centre, never on direction. Gated by `showDataBlocks`; `labels.ts`
+  and `insets.ts` both reserve `cornerLeft`/`cornerRight` from `layout.ts`'s `plateRegions` when it
+  is on, same pattern as the title block and legend.
+- **UI labels were renamed; config fields were not.** The panel says Presets/Paper Stock/Document/
+  Border/Info Card; the config still says `theme`/`showFrame`/`showTitleBlock` and the render layer
+  is still named `titleBlock`. Layer names are RNG salts *and* cache keys, and config field names
+  live in every shared permalink — renaming either would silently change or drop existing work, so
+  only the label text moved. Don't go looking for a `showBorder` field.
+- **`titleBlock.ts`'s dominant-constellation pick ranks by `Figure.onPlate`** (absolute on-plate
+  vertex count), not `coverage` (the fraction of the figure that made it). `figures` is sorted by
+  coverage, so taking its head named a Betelgeuse-centred plate after Canis Minor — a two-star
+  figure fully in frame scores 1.0 and beat Orion, which fills the plate but runs off two edges.
+  `coverage` is still the right test for "is enough of this figure showing to be worth naming?",
+  which is what the constellation-label threshold in `constellations.ts` uses.
+- **Presets are style-only** (`presets.ts`), one per paper stock (`palette.ts`'s `THEME_OPTIONS`,
+  now eight: the original five plus Miku, Blueprint and Ink Wash). None touch pointing, and all
+  set `reseed: false` on `ProjectPreset` (`core/store/createProjectStore.ts`) — applying one
+  restyles the plate you're already looking at. The region buttons in `Controls.tsx` are the
+  separate, pointing-only half.
 
 **Two React-timing traps in `SkyGlobe`, both already hit once.** Pointermove and wheel events
 arrive in bursts well inside a single React commit, so a handler that reads its base value from

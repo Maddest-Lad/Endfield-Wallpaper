@@ -8,8 +8,34 @@
   --color-site-accent: #FFE600;
 }
 
-/* Accent of the active project; the route root overrides it per project. */
+/*
+ * Panel chrome contract. A project's `themeVars` (see
+ * `core/project/defineProject.ts`) overrides some or all of these as inline
+ * style on the panel root; anything it doesn't set falls through to these
+ * defaults, which alias the neutral site palette. That's what keeps a project
+ * with no `themeVars` — endfield, blank — rendering exactly as before this
+ * existed: every `--panel-*` reference below resolves to the same colour it
+ * always did.
+ *
+ * `--project-accent` predates this contract and every `core/ui` primitive
+ * already reads it directly; it is listed here as part of the same set rather
+ * than moved, since renaming it would touch every one of those call sites for
+ * no behavioural change.
+ */
 :root {
+  --panel-surface: var(--color-site-paper);
+  --panel-raised: var(--color-site-ink);
+  --panel-ink: var(--color-site-ink);
+  --panel-mid: var(--color-site-mid);
+  --panel-line: var(--color-site-line);
+  /*
+   * light | dark — which of the browser's two built-in popup palettes native
+   * controls (a <select>'s dropdown list, in particular) should use. Not
+   * derived from the other five: `--panel-ink`/`--panel-surface` describe
+   * arbitrary chart colours a browser's `color-scheme` property cannot
+   * express, so a project sets this as its own explicit light/dark call.
+   */
+  --panel-scheme: light;
   --project-accent: #FFE600;
 }
 
@@ -48,8 +74,8 @@ body {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-site-line);
+  background: var(--panel-line);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-site-mid);
+  background: var(--panel-mid);
 }

@@ -55,6 +55,8 @@ export interface StarchartConfig extends BaseConfig {
   // --- Plate ---
   showFrame: boolean;
   showTitleBlock: boolean;
+  /** Two corner readouts: galactic coordinates, plate scale and distortion. */
+  showDataBlocks: boolean;
   margin: number;
 }
 
@@ -106,6 +108,7 @@ export function createDefaults(): StarchartConfig {
 
     showFrame: true,
     showTitleBlock: true,
+    showDataBlocks: true,
     margin: 0.045,
   };
 }
@@ -153,5 +156,6 @@ export function randomizeStarchart(): Partial<StarchartConfig> {
     galacticGrid: r() < 0.6,
     showInsets: r() < 0.75,
     showCallouts: r() < 0.8,
+    showDataBlocks: r() < 0.7,
   };
 }

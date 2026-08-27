@@ -35,12 +35,19 @@ export function drawInsets(rc: RenderContext<StarchartConfig, StarchartData>): v
   const { palette, view } = data;
 
   const s = detailScale(width, height);
-  const { bounds, title, legend } = plateRegions(width, height, config.margin);
+  const { bounds, title, legend, cornerLeft, cornerRight } = plateRegions(
+    width,
+    height,
+    config.margin,
+  );
   const short = Math.min(width, height);
 
   // The title block and legend draw on top of this layer, so keep clear of them
   // — but only when they are actually enabled, or their corners read as bald.
-  const placed: Rect[] = config.showTitleBlock ? [title, legend] : [];
+  const placed: Rect[] = [
+    ...(config.showTitleBlock ? [title, legend] : []),
+    ...(config.showDataBlocks ? [cornerLeft, cornerRight] : []),
+  ];
   const insets: Rect[] = [];
   const wanted = randomInt(rng, 2, 4);
 

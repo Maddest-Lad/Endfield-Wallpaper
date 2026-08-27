@@ -35,6 +35,11 @@ const endfield = defineProject({
   pipeline: endfieldPipeline,
   Controls,
   exportName: (c) => `endfield-terrain-${c.seed}-${c.width}x${c.height}.png`,
+  // Accent only, not the full panel treatment starchart gets: the panel body
+  // stays the neutral site paper. This exists to fix a real bug — the panel
+  // accent previously came from the static `meta.cardAccent` and never
+  // followed the Accent control — not to reskin the sidebar.
+  themeVars: (c) => ({ '--project-accent': c.accentColor }),
 });
 
 export default endfield;

@@ -3,8 +3,8 @@ import type { StarchartConfig } from '../config';
 import type { StarchartData } from '../derive';
 import { rgba } from '../palette';
 import { MONO, detailScale, plateRegions } from '../layout';
-import { plateIdentity, plateDesignation } from '../textContent';
-import { formatRa, formatDec, PROJECTION_LABELS } from '../sky';
+import { plateIdentity, plateDesignation, starDesignationShort } from '../textContent';
+import { formatRa, formatDec, formatAngle, PROJECTION_LABELS } from '../sky';
 import { nearestRegion } from '../regions';
 
 /**
@@ -21,7 +21,7 @@ import { nearestRegion } from '../regions';
  */
 export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>): void {
   const { ctx, width, height, config, data, rng } = rc;
-  const { palette, stars, routeNodes, figures } = data;
+  const { palette, stars, routeNodes, figures, view } = data;
 
   const s = detailScale(width, height);
   const { title, legend } = plateRegions(width, height, config.margin);
@@ -154,6 +154,52 @@ export function drawTitleBlock(rc: RenderContext<StarchartConfig, StarchartData>
   ctx.setLineDash([]);
   ctx.fillText(`LANES ${routeNodes.length}`, textX, ly);
   ly += rowH;
+
+  // Brightest object actually on the plate. `stars` is already sorted
+  // brightest-first by the catalogue, so this is just its head — no scan.
+  if (stars.length > 0 && ly < legend.y + legend.h - pad * 0.3) {
+    const brightest = stars[0];
+    const name = starDesignationShort(brightest);
+    const label = `${name ?? 'UNNAMED'} ${brightest.mag >= 0 ? '+' : '−'}${Math.abs(brightest.mag).toFixed(2)}`;
+    ctx.fillStyle = rgba(palette.ink, palette.invert ? 0.85 : 0.7);
+    let text = label;
+    const maxW = legend.w - pad * 2;
+    while (text.length > 3 && ctx.measureText(text).width > maxW) {
+      text = text.slice(0, -1);
+    }
+    ctx.fillText(text, lx, ly);
+    ly += rowH;
+  }
+
+  // Counts by depth: how much of the field the eye would actually see versus
+  // what the plate's limiting magnitude let through.
+  if (ly < legend.y + legend.h - pad * 0.3) {
+    const nakedEye = stars.filter((st) => st.mag <= 6).length;
+    ctx.fillStyle = rgba(palette.dim, palette.invert ? 0.85 : 0.6);
+    ctx.fillText(`≤6.0 ${nakedEye}  ·  TOTAL ${stars.length}`, lx, ly);
+    ly += rowH * 1.2;
+  }
+
+  // A real scale bar: a fixed run of pixels, labelled with the true angular
+  // size that run covers at the plate centre — the same `degPerPx` the detail
+  // insets already use for the same purpose.
+  if (ly < legend.y + legend.h - pad * 0.3) {
+    const barW = legend.w * 0.34;
+    const barY = ly;
+    ctx.strokeStyle = rgba(palette.ink, palette.invert ? 0.75 : 0.55);
+    ctx.lineWidth = 1 * s;
+    ctx.beginPath();
+    ctx.moveTo(lx, barY);
+    ctx.lineTo(lx + barW, barY);
+    ctx.moveTo(lx, barY - 3 * s);
+    ctx.lineTo(lx, barY + 3 * s);
+    ctx.moveTo(lx + barW, barY - 3 * s);
+    ctx.lineTo(lx + barW, barY + 3 * s);
+    ctx.stroke();
+    ctx.fillStyle = rgba(palette.ink, palette.invert ? 0.85 : 0.7);
+    ctx.fillText(formatAngle(view.degPerPx * barW), lx + barW + 6 * s, barY);
+    ly += rowH;
+  }
 
   if (ly < legend.y + legend.h - pad * 0.3) {
     ctx.font = `${Math.round(10 * s)}px ${MONO}`;

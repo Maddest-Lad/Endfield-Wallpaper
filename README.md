@@ -93,15 +93,24 @@ Controls:
   buttons for sixteen regions worth looking at (Orion, the galactic core, the Cygnus rift, Crux,
   the Pleiades, the Magellanic Clouds…)
 - **Projection** — stereographic, gnomonic, Lambert azimuthal equal-area, azimuthal equidistant, or
-  orthographic. The title block names whichever is in use, and the graticule is drawn true to it.
+  orthographic. The Info Card names whichever is in use, and the graticule is drawn true to it.
 - **Limiting magnitude** — how deep the plate goes, 2.0 to 8.0. This is a real observational control:
   a shallow cut leaves the naked-eye sky, a deep one fills the field.
 - **Grids** — the equatorial graticule with hour and degree ticks, optionally overprinted with the
-  galactic coordinate grid
+  galactic coordinate grid. The border's own tick marks are real too — they graduate at whole hours
+  of right ascension and whole degrees of declination, not an arbitrary even spacing.
 - Annotation: real designations (proper name, Bayer letter with the Latin genitive, Flamsteed, or HD
   number), magnitudes, and dimension callouts giving the true angular separation between two stars
-- Six plate stocks and presets: Orion, Galactic Core, Phosphor, Southern Naval, Printed Plate,
-  Pleiades Detail
+- **Corner Data** — two more real readouts in the free space above the field: galactic longitude and
+  latitude of the plate centre, how many constellations the field spans, the plate scale in
+  arcseconds per pixel, and the projection's own distortion between the centre and the edge
+- **Eight paper stocks** — Void Atlas, Phosphor, Southern Naval, Printed Plate, Deep Survey, Miku
+  (teal over hot pink, matching Endfield's own preset), Blueprint (cyanotype) and Ink Wash
+  (sumi-e). The control panel itself is themed from whichever is active — surface, ink, borders and
+  the header all follow the stock, not just the plate.
+- **Presets are style only.** Each of the eight stocks above has a matching preset that sets the
+  palette, grain, bloom and annotation density — never the pointing, and never the seed, so applying
+  one restyles the plate you're already looking at rather than teleporting somewhere else.
 
 Two honest limits. The catalogue stops at magnitude 8, so a narrow field is genuinely sparse — widen
 the field rather than expecting a small one to fill in. And proper motion is not applied, so the

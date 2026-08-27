@@ -13,6 +13,7 @@ import { drawInsets } from './layers/insets';
 import { drawLabels } from './layers/labels';
 import { drawCallouts } from './layers/callouts';
 import { drawFrame } from './layers/frame';
+import { drawCornerData } from './layers/cornerData';
 import { drawTitleBlock } from './layers/titleBlock';
 
 export type StarchartLayer = LayerDef<StarchartConfig, StarchartData>;
@@ -60,15 +61,17 @@ const LAYERS: StarchartLayer[] = [
   {
     name: 'insets',
     // Insets re-project the sky inside each box, so they depend on the pointing
-    // and on the limiting magnitude they deepen from.
+    // and on the limiting magnitude they deepen from. Also on which furniture
+    // is reserving space, since an inset must not land under it.
     enabled: (c) => c.showInsets,
-    cacheKey: (c, d) => `${d.catalogKey}|${c.showTitleBlock}`,
+    cacheKey: (c, d) => `${d.catalogKey}|${c.showTitleBlock}|${c.showDataBlocks}`,
     draw: drawInsets,
   },
   {
     name: 'labels',
     enabled: (c) => c.showLabels,
-    cacheKey: (c, d) => `${d.catalogKey}|${c.labelDensity}|${c.showTitleBlock}`,
+    cacheKey: (c, d) =>
+      `${d.catalogKey}|${c.labelDensity}|${c.showTitleBlock}|${c.showDataBlocks}`,
     draw: drawLabels,
   },
   {
@@ -77,7 +80,21 @@ const LAYERS: StarchartLayer[] = [
     cacheKey: (_c, d) => d.graphKey,
     draw: drawCallouts,
   },
-  { name: 'frame', enabled: (c) => c.showFrame, draw: drawFrame },
+  {
+    name: 'frame',
+    enabled: (c) => c.showFrame,
+    // The border ticks are now real RA/Dec crossings walked off `data.view`,
+    // so — unlike the purely decorative ticks this replaced — this layer
+    // depends on the pointing and must key off it, or it goes stale.
+    cacheKey: (_c, d) => d.catalogKey,
+    draw: drawFrame,
+  },
+  {
+    name: 'cornerData',
+    enabled: (c) => c.showDataBlocks,
+    cacheKey: (_c, d) => d.catalogKey,
+    draw: drawCornerData,
+  },
   {
     name: 'titleBlock',
     enabled: (c) => c.showTitleBlock,

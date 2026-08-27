@@ -143,7 +143,7 @@ export function plateRegions(
   width: number,
   height: number,
   margin: number,
-): { bounds: Bounds; title: Rect; legend: Rect } {
+): { bounds: Bounds; title: Rect; legend: Rect; cornerLeft: Rect; cornerRight: Rect } {
   const b = safeBounds(width, height, margin);
   const s = detailScale(width, height);
   const pad = 11 * s;
@@ -163,7 +163,10 @@ export function plateRegions(
   };
 
   const legendW = clamp(Math.min(width, height) * 0.23, 195 * s, 280 * s);
-  const legendH = 100 * s;
+  // Mark key (3 rows) plus the brightest-object readout, the depth count and
+  // the scale bar, plus the survey note when it fits. Grown from the original
+  // 100 to hold those without the note being the first thing dropped.
+  const legendH = 185 * s;
   const legend: Rect = {
     x: b.left + pad,
     y: b.bottom - pad - legendH,
@@ -171,7 +174,20 @@ export function plateRegions(
     h: legendH,
   };
 
-  return { bounds: b, title, legend };
+  // The two top corners: free real estate, since the title block and legend
+  // both anchor to the bottom. Sized for four rows of readout, half the
+  // legend's height.
+  const cornerW = clamp(Math.min(width, height) * 0.2, 170 * s, 250 * s);
+  const cornerH = 74 * s;
+  const cornerLeft: Rect = { x: b.left + pad, y: b.top + pad, w: cornerW, h: cornerH };
+  const cornerRight: Rect = {
+    x: b.right - pad - cornerW,
+    y: b.top + pad,
+    w: cornerW,
+    h: cornerH,
+  };
+
+  return { bounds: b, title, legend, cornerLeft, cornerRight };
 }
 
 /** Rectangle with four inward corner ticks — the "detail inset" idiom. */

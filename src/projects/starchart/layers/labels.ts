@@ -30,7 +30,11 @@ export function drawLabels(rc: RenderContext<StarchartConfig, StarchartData>): v
   const { palette, stars, figures } = data;
 
   const s = detailScale(width, height);
-  const { bounds, title, legend } = plateRegions(width, height, config.margin);
+  const { bounds, title, legend, cornerLeft, cornerRight } = plateRegions(
+    width,
+    height,
+    config.margin,
+  );
   const areaFactor = (width * height) / (s * s) / (1920 * 1080);
   const fontSize = Math.round(9.5 * s);
   const lineH = fontSize * 1.2;
@@ -56,7 +60,10 @@ export function drawLabels(rc: RenderContext<StarchartConfig, StarchartData>): v
   ctx.textBaseline = 'middle';
 
   // Reserved only while the furniture is enabled — it draws over this layer.
-  const taken: Rect[] = config.showTitleBlock ? [title, legend] : [];
+  const taken: Rect[] = [
+    ...(config.showTitleBlock ? [title, legend] : []),
+    ...(config.showDataBlocks ? [cornerLeft, cornerRight] : []),
+  ];
   let drawn = 0;
 
   for (const { star: st, text } of targets) {

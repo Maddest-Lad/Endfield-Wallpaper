@@ -23,12 +23,15 @@ export function PanelShell({ project, isOpen, onClose, onBack }: PanelShellProps
       {isOpen && <div className="lg:hidden fixed inset-0 bg-black/40 z-30" onClick={onClose} />}
 
       <aside
-        className={`w-72 h-full bg-white flex flex-col font-sans fixed top-0 right-0 z-40
+        className={`w-72 h-full bg-[var(--panel-surface)] flex flex-col font-sans fixed top-0 right-0 z-40
           transition-transform duration-300 ease-in-out
-          lg:static lg:z-auto lg:border-l lg:border-site-line lg:translate-x-0 lg:transition-none
+          lg:static lg:z-auto lg:border-l lg:border-[var(--panel-line)] lg:translate-x-0 lg:transition-none
           ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        <div className="bg-site-ink px-4 py-3 flex items-center justify-between">
+        {/* Always the dark member of the theme's {ground, ink} pair (see
+            palette.ts `themeVarsFor`), so the hardcoded white title text below
+            stays legible on every stock, light or dark. */}
+        <div className="bg-[var(--panel-raised)] px-4 py-3 flex items-center justify-between">
           <div className="min-w-0">
             <button
               onClick={onBack}
@@ -66,7 +69,7 @@ export function PanelShell({ project, isOpen, onClose, onBack }: PanelShellProps
           <OutputSection project={project} />
 
           {meta.attribution && (
-            <div className="bg-site-ink px-4 py-2 mt-4 -mx-4 -mb-3">
+            <div className="bg-[var(--panel-raised)] px-4 py-2 mt-4 -mx-4 -mb-3">
               <p className="text-[12pt] text-white/25 text-center leading-relaxed">
                 {meta.attribution}
               </p>

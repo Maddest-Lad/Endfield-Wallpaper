@@ -37,6 +37,16 @@ export interface ProjectDefinition<C extends BaseConfig, D> {
   /** Reads its own store module directly; takes no props. */
   Controls: ComponentType;
   exportName?: (config: C) => string;
+  /**
+   * Panel chrome colours derived from the live config, as CSS custom property
+   * values (e.g. `{ '--panel-surface': '#EAE2D0' }`). Optional: a project that
+   * omits this renders the panel with the neutral site palette, exactly as
+   * before this existed. `core`/`app` never interpret these values or know
+   * what they mean — they are applied verbatim as inline style on the panel
+   * root, which is what keeps this from becoming a project naming its tokens
+   * to the shell.
+   */
+  themeVars?: (config: C) => Record<string, string>;
 }
 
 /**
@@ -58,6 +68,16 @@ export interface AnyProject {
   randomize(): void;
   applyPreset(name: string): void;
   render(canvas: HTMLCanvasElement | OffscreenCanvas, req: RenderRequest): Promise<void>;
+  /**
+   * `{}` for a project with no `themeVars`. See `ProjectDefinition.themeVars`.
+   *
+   * Takes the config explicitly rather than reading `def.store.get()` itself —
+   * a caller deriving this inside a `useMemo` needs the same value in the
+   * dependency array as the one the callback actually reads, or the effect
+   * can't tell when to recompute (and a lint rule that can catch that mistake
+   * won't, since it only sees a store peek with no argument to depend on).
+   */
+  getThemeVars(config: BaseConfig): Record<string, string>;
   encodeConfig(): string;
   exportFileName(): string;
   /** Free every OffscreenCanvas this project holds. Call when its route unmounts. */
@@ -82,6 +102,11 @@ export function defineProject<C extends BaseConfig, D>(
     setDimensions: (patch) => def.store.actions.setConfig(patch as Partial<C>),
     randomize: () => def.store.actions.randomize(),
     applyPreset: (name) => def.store.actions.applyPreset(name),
+
+    // Sound for the same reason `setDimensions` casting `patch` is: C extends
+    // BaseConfig, but TypeScript can't see that a caller holding a BaseConfig
+    // it got from THIS project's own `useConfig()` is actually holding a C.
+    getThemeVars: (config) => def.themeVars?.(config as C) ?? {},
 
     render: (canvas, req) =>
       renderPipeline(

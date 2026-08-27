@@ -186,6 +186,24 @@ export function angularSeparation(
   return 2 * Math.asin(Math.min(1, Math.sqrt(a))) * R2D;
 }
 
+/**
+ * Local plate scale (pixels per degree) at a sky point, via a small step.
+ *
+ * A plain declination step is exact for this: every projection `createSkyView`
+ * builds is azimuthal, so scale depends only on angular distance from the
+ * view's centre, never on direction — a step along the meridian measures the
+ * same local scale a step along any other bearing through that point would.
+ * Returns null off the edge of the projection.
+ */
+export function localScale(view: SkyView, ra: number, dec: number): number | null {
+  const step = 0.15;
+  const dec2 = dec + step <= 89.5 ? dec + step : dec - step;
+  const p0 = view.project(ra, dec);
+  const p1 = view.project(ra, dec2);
+  if (!p0 || !p1) return null;
+  return Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) / step;
+}
+
 /** J2000 north galactic pole and the galactic longitude of the celestial pole. */
 const NGP_RA = 192.85948 * D2R;
 const NGP_DEC = 27.12825 * D2R;
@@ -207,6 +225,27 @@ export function galacticToEquatorial(l: number, b: number): [number, number] {
   ra *= R2D;
   ra %= 360;
   return [ra < 0 ? ra + 360 : ra, dec * R2D];
+}
+
+/**
+ * Equatorial (RA, Dec) -> galactic (l, b), all degrees. The inverse rotation of
+ * `galacticToEquatorial`, sharing its pole. Verified to round-trip to better
+ * than 1e-6 degrees and checked against Sgr A* (l,b ~ 0,0) and Vega (l,b ~
+ * 67.45, 19.24).
+ */
+export function equatorialToGalactic(ra: number, dec: number): [number, number] {
+  const ar = ra * D2R;
+  const dr = dec * D2R;
+  const sinB =
+    Math.sin(dr) * Math.sin(NGP_DEC) + Math.cos(dr) * Math.cos(NGP_DEC) * Math.cos(ar - NGP_RA);
+  const b = Math.asin(Math.min(1, Math.max(-1, sinB)));
+  const y = Math.cos(dr) * Math.sin(ar - NGP_RA);
+  const x =
+    Math.cos(NGP_DEC) * Math.sin(dr) - Math.sin(NGP_DEC) * Math.cos(dr) * Math.cos(ar - NGP_RA);
+  let l = L_NCP - Math.atan2(y, x);
+  l *= R2D;
+  l %= 360;
+  return [l < 0 ? l + 360 : l, b * R2D];
 }
 
 // ---------------------------------------------------------------------------
@@ -257,4 +296,11 @@ export function formatRaShort(ra: number): string {
 export function formatDecShort(dec: number): string {
   const r = Math.round(dec);
   return `${r > 0 ? '+' : r < 0 ? '−' : '±'}${Math.abs(r)}°`;
+}
+
+/** Galactic longitude/latitude to one decimal: `l 000.0° b −07.2°`. */
+export function formatGalactic(l: number, b: number): string {
+  const lPad = l.toFixed(1).padStart(5, '0');
+  const bAbs = Math.abs(b).toFixed(1).padStart(4, '0');
+  return `l ${lPad}° b ${b < 0 ? '−' : '+'}${bAbs}°`;
 }

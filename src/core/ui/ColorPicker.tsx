@@ -16,14 +16,16 @@ export function ColorPicker({ label, value, onChange, swatches = DEFAULT_SWATCHE
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[11px] text-site-mid uppercase tracking-widest">{label}</span>
+      <span className="text-[11px] text-[var(--panel-mid)] uppercase tracking-widest">{label}</span>
       <div className="flex gap-1.5">
         {swatches.map((color) => (
           <button
             key={color}
             onClick={() => onChange(color)}
             className={`w-6 h-6 border cursor-pointer transition-all ${
-              value === color ? 'border-site-ink scale-110' : 'border-site-line hover:border-site-mid'
+              value === color
+                ? 'border-[var(--panel-ink)] scale-110'
+                : 'border-[var(--panel-line)] hover:border-[var(--panel-mid)]'
             }`}
             style={{ backgroundColor: color }}
           />
@@ -31,7 +33,9 @@ export function ColorPicker({ label, value, onChange, swatches = DEFAULT_SWATCHE
         <button
           onClick={() => inputRef.current?.click()}
           className={`relative w-6 h-6 border cursor-pointer transition-all overflow-hidden ${
-            !isPreset ? 'border-site-ink scale-110' : 'border-site-line hover:border-site-mid'
+            !isPreset
+              ? 'border-[var(--panel-ink)] scale-110'
+              : 'border-[var(--panel-line)] hover:border-[var(--panel-mid)]'
           }`}
           style={{ background: `conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)` }}
         >

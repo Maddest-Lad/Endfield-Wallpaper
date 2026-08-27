@@ -45,16 +45,16 @@ export function ResolutionPicker({ project }: { project: AnyProject }) {
             value={width}
             onChange={(e) => project.setDimensions({ width: parseInt(e.target.value) || width })}
             onBlur={() => { if (width < 100) project.setDimensions({ width: 100 }); }}
-            className="w-20 bg-transparent border border-site-line text-xs text-site-ink px-2 py-1 font-mono focus:border-site-mid focus:outline-none"
+            className="w-20 bg-transparent border border-[var(--panel-line)] text-xs text-[var(--panel-ink)] px-2 py-1 font-mono focus:border-[var(--panel-mid)] focus:outline-none"
           />
-          <span className="text-[10px] text-site-mid">x</span>
+          <span className="text-[10px] text-[var(--panel-mid)]">x</span>
           <input
             type="number"
             min={100}
             value={height}
             onChange={(e) => project.setDimensions({ height: parseInt(e.target.value) || height })}
             onBlur={() => { if (height < 100) project.setDimensions({ height: 100 }); }}
-            className="w-20 bg-transparent border border-site-line text-xs text-site-ink px-2 py-1 font-mono focus:border-site-mid focus:outline-none"
+            className="w-20 bg-transparent border border-[var(--panel-line)] text-xs text-[var(--panel-ink)] px-2 py-1 font-mono focus:border-[var(--panel-mid)] focus:outline-none"
           />
         </div>
       )}

@@ -5,6 +5,9 @@ export const THEMES = {
   naval: 'naval',
   plate: 'plate',
   survey: 'survey',
+  miku: 'miku',
+  blueprint: 'blueprint',
+  inkwash: 'inkwash',
 } as const;
 
 export type ThemeName = (typeof THEMES)[keyof typeof THEMES];
@@ -15,6 +18,9 @@ export const THEME_OPTIONS: { value: ThemeName; label: string }[] = [
   { value: 'naval', label: 'Naval' },
   { value: 'plate', label: 'Printed Plate' },
   { value: 'survey', label: 'Deep Survey' },
+  { value: 'miku', label: 'Miku' },
+  { value: 'blueprint', label: 'Blueprint' },
+  { value: 'inkwash', label: 'Ink Wash' },
 ];
 
 export interface Palette {
@@ -90,6 +96,45 @@ const STOCKS: Record<ThemeName, Omit<Palette, 'accent'>> = {
     cool: '#9FBEFF',
     invert: false,
   },
+  // The two hex codes are lifted verbatim from endfield's own Miku preset
+  // (projects/endfield/presets.ts) — teal accent over hot-pink linework on
+  // near-black. It maps onto a star chart better than a reskin has any right
+  // to: the Milky Way becomes the pink haze, the trade lanes stay teal, and a
+  // real star's B-V index places it somewhere between the two.
+  miku: {
+    ground: '#0B0D12',
+    ink: '#EAF6F4',
+    dim: '#5C8C88',
+    star: '#F2FFFC',
+    haze: '#E12885',
+    warm: '#FF6FB4',
+    cool: '#39C5BB',
+    invert: false,
+  },
+  // Cyanotype: white line-work on drafting blue, with a construction-yellow
+  // accent standing in for a revision mark.
+  blueprint: {
+    ground: '#123A66',
+    ink: '#F4F8FF',
+    dim: '#7FA8D9',
+    star: '#FFFFFF',
+    haze: '#3E6FA8',
+    warm: '#FFE3B8',
+    cool: '#CFEFFF',
+    invert: false,
+  },
+  // Sumi-e: dark ink on warm washi paper, near-monochrome but for a vermillion
+  // seal stamp standing in for the accent.
+  inkwash: {
+    ground: '#DAD3C8',
+    ink: '#2B2620',
+    dim: '#7A7166',
+    star: '#2B2620',
+    haze: '#9C9284',
+    warm: '#6B4A2E',
+    cool: '#3A4550',
+    invert: true,
+  },
 };
 
 export function getPalette(theme: ThemeName, accent: string): Palette {
@@ -121,6 +166,48 @@ function toHex(rgb: [number, number, number]): string {
       .map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0'))
       .join('')
   );
+}
+
+/** Linear RGB blend, `t=0` -> `a`, `t=1` -> `b`. Simple on purpose — matches
+ * every other colour computation in this file rather than reaching for a
+ * perceptual space this project doesn't otherwise use. */
+function mix(a: string, b: string, t: number): string {
+  const [ar, ag, ab] = hexToRgb(a);
+  const [br, bg, bb] = hexToRgb(b);
+  return toHex([ar + (br - ar) * t, ag + (bg - ag) * t, ab + (bb - ab) * t]);
+}
+
+/**
+ * The active plate stock, as CSS custom properties for the control panel.
+ *
+ * Two derivations are worth explaining rather than eyeballing:
+ *
+ * `--panel-raised` is deliberately NOT `palette.ground` — it is whichever of
+ * {ground, ink} is the dark one, chosen via `invert`. The panel header and
+ * footer carry a hardcoded white title, so they need a band that is dark
+ * regardless of the stock: for the five night-sky stocks `ground` already is
+ * that dark colour, but for a light stock like Printed Plate or Ink Wash
+ * `ground` is pale cream/paper and `ink` is the dark one instead. `invert` is
+ * exactly the flag that already distinguishes those two families.
+ *
+ * `--panel-line` is `dim` blended toward `ground` rather than `dim` itself:
+ * used at full strength it is too close to `ink` on some stocks (Amber's `dim`
+ * is a saturated brown that reads as a second text colour, not a hairline) to
+ * work as a border.
+ */
+export function themeVarsFor(theme: ThemeName, accentColor: string): Record<string, string> {
+  const p = getPalette(theme, accentColor);
+  return {
+    '--project-accent': accentColor,
+    '--panel-surface': p.ground,
+    '--panel-raised': p.invert ? p.ink : p.ground,
+    '--panel-ink': p.ink,
+    '--panel-mid': p.dim,
+    '--panel-line': mix(p.ground, p.dim, 0.45),
+    // Same test as `--panel-raised`: `invert` is exactly "light ground, dark
+    // ink", which is exactly what `color-scheme: light` means to a browser.
+    '--panel-scheme': p.invert ? 'light' : 'dark',
+  };
 }
 
 /**

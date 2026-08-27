@@ -30,14 +30,14 @@ export function Controls() {
 
   return (
     <>
-      <SectionHeader>Plates</SectionHeader>
+      <SectionHeader>Presets</SectionHeader>
       <div className="flex flex-wrap gap-1.5">
         {PRESETS.map((p) => (
           <button
             key={p.name}
             onClick={() => applyPreset(p.name)}
             className="text-[10px] uppercase tracking-wider px-2 py-1
-              border border-site-line text-site-ink bg-transparent
+              border border-[var(--panel-line)] text-[var(--panel-ink)] bg-transparent
               hover:border-[var(--project-accent)] cursor-pointer transition-all"
           >
             {p.name}
@@ -56,8 +56,8 @@ export function Controls() {
                 setConfig({ raCenter: r.ra, decCenter: r.dec, fieldOfView: r.fov })
               }
               className="text-[10px] uppercase tracking-wider px-1.5 py-0.5
-                border border-site-line text-site-dim bg-transparent
-                hover:border-[var(--project-accent)] hover:text-site-ink
+                border border-[var(--panel-line)] text-[var(--panel-mid)] bg-transparent
+                hover:border-[var(--project-accent)] hover:text-[var(--panel-ink)]
                 cursor-pointer transition-all"
             >
               {r.name}
@@ -123,7 +123,7 @@ export function Controls() {
       <SectionHeader>Field</SectionHeader>
       <div className="flex flex-col gap-3">
         <Select
-          label="Plate Stock"
+          label="Paper Stock"
           value={c.theme}
           options={THEME_OPTIONS}
           onChange={(v) => setConfig({ theme: v as ThemeName })}
@@ -255,17 +255,22 @@ export function Controls() {
       </div>
 
       <Divider />
-      <SectionHeader>Plate</SectionHeader>
+      <SectionHeader>Document</SectionHeader>
       <div className="flex flex-col gap-3">
         <Toggle
-          label="Frame"
+          label="Border"
           checked={c.showFrame}
           onChange={(v) => setConfig({ showFrame: v })}
         />
         <Toggle
-          label="Title Block"
+          label="Info Card"
           checked={c.showTitleBlock}
           onChange={(v) => setConfig({ showTitleBlock: v })}
+        />
+        <Toggle
+          label="Corner Data"
+          checked={c.showDataBlocks}
+          onChange={(v) => setConfig({ showDataBlocks: v })}
         />
         <Slider
           label="Margin"
